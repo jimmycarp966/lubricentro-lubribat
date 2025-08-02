@@ -82,7 +82,9 @@ export const TurnosProvider = ({ children }) => {
         _id: Date.now().toString(),
         ...turnoData,
         estado: 'pendiente',
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        // Asegurar que la fecha se guarde correctamente
+        fecha: turnoData.fecha // Ya viene formateada correctamente desde TurnosPublic
       }
       setTurnos(prev => [...prev, nuevoTurno])
       toast.success('Turno creado correctamente')

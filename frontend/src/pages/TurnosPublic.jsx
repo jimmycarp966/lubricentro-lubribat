@@ -148,7 +148,7 @@ const TurnosPublic = () => {
 
     const turnoData = {
       sucursal: selectedSucursal.nombre,
-      fecha: format(selectedDate, 'yyyy-MM-dd'),
+      fecha: format(selectedDate, 'yyyy-MM-dd', { timeZone: 'America/Argentina/Buenos_Aires' }),
       horario: selectedTime,
       servicio: selectedService.nombre,
       cliente: {

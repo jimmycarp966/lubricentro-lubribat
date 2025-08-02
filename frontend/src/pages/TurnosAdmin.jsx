@@ -15,9 +15,10 @@ const TurnosAdmin = () => {
 
   // Filtrar turnos por fecha seleccionada
   const filteredTurnos = turnos.filter(turno => {
-    const turnoDate = new Date(turno.fecha)
+    // Usar directamente la fecha del turno sin crear un nuevo Date object
+    // para evitar problemas de zona horaria
+    const turnoDateStr = turno.fecha
     const selectedDateStr = format(selectedDate, 'yyyy-MM-dd')
-    const turnoDateStr = format(turnoDate, 'yyyy-MM-dd')
     console.log('Filtering turno:', turno.fecha, 'vs selected:', selectedDateStr, 'match:', turnoDateStr === selectedDateStr)
     return turnoDateStr === selectedDateStr
   })
