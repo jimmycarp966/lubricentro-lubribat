@@ -1,5 +1,13 @@
 // Servicio para enviar mensajes de WhatsApp automáticamente
 
+// CONFIGURACIÓN DEL NEGOCIO
+const BUSINESS_CONFIG = {
+  // CAMBIAR ESTE NÚMERO POR EL NÚMERO DE WHATSAPP BUSINESS DEL LUBRICENTRO
+  whatsappNumber: '5493815123456', // Ejemplo: 5493815123456 (código país + código área + número)
+  businessName: 'LUBRI-BAT',
+  businessDescription: 'Servicio de calidad desde 2000'
+}
+
 export const sendWhatsAppMessage = (turnoData) => {
   const {
     nombre,
@@ -33,18 +41,21 @@ export const sendWhatsAppMessage = (turnoData) => {
 
 ¡Te esperamos! 🛠️
 
-LUBRI-BAT
-Servicio de calidad desde 2000`
+${BUSINESS_CONFIG.businessName}
+${BUSINESS_CONFIG.businessDescription}`
 
-  // Crear el enlace de WhatsApp
-  const numeroWhatsApp = whatsapp.replace(/\D/g, '') // Solo números
+  // Crear el enlace de WhatsApp usando el número del NEGOCIO
+  const numeroCliente = whatsapp.replace(/\D/g, '') // Solo números del cliente
   const mensajeCodificado = encodeURIComponent(mensaje)
-  const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${mensajeCodificado}`
+  
+  // URL para que el negocio envíe mensaje al cliente
+  const urlWhatsApp = `https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${mensajeCodificado}`
 
   return {
     url: urlWhatsApp,
     mensaje: mensaje,
-    numero: numeroWhatsApp
+    numeroNegocio: BUSINESS_CONFIG.whatsappNumber,
+    numeroCliente: numeroCliente
   }
 }
 
@@ -79,16 +90,17 @@ export const sendReminderMessage = (turnoData) => {
 
 ¡Te esperamos! 🛠️
 
-LUBRI-BAT`
+${BUSINESS_CONFIG.businessName}`
 
-  const numeroWhatsApp = whatsapp.replace(/\D/g, '')
+  const numeroCliente = whatsapp.replace(/\D/g, '')
   const mensajeCodificado = encodeURIComponent(mensaje)
-  const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${mensajeCodificado}`
+  const urlWhatsApp = `https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${mensajeCodificado}`
 
   return {
     url: urlWhatsApp,
     mensaje: mensaje,
-    numero: numeroWhatsApp
+    numeroNegocio: BUSINESS_CONFIG.whatsappNumber,
+    numeroCliente: numeroCliente
   }
 }
 
@@ -108,22 +120,34 @@ export const sendCompletionMessage = (turnoData) => {
 🔧 Servicio: ${servicio}
 🏢 Sucursal: ${sucursal}
 
-⭐ ¿Cómo fue tu experiencia? 
+⭐ ¿Cómo fue tu experiencia?
 Valoranos en: [link a reseñas]
 
 📱 Para próximos servicios, contactanos.
 
 ¡Gracias por elegirnos! 🛠️
 
-LUBRI-BAT`
+${BUSINESS_CONFIG.businessName}`
 
-  const numeroWhatsApp = whatsapp.replace(/\D/g, '')
+  const numeroCliente = whatsapp.replace(/\D/g, '')
   const mensajeCodificado = encodeURIComponent(mensaje)
-  const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${mensajeCodificado}`
+  const urlWhatsApp = `https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${mensajeCodificado}`
 
   return {
     url: urlWhatsApp,
     mensaje: mensaje,
-    numero: numeroWhatsApp
+    numeroNegocio: BUSINESS_CONFIG.whatsappNumber,
+    numeroCliente: numeroCliente
   }
+}
+
+// Función para configurar el número del negocio
+export const setBusinessWhatsAppNumber = (newNumber) => {
+  BUSINESS_CONFIG.whatsappNumber = newNumber.replace(/\D/g, '')
+  console.log('Número de WhatsApp Business configurado:', BUSINESS_CONFIG.whatsappNumber)
+}
+
+// Función para obtener la configuración actual
+export const getBusinessConfig = () => {
+  return { ...BUSINESS_CONFIG }
 } 

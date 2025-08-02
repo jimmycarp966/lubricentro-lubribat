@@ -8,7 +8,8 @@ import { es } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 import logo from '../assets/logo.png'
 import TurnosCalendar from '../components/TurnosCalendar'
-import NotificationsPanel from '../components/NotificationsPanel' // NEW IMPORT
+import NotificationsPanel from '../components/NotificationsPanel'
+import WhatsAppConfig from '../components/WhatsAppConfig' // NEW IMPORT
 import { sendReminderMessage, sendCompletionMessage } from '../utils/whatsappService'
 
 const AdminPanel = () => {
@@ -221,6 +222,16 @@ const AdminPanel = () => {
                   {stats.notificacionesNoLeidas}
                 </span>
               )}
+            </button>
+            <button
+              onClick={() => setActiveTab('whatsapp')}
+              className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                activeTab === 'whatsapp'
+                  ? 'bg-blue-600 text-white shadow-lg'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              📱 WhatsApp Business
             </button>
             <button
               onClick={() => setActiveTab('productos')}
@@ -573,6 +584,10 @@ const AdminPanel = () => {
 
         {activeTab === 'notificaciones' && (
           <NotificationsPanel />
+        )}
+
+        {activeTab === 'whatsapp' && (
+          <WhatsAppConfig />
         )}
 
         {activeTab === 'productos' && (
