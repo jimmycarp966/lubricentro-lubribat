@@ -22,6 +22,7 @@ export const TurnosProvider = ({ children }) => {
       fecha: '2024-01-15',
       horario: '09:00',
       servicio: 'Cambio de Aceite',
+      sucursal: 'Sucursal Monteros',
       cliente: {
         nombre: 'Juan Pérez',
         telefono: '+5493815123456',
@@ -39,6 +40,7 @@ export const TurnosProvider = ({ children }) => {
       fecha: '2024-01-16',
       horario: '14:30',
       servicio: 'Revisión General',
+      sucursal: 'Sucursal Concepción',
       cliente: {
         nombre: 'María González',
         telefono: '+5493815987654',
@@ -50,6 +52,42 @@ export const TurnosProvider = ({ children }) => {
       },
       estado: 'pendiente',
       createdAt: '2024-01-11T15:30:00.000Z'
+    },
+    {
+      _id: '3',
+      fecha: '2024-01-15',
+      horario: '11:00',
+      servicio: 'Cambio de Filtros',
+      sucursal: 'Sucursal Monteros',
+      cliente: {
+        nombre: 'Carlos López',
+        telefono: '+5493815123457',
+        email: 'carlos@email.com'
+      },
+      vehiculo: {
+        patente: 'DEF456',
+        modelo: 'Honda Civic 2021'
+      },
+      estado: 'finalizado',
+      createdAt: '2024-01-12T09:00:00.000Z'
+    },
+    {
+      _id: '4',
+      fecha: '2024-01-16',
+      horario: '16:00',
+      servicio: 'Lubricación Completa',
+      sucursal: 'Sucursal Concepción',
+      cliente: {
+        nombre: 'Ana Rodríguez',
+        telefono: '+5493815987655',
+        email: 'ana@email.com'
+      },
+      vehiculo: {
+        patente: 'GHI789',
+        modelo: 'Chevrolet Onix 2022'
+      },
+      estado: 'confirmado',
+      createdAt: '2024-01-13T14:00:00.000Z'
     }
   ]
 

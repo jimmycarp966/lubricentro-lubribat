@@ -138,17 +138,17 @@ const AdminPanel = () => {
       // Simular ingresos (promedio $5000 por turno)
       const ingresosEstimados = turnosConfirmados * 5000
       
-      // Productos más populares (simulado)
-      const productosPopulares = productos.slice(0, 3).map(p => ({
+      // Productos más populares (datos estáticos)
+      const productosPopulares = productos.slice(0, 3).map((p, index) => ({
         nombre: p.nombre,
-        ventas: Math.floor(Math.random() * 50) + 10
+        ventas: [45, 32, 28][index] || 15
       }))
       
-      // Servicios más populares
+      // Servicios más populares (datos estáticos)
       const servicios = ['Cambio de Aceite', 'Revisión General', 'Cambio de Filtros', 'Lubricación Completa']
-      const serviciosPopulares = servicios.map(s => ({
+      const serviciosPopulares = servicios.map((s, index) => ({
         nombre: s,
-        turnos: Math.floor(Math.random() * 20) + 5
+        turnos: [18, 12, 8, 6][index] || 5
       }))
 
       setStats({
@@ -215,6 +215,14 @@ const AdminPanel = () => {
   const handleDeleteTurno = async (turnoId) => {
     if (window.confirm('¿Estás seguro de que querés eliminar este turno?')) {
       await eliminarTurno(turnoId)
+    }
+  }
+
+  const handleResetData = () => {
+    if (window.confirm('¿Querés recargar los datos de ejemplo? Esto eliminará todos los turnos actuales.')) {
+      localStorage.removeItem('turnos')
+      fetchTurnos()
+      toast.success('Datos de ejemplo recargados')
     }
   }
 
@@ -385,6 +393,22 @@ const AdminPanel = () => {
                     <p className="text-2xl font-bold text-gray-900">${stats.ingresosEstimados.toLocaleString()}</p>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Debug Button */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-yellow-800">🔧 Debug</h3>
+                  <p className="text-sm text-yellow-600">Si no ves turnos, recarga los datos de ejemplo</p>
+                </div>
+                <button
+                  onClick={handleResetData}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                >
+                  Recargar Datos
+                </button>
               </div>
             </div>
 
