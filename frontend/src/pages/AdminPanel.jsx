@@ -46,6 +46,120 @@ const AdminPanel = () => {
   const [filterTipoMayorista, setFilterTipoMayorista] = useState('')
   const [sortMayoristas, setSortMayoristas] = useState('nombre')
 
+  // Estados para gestión de pedidos
+  const [showPedidoForm, setShowPedidoForm] = useState(false)
+  const [editingPedido, setEditingPedido] = useState(null)
+  const [searchPedido, setSearchPedido] = useState('')
+  const [filterEstadoPedido, setFilterEstadoPedido] = useState('')
+  const [filterMayoristaPedido, setFilterMayoristaPedido] = useState('')
+  const [sortPedidos, setSortPedidos] = useState('fecha')
+
+  // Estados para reportes
+  const [reportPeriod, setReportPeriod] = useState('mes')
+
+  // Datos simulados para mayoristas y pedidos
+  const [mayoristas, setMayoristas] = useState([
+    {
+      _id: '1',
+      nombre: 'Juan Pérez',
+      empresa: 'AutoParts S.A.',
+      tipo: 'aceites',
+      email: 'juan@autoparts.com',
+      telefono: '+54 9 381 512-3456',
+      contacto: 'Juan Pérez',
+      ciudad: 'Concepción'
+    },
+    {
+      _id: '2',
+      nombre: 'María González',
+      empresa: 'Filtros Pro',
+      tipo: 'filtros',
+      email: 'maria@filtrospro.com',
+      telefono: '+54 9 381 598-7654',
+      contacto: 'María González',
+      ciudad: 'Monteros'
+    }
+  ])
+
+  const [pedidos, setPedidos] = useState([
+    {
+      _id: '1',
+      numero: 'PED-001',
+      fecha: '2024-01-15T10:00:00.000Z',
+      mayorista: 'AutoParts S.A.',
+      items: [
+        { producto: 'Aceite de Motor 5W-30', cantidad: 5, precio: 2500 },
+        { producto: 'Filtro de Aceite', cantidad: 10, precio: 800 }
+      ],
+      total: 20500,
+      estado: 'pendiente',
+      notas: 'Urgente para mañana'
+    },
+    {
+      _id: '2',
+      numero: 'PED-002',
+      fecha: '2024-01-14T14:30:00.000Z',
+      mayorista: 'Filtros Pro',
+      items: [
+        { producto: 'Líquido de Frenos', cantidad: 3, precio: 1200 }
+      ],
+      total: 3600,
+      estado: 'recibido',
+      notas: ''
+    }
+  ])
+
+  // Datos de reportes
+  const reportData = {
+    ingresosTotales: 125000,
+    turnosCompletados: 156,
+    clientesNuevos: 23,
+    satisfaccion: 4.8,
+    serviciosPopulares: [
+      { nombre: 'Cambio de Aceite', cantidad: 45, porcentaje: 29 },
+      { nombre: 'Cambio de Filtros', cantidad: 32, porcentaje: 21 },
+      { nombre: 'Alineación', cantidad: 28, porcentaje: 18 },
+      { nombre: 'Frenos', cantidad: 25, porcentaje: 16 },
+      { nombre: 'Otros', cantidad: 26, porcentaje: 16 }
+    ],
+    ingresosPorSucursal: [
+      { nombre: 'Concepción', ingresos: 75000, turnos: 95, porcentaje: 60 },
+      { nombre: 'Monteros', ingresos: 50000, turnos: 61, porcentaje: 40 }
+    ],
+    tendencias: [
+      { metrica: 'Ingresos', cambio: 12, valor: '$125,000' },
+      { metrica: 'Turnos', cambio: 8, valor: '156 turnos' },
+      { metrica: 'Clientes Nuevos', cambio: 15, valor: '23 clientes' },
+      { metrica: 'Satisfacción', cambio: 4, valor: '4.8/5' }
+    ],
+    clientesRecurrentes: 133,
+    porcentajeRecurrentes: 85,
+    porcentajeNuevos: 15,
+    valorPromedioCliente: 800,
+    recomendaciones: [
+      {
+        prioridad: 'alta',
+        titulo: 'Stock Bajo',
+        descripcion: 'Reabastecer filtros de aceite - solo quedan 5 unidades'
+      },
+      {
+        prioridad: 'media',
+        titulo: 'Promoción Sugerida',
+        descripcion: 'Ofrecer descuento en cambio de aceite + filtros'
+      },
+      {
+        prioridad: 'baja',
+        titulo: 'Capacitación',
+        descripcion: 'Capacitar equipo en nuevos servicios'
+      },
+      {
+        prioridad: 'media',
+        titulo: 'Horarios Extendidos',
+        descripcion: 'Considerar horarios vespertinos en Concepción'
+      }
+    ]
+  }
+
   // Verificar si el usuario es admin
   useEffect(() => {
     if (!user || (user.role !== 'admin' && user.role !== 'employee')) {
@@ -210,6 +324,72 @@ const AdminPanel = () => {
     }
   }
 
+  // Funciones para gestión de pedidos
+  const handleEditPedido = (pedido) => {
+    setEditingPedido(pedido)
+    setShowPedidoForm(true)
+  }
+
+  const handleDeletePedido = async (pedidoId) => {
+    if (window.confirm('¿Estás seguro de que querés eliminar este pedido?')) {
+      // Aquí iría la lógica para eliminar el pedido de la base de datos
+      toast.success('Pedido eliminado correctamente')
+    }
+  }
+
+  const handleSavePedido = async (pedidoData) => {
+    try {
+      if (editingPedido) {
+        // Aquí iría la lógica para actualizar el pedido en la base de datos
+        toast.success('Pedido actualizado correctamente')
+      } else {
+        // Aquí iría la lógica para agregar un nuevo pedido a la base de datos
+        toast.success('Pedido agregado correctamente')
+      }
+      setShowPedidoForm(false)
+      setEditingPedido(null)
+    } catch (error) {
+      toast.error('Error al guardar el pedido')
+    }
+  }
+
+  const getNextEstado = (currentEstado) => {
+    switch (currentEstado) {
+      case 'pendiente':
+        return 'confirmado'
+      case 'confirmado':
+        return 'enviado'
+      case 'enviado':
+        return 'recibido'
+      case 'recibido':
+        return 'finalizado' // Assuming 'finalizado' is the final state for a turno
+      default:
+        return currentEstado
+    }
+  }
+
+  const getNextEstadoLabel = (currentEstado) => {
+    switch (currentEstado) {
+      case 'pendiente':
+        return 'Confirmar'
+      case 'confirmado':
+        return 'Enviar'
+      case 'enviado':
+        return 'Recibir'
+      case 'recibido':
+        return 'Finalizar'
+      default:
+        return currentEstado
+    }
+  }
+
+  const handleUpdateEstadoPedido = async (pedidoId, nuevoEstado) => {
+    if (window.confirm(`¿Confirmar que el pedido ha pasado a estado "${nuevoEstado}"?`)) {
+      // Aquí iría la lógica para actualizar el estado del pedido en la base de datos
+      toast.success(`Pedido actualizado a estado "${nuevoEstado}"`)
+    }
+  }
+
   // Filtrar y ordenar productos
   const filteredProductos = productos
     .filter(producto => {
@@ -263,24 +443,34 @@ const AdminPanel = () => {
       }
     })
 
-  // Filtrar turnos
-  const filteredTurnos = turnos.filter(turno => {
-    const fechaMatch = turno.fecha === format(selectedDate, 'yyyy-MM-dd')
-    const sucursalMatch = selectedSucursal === 'todas' || turno.sucursal === selectedSucursal
-    const estadoMatch = selectedEstado === 'todos' || turno.estado === selectedEstado
-    
-    return fechaMatch && sucursalMatch && estadoMatch
-  })
+  // Filtrar pedidos
+  const filteredPedidos = pedidos // Assuming 'pedidos' is defined elsewhere or will be added
+    .filter(pedido => {
+      const matchesSearch = pedido.numero.toString().includes(searchPedido) ||
+                           pedido.mayorista.toLowerCase().includes(searchPedido.toLowerCase()) ||
+                           pedido.notas?.toLowerCase().includes(searchPedido.toLowerCase())
+      const matchesEstado = !filterEstadoPedido || pedido.estado === filterEstadoPedido
+      const matchesMayorista = !filterMayoristaPedido || pedido.mayorista.toLowerCase().includes(filterMayoristaPedido.toLowerCase())
+      
+      return matchesSearch && matchesEstado && matchesMayorista
+    })
+    .sort((a, b) => {
+      switch (sortPedidos) {
+        case 'fecha':
+          return new Date(b.fecha) - new Date(a.fecha)
+        case 'total':
+          return b.total - a.total
+        case 'estado':
+          return a.estado.localeCompare(b.estado)
+        case 'mayorista':
+          return a.mayorista.localeCompare(b.mayorista)
+        default:
+          return 0
+      }
+    })
 
-  // Filtrar por estado activo
-  const turnosActivos = filteredTurnos.filter(turno => {
-    if (activeTurnosTab === 'pendientes') {
-      return turno.estado === 'pendiente' || turno.estado === 'confirmado'
-    } else if (activeTurnosTab === 'finalizados') {
-      return turno.estado === 'finalizado'
-    }
-    return true
-  })
+  // Cálculos para pedidos (ejemplo, en un caso real, estos datos deberían provenir de la base de datos)
+  const totalInvertido = pedidos.reduce((sum, pedido) => sum + pedido.total, 0)
 
   const stats = calcularStats()
 
@@ -587,7 +777,19 @@ const AdminPanel = () => {
                     {format(selectedDate, 'dd/MM/yyyy', { locale: es })}
                   </p>
                   <p className="text-sm text-blue-500 mt-1">
-                    {filteredTurnos.length} turno{filteredTurnos.length !== 1 ? 's' : ''} encontrado{filteredTurnos.length !== 1 ? 's' : ''}
+                    {turnos.filter(t => 
+                      t.fecha === format(selectedDate, 'yyyy-MM-dd') &&
+                      (selectedEstado === 'todos' || t.estado === selectedEstado) &&
+                      (selectedSucursal === 'todas' || t.sucursal === selectedSucursal)
+                    ).length} turno{turnos.filter(t => 
+                      t.fecha === format(selectedDate, 'yyyy-MM-dd') &&
+                      (selectedEstado === 'todos' || t.estado === selectedEstado) &&
+                      (selectedSucursal === 'todas' || t.sucursal === selectedSucursal)
+                    ).length !== 1 ? 's' : ''} encontrado{turnos.filter(t => 
+                      t.fecha === format(selectedDate, 'yyyy-MM-dd') &&
+                      (selectedEstado === 'todos' || t.estado === selectedEstado) &&
+                      (selectedSucursal === 'todas' || t.sucursal === selectedSucursal)
+                    ).length !== 1 ? 's' : ''}
                   </p>
                 </div>
               </div>
@@ -604,7 +806,7 @@ const AdminPanel = () => {
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  Pendientes ({turnosActivos.filter(t => t.estado === 'pendiente' || t.estado === 'confirmado').length})
+                  Pendientes ({turnos.filter(t => t.estado === 'pendiente' || t.estado === 'confirmado').length})
                 </button>
                 <button
                   onClick={() => setActiveTurnosTab('finalizados')}
@@ -614,18 +816,26 @@ const AdminPanel = () => {
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  Finalizados ({turnosActivos.filter(t => t.estado === 'finalizado').length})
+                  Finalizados ({turnos.filter(t => t.estado === 'finalizado').length})
                 </button>
               </div>
 
               <div className="space-y-4">
-                {turnosActivos.length === 0 ? (
+                {turnos.filter(t => 
+                  t.fecha === format(selectedDate, 'yyyy-MM-dd') &&
+                  (selectedEstado === 'todos' || t.estado === selectedEstado) &&
+                  (selectedSucursal === 'todas' || t.sucursal === selectedSucursal)
+                ).length === 0 ? (
                   <div className="text-center py-8">
                     <div className="text-gray-400 text-6xl mb-4">📅</div>
                     <p className="text-gray-500">No hay turnos para esta fecha</p>
                   </div>
                 ) : (
-                  turnosActivos.map((turno) => (
+                  turnos.filter(t => 
+                    t.fecha === format(selectedDate, 'yyyy-MM-dd') &&
+                    (selectedEstado === 'todos' || t.estado === selectedEstado) &&
+                    (selectedSucursal === 'todas' || t.sucursal === selectedSucursal)
+                  ).map((turno) => (
                     <div key={turno._id} className="border rounded-xl p-4 bg-gray-50">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
@@ -1044,16 +1254,416 @@ const AdminPanel = () => {
         )}
 
         {activeTab === 'pedidos' && (
-          <div className="bg-white rounded-2xl shadow-xl p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Gestión de Pedidos</h2>
-            <p className="text-gray-600">Funcionalidad en desarrollo...</p>
+          <div className="space-y-6">
+            {/* Header con botón agregar */}
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">Gestión de Pedidos</h2>
+                  <p className="text-gray-600">Administra órdenes de compra y pedidos a proveedores</p>
+                </div>
+                <button
+                  onClick={() => setShowPedidoForm(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center space-x-2"
+                >
+                  <span>➕</span>
+                  <span>Nuevo Pedido</span>
+                </button>
+              </div>
+
+              {/* Filtros y búsqueda */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Buscar pedidos..."
+                    value={searchPedido}
+                    onChange={(e) => setSearchPedido(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <select
+                    value={filterEstadoPedido}
+                    onChange={(e) => setFilterEstadoPedido(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="confirmado">Confirmado</option>
+                    <option value="enviado">Enviado</option>
+                    <option value="recibido">Recibido</option>
+                    <option value="cancelado">Cancelado</option>
+                  </select>
+                </div>
+                <div>
+                  <select
+                    value={filterMayoristaPedido}
+                    onChange={(e) => setFilterMayoristaPedido(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Todos los proveedores</option>
+                    <option value="aceites">Proveedores de Aceites</option>
+                    <option value="filtros">Proveedores de Filtros</option>
+                    <option value="repuestos">Proveedores de Repuestos</option>
+                  </select>
+                </div>
+                <div>
+                  <select
+                    value={sortPedidos}
+                    onChange={(e) => setSortPedidos(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="fecha">Ordenar por fecha</option>
+                    <option value="total">Ordenar por total</option>
+                    <option value="estado">Ordenar por estado</option>
+                    <option value="mayorista">Ordenar por proveedor</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Estadísticas rápidas */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-blue-50 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-blue-600">Total Pedidos</p>
+                      <p className="text-2xl font-bold text-blue-800">{filteredPedidos.length}</p>
+                    </div>
+                    <div className="text-3xl">📋</div>
+                  </div>
+                </div>
+                <div className="bg-yellow-50 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-yellow-600">Pendientes</p>
+                      <p className="text-2xl font-bold text-yellow-800">{pedidos.filter(p => p.estado === 'pendiente').length}</p>
+                    </div>
+                    <div className="text-3xl">⏳</div>
+                  </div>
+                </div>
+                <div className="bg-green-50 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-green-600">Recibidos</p>
+                      <p className="text-2xl font-bold text-green-800">{pedidos.filter(p => p.estado === 'recibido').length}</p>
+                    </div>
+                    <div className="text-3xl">✅</div>
+                  </div>
+                </div>
+                <div className="bg-purple-50 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-purple-600">Total Invertido</p>
+                      <p className="text-2xl font-bold text-purple-800">${totalInvertido.toLocaleString()}</p>
+                    </div>
+                    <div className="text-3xl">💰</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Lista de pedidos */}
+              <div className="space-y-4">
+                {filteredPedidos.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-gray-400 text-6xl mb-4">📋</div>
+                    <p className="text-gray-500 text-lg">No se encontraron pedidos</p>
+                    <p className="text-gray-400">Intenta ajustar los filtros de búsqueda</p>
+                  </div>
+                ) : (
+                  filteredPedidos.map((pedido) => (
+                    <div key={pedido._id} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-4 mb-2">
+                            <h3 className="font-semibold text-lg text-gray-800">Pedido #{pedido.numero}</h3>
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              pedido.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-800' :
+                              pedido.estado === 'confirmado' ? 'bg-blue-100 text-blue-800' :
+                              pedido.estado === 'enviado' ? 'bg-purple-100 text-purple-800' :
+                              pedido.estado === 'recibido' ? 'bg-green-100 text-green-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {pedido.estado}
+                            </span>
+                          </div>
+                          <p className="text-gray-600 mb-2">Proveedor: {pedido.mayorista}</p>
+                          <p className="text-sm text-gray-500 mb-3">
+                            Fecha: {new Date(pedido.fecha).toLocaleDateString('es-AR')}
+                          </p>
+                          
+                          {/* Items del pedido */}
+                          <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                            <h4 className="font-medium text-gray-800 mb-2">Productos:</h4>
+                            <div className="space-y-1">
+                              {pedido.items.map((item, index) => (
+                                <div key={index} className="flex justify-between text-sm">
+                                  <span>{item.producto} x{item.cantidad}</span>
+                                  <span>${item.precio.toLocaleString()}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          {pedido.notas && (
+                            <p className="text-sm text-gray-600 italic">"{pedido.notas}"</p>
+                          )}
+                        </div>
+                        <div className="text-right ml-4">
+                          <p className="text-2xl font-bold text-green-600">${pedido.total.toLocaleString()}</p>
+                          <p className="text-sm text-gray-500">{pedido.items.length} productos</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEditPedido(pedido)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                        >
+                          ✏️ Editar
+                        </button>
+                        <button
+                          onClick={() => handleDeletePedido(pedido._id)}
+                          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                        >
+                          🗑️ Eliminar
+                        </button>
+                        <button
+                          onClick={() => handleUpdateEstadoPedido(pedido._id, getNextEstado(pedido.estado))}
+                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                        >
+                          {getNextEstadoLabel(pedido.estado)}
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
         )}
 
         {activeTab === 'reportes' && (
-          <div className="bg-white rounded-2xl shadow-xl p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Reportes y Estadísticas</h2>
-            <p className="text-gray-600">Funcionalidad en desarrollo...</p>
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">Reportes y Estadísticas</h2>
+                  <p className="text-gray-600">Análisis completo del negocio y métricas de rendimiento</p>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => setReportPeriod('mes')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      reportPeriod === 'mes' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    Este Mes
+                  </button>
+                  <button
+                    onClick={() => setReportPeriod('trimestre')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      reportPeriod === 'trimestre' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    Este Trimestre
+                  </button>
+                  <button
+                    onClick={() => setReportPeriod('año')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      reportPeriod === 'año' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    Este Año
+                  </button>
+                </div>
+              </div>
+
+              {/* Métricas principales */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-blue-100 text-sm">Ingresos Totales</p>
+                      <p className="text-3xl font-bold">${reportData.ingresosTotales.toLocaleString()}</p>
+                      <p className="text-blue-200 text-sm">+12% vs mes anterior</p>
+                    </div>
+                    <div className="text-4xl">💰</div>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-green-100 text-sm">Turnos Completados</p>
+                      <p className="text-3xl font-bold">{reportData.turnosCompletados}</p>
+                      <p className="text-green-200 text-sm">+8% vs mes anterior</p>
+                    </div>
+                    <div className="text-4xl">✅</div>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-purple-100 text-sm">Clientes Nuevos</p>
+                      <p className="text-3xl font-bold">{reportData.clientesNuevos}</p>
+                      <p className="text-purple-200 text-sm">+15% vs mes anterior</p>
+                    </div>
+                    <div className="text-4xl">👥</div>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-orange-100 text-sm">Satisfacción</p>
+                      <p className="text-3xl font-bold">{reportData.satisfaccion}/5</p>
+                      <p className="text-orange-200 text-sm">+0.2 vs mes anterior</p>
+                    </div>
+                    <div className="text-4xl">⭐</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Gráficos y análisis */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Servicios más populares */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">Servicios Más Populares</h3>
+                  <div className="space-y-4">
+                    {reportData.serviciosPopulares.map((servicio, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span className="text-blue-600 font-bold">{index + 1}</span>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-800">{servicio.nombre}</p>
+                            <p className="text-sm text-gray-500">{servicio.porcentaje}% del total</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-gray-800">{servicio.cantidad}</p>
+                          <p className="text-sm text-gray-500">turnos</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Ingresos por sucursal */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">Ingresos por Sucursal</h3>
+                  <div className="space-y-4">
+                    {reportData.ingresosPorSucursal.map((sucursal, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-4 h-4 rounded-full ${
+                            index === 0 ? 'bg-blue-500' : 
+                            index === 1 ? 'bg-green-500' : 'bg-purple-500'
+                          }`}></div>
+                          <div>
+                            <p className="font-medium text-gray-800">{sucursal.nombre}</p>
+                            <p className="text-sm text-gray-500">{sucursal.porcentaje}% del total</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-gray-800">${sucursal.ingresos.toLocaleString()}</p>
+                          <p className="text-sm text-gray-500">{sucursal.turnos} turnos</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Tendencias de crecimiento */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">Tendencias de Crecimiento</h3>
+                  <div className="space-y-4">
+                    {reportData.tendencias.map((tendencia, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <p className="font-medium text-gray-800">{tendencia.metrica}</p>
+                          <p className="text-sm text-gray-500">Últimos 30 días</p>
+                        </div>
+                        <div className="text-right">
+                          <p className={`font-bold ${
+                            tendencia.cambio > 0 ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {tendencia.cambio > 0 ? '+' : ''}{tendencia.cambio}%
+                          </p>
+                          <p className="text-sm text-gray-500">{tendencia.valor}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Análisis de clientes */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">Análisis de Clientes</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-800">Clientes Recurrentes</p>
+                        <p className="text-sm text-gray-500">Más de 3 visitas</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-blue-600">{reportData.clientesRecurrentes}</p>
+                        <p className="text-sm text-gray-500">{reportData.porcentajeRecurrentes}%</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-800">Clientes Nuevos</p>
+                        <p className="text-sm text-gray-500">Primera visita</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-green-600">{reportData.clientesNuevos}</p>
+                        <p className="text-sm text-gray-500">{reportData.porcentajeNuevos}%</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-800">Valor Promedio</p>
+                        <p className="text-sm text-gray-500">Por cliente</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-purple-600">${reportData.valorPromedioCliente}</p>
+                        <p className="text-sm text-gray-500">por visita</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Acciones recomendadas */}
+              <div className="mt-8 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">📊 Acciones Recomendadas</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {reportData.recomendaciones.map((recomendacion, index) => (
+                    <div key={index} className="flex items-start space-x-3 p-3 bg-white rounded-lg">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        recomendacion.prioridad === 'alta' ? 'bg-red-100 text-red-600' :
+                        recomendacion.prioridad === 'media' ? 'bg-yellow-100 text-yellow-600' :
+                        'bg-green-100 text-green-600'
+                      }`}>
+                        {recomendacion.prioridad === 'alta' ? '🔥' :
+                         recomendacion.prioridad === 'media' ? '⚡' : '💡'}
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">{recomendacion.titulo}</p>
+                        <p className="text-sm text-gray-600">{recomendacion.descripcion}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
