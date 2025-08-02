@@ -278,6 +278,7 @@ export const TurnosProvider = ({ children }) => {
 
   const value = {
     turnos,
+    setTurnos, // NEW: Expose setTurnos for debug purposes
     loading,
     fetchTurnos,
     crearTurno,
@@ -285,6 +286,7 @@ export const TurnosProvider = ({ children }) => {
     eliminarTurno,
     cambiarEstado,
     notifications, // NEW
+    setNotifications, // NEW: Expose setNotifications for debug purposes
     marcarNotificacionComoLeida, // NEW
     eliminarNotificacion, // NEW
     obtenerNotificacionesNoLeidas, // NEW

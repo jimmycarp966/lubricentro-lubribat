@@ -17,10 +17,12 @@ const AdminPanel = () => {
   const { productos, addProducto, updateProducto, deleteProducto } = useProductos()
   const { 
     turnos, 
+    setTurnos, // NEW: For debug buttons
     actualizarTurno, 
     eliminarTurno, 
     fetchTurnos,
     notifications,
+    setNotifications, // NEW: For debug buttons
     obtenerNotificacionesNoLeidas 
   } = useTurnos()
   const navigate = useNavigate()
@@ -879,6 +881,8 @@ const AdminPanel = () => {
                   </button>
                   <button
                     onClick={() => {
+                      console.log('🔧 Debug: Botón "Crear Turno Prueba" clickeado')
+                      
                       // Crear un turno de prueba
                       const turnoPrueba = {
                         _id: Date.now().toString(),
@@ -899,7 +903,13 @@ const AdminPanel = () => {
                         createdAt: new Date().toISOString()
                       }
                       
-                      setTurnos(prev => [turnoPrueba, ...prev])
+                      console.log('🔧 Debug: Creando turno de prueba:', turnoPrueba)
+                      setTurnos(prev => {
+                        console.log('🔧 Debug: Turnos anteriores:', prev.length)
+                        const nuevosTurnos = [turnoPrueba, ...prev]
+                        console.log('🔧 Debug: Nuevos turnos:', nuevosTurnos.length)
+                        return nuevosTurnos
+                      })
                       
                       // Crear notificación de prueba
                       const notificacionPrueba = {
@@ -912,8 +922,16 @@ const AdminPanel = () => {
                         timestamp: new Date().toISOString()
                       }
                       
-                      setNotifications(prev => [notificacionPrueba, ...prev])
+                      console.log('🔧 Debug: Creando notificación de prueba:', notificacionPrueba)
+                      setNotifications(prev => {
+                        console.log('🔧 Debug: Notificaciones anteriores:', prev.length)
+                        const nuevasNotificaciones = [notificacionPrueba, ...prev]
+                        console.log('🔧 Debug: Nuevas notificaciones:', nuevasNotificaciones.length)
+                        return nuevasNotificaciones
+                      })
+                      
                       toast.success('Turno de prueba creado')
+                      console.log('🔧 Debug: Toast mostrado')
                     }}
                     className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs"
                   >
