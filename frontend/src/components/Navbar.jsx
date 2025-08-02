@@ -77,10 +77,10 @@ const Navbar = () => {
                 </span>
                 {user.role === 'admin' && (
                   <Link
-                    to="/dashboard"
+                    to="/admin"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-semibold shadow-sm hover:shadow-md"
                   >
-                    Dashboard
+                    Panel Admin
                   </Link>
                 )}
                 <button
@@ -159,11 +159,11 @@ const Navbar = () => {
                     </div>
                     {user.role === 'admin' && (
                       <Link
-                        to="/dashboard"
+                        to="/admin"
                         onClick={() => setIsMenuOpen(false)}
                         className="block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors font-semibold text-center"
                       >
-                        Dashboard
+                        Panel Admin
                       </Link>
                     )}
                     <button

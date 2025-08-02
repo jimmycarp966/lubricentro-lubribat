@@ -37,11 +37,9 @@ function App() {
                 <Route path="/resenas" element={<Resenas />} />
                 <Route path="/contacto" element={<Contacto />} />
                 <Route path="/buscar-cliente" element={<ClienteBusqueda />} />
-                <Route path="/admin/turnos" element={<TurnosAdmin />} />
                 <Route path="/mayorista/login" element={<LoginMayorista />} />
                 <Route path="/mayorista/portal" element={<PortalMayorista />} />
                 <Route path="/admin" element={<AdminPanel />} />
-                <Route path="/dashboard" element={<Dashboard />} />
               </Routes>
             </main>
             <LiveChat />
