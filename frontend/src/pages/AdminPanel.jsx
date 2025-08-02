@@ -7,6 +7,7 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 import logo from '../assets/logo.png'
+import TurnosCalendar from '../components/TurnosCalendar'
 
 const AdminPanel = () => {
   const { user } = useAuth()
@@ -224,6 +225,10 @@ const AdminPanel = () => {
       fetchTurnos()
       toast.success('Datos de ejemplo recargados')
     }
+  }
+
+  const handleDateSelect = (date) => {
+    setSelectedDate(date)
   }
 
   const getEstadoColor = (estado) => {
@@ -444,23 +449,19 @@ const AdminPanel = () => {
         {/* Turnos Tab */}
         {activeTab === 'turnos' && (
           <div className="space-y-6">
-            {/* Date and Filter Controls */}
-            <div className="bg-white rounded-2xl shadow-xl p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
-                  <input
-                    type="date"
-                    value={format(selectedDate, 'yyyy-MM-dd')}
-                    onChange={(e) => {
-                      const dateValue = e.target.value
-                      const [year, month, day] = dateValue.split('-')
-                      const newDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
-                      setSelectedDate(newDate)
-                    }}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                  />
-                </div>
+            {/* Calendar and Filter Controls */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Calendario */}
+              <div className="lg:col-span-2">
+                <TurnosCalendar 
+                  selectedDate={selectedDate}
+                  onDateSelect={handleDateSelect}
+                  turnos={turnos}
+                />
+              </div>
+              
+              {/* Filtros */}
+              <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Sucursal</label>
                   <select
@@ -473,9 +474,10 @@ const AdminPanel = () => {
                     <option value="Sucursal Concepción">Concepción</option>
                   </select>
                 </div>
+                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Estado</label>
-                  <div className="flex space-x-2">
+                  <div className="flex flex-col space-y-2">
                     <button
                       onClick={() => setActiveTurnosTab('pendientes')}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -497,6 +499,16 @@ const AdminPanel = () => {
                       Finalizados
                     </button>
                   </div>
+                </div>
+                
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <h3 className="font-semibold text-blue-800 mb-2">📅 Fecha Seleccionada</h3>
+                  <p className="text-blue-600 font-medium">
+                    {format(selectedDate, 'dd/MM/yyyy', { locale: es })}
+                  </p>
+                  <p className="text-sm text-blue-500 mt-1">
+                    {filteredTurnos.length} turno{filteredTurnos.length !== 1 ? 's' : ''} encontrado{filteredTurnos.length !== 1 ? 's' : ''}
+                  </p>
                 </div>
               </div>
             </div>
