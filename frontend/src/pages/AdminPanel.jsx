@@ -8,6 +8,7 @@ import { es } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 import logo from '../assets/logo.png'
 import TurnosCalendar from '../components/TurnosCalendar'
+import { sendReminderMessage, sendCompletionMessage } from '../utils/whatsappService'
 
 const AdminPanel = () => {
   const { user } = useAuth()
@@ -185,6 +186,41 @@ const AdminPanel = () => {
   const handleFinalizarTurno = async (turnoId) => {
     if (window.confirm('¿Confirmar que el turno ha sido finalizado?')) {
       await actualizarTurno(turnoId, { estado: 'finalizado' })
+      
+      // Enviar mensaje de finalización
+      const turno = turnos.find(t => t._id === turnoId)
+      if (turno) {
+        const whatsappData = {
+          nombre: turno.cliente?.nombre?.split(' ')[0] || turno.nombre || '',
+          apellido: turno.cliente?.nombre?.split(' ')[1] || turno.apellido || '',
+          whatsapp: turno.cliente?.telefono || turno.whatsapp || '',
+          servicio: turno.servicio,
+          sucursal: turno.sucursal
+        }
+        
+        const whatsappResult = sendCompletionMessage(whatsappData)
+        if (whatsappResult.url) {
+          window.open(whatsappResult.url, '_blank')
+        }
+      }
+    }
+  }
+
+  const handleEnviarRecordatorio = (turno) => {
+    const whatsappData = {
+      nombre: turno.cliente?.nombre?.split(' ')[0] || turno.nombre || '',
+      apellido: turno.cliente?.nombre?.split(' ')[1] || turno.apellido || '',
+      whatsapp: turno.cliente?.telefono || turno.whatsapp || '',
+      fecha: new Date(turno.fecha),
+      horario: turno.horario,
+      servicio: turno.servicio,
+      sucursal: turno.sucursal
+    }
+    
+    const whatsappResult = sendReminderMessage(whatsappData)
+    if (whatsappResult.url) {
+      window.open(whatsappResult.url, '_blank')
+      toast.success('Recordatorio enviado por WhatsApp')
     }
   }
 
@@ -572,12 +608,21 @@ const AdminPanel = () => {
                             ✏️ Editar
                           </button>
                           {activeTurnosTab === 'pendientes' && (
-                            <button
-                              onClick={() => handleFinalizarTurno(turno._id)}
-                              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
-                            >
-                              ✅ Finalizar
-                            </button>
+                            <>
+                              <button
+                                onClick={() => handleEnviarRecordatorio(turno)}
+                                className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                                title="Enviar recordatorio por WhatsApp"
+                              >
+                                📱 Recordatorio
+                              </button>
+                              <button
+                                onClick={() => handleFinalizarTurno(turno._id)}
+                                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                              >
+                                ✅ Finalizar
+                              </button>
+                            </>
                           )}
                           <button
                             onClick={() => handleDeleteTurno(turno._id)}

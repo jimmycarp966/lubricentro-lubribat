@@ -5,6 +5,7 @@ import { useTurnos } from '../contexts/TurnosContext'
 import toast from 'react-hot-toast'
 import SimpleCalendar from '../components/SimpleCalendar'
 import BookingProgress from '../components/BookingProgress'
+import { sendWhatsAppMessage } from '../utils/whatsappService'
 
 
 const TurnosPublic = () => {
@@ -170,6 +171,19 @@ const TurnosPublic = () => {
     try {
       const result = await crearTurno(turnoData)
       if (result.success) {
+        // Generar mensaje de WhatsApp
+        const whatsappData = {
+          nombre: formData.nombre,
+          apellido: formData.apellido,
+          whatsapp: formData.whatsapp,
+          fecha: selectedDate,
+          horario: selectedTime,
+          servicio: selectedService.nombre,
+          sucursal: selectedSucursal.nombre
+        }
+        
+        const whatsappResult = sendWhatsAppMessage(whatsappData)
+        
         // Guardar los datos del turno confirmado antes de resetear
         setConfirmedTurno({
           sucursal: selectedSucursal.nombre,
@@ -178,7 +192,8 @@ const TurnosPublic = () => {
           servicio: selectedService.nombre,
           cliente: `${formData.nombre} ${formData.apellido}`,
           vehiculo: `${formData.patente} - ${formData.modelo}`,
-          contacto: formData.whatsapp
+          contacto: formData.whatsapp,
+          whatsappUrl: whatsappResult.url // Agregar URL de WhatsApp
         })
         setStep(6)
         toast.success('¡Turno confirmado! Te enviaremos un mensaje de WhatsApp.')
@@ -534,22 +549,32 @@ const TurnosPublic = () => {
            </div>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          {confirmedTurno?.whatsappUrl && (
+            <a
+              href={confirmedTurno.whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+            >
+              📱 Enviar WhatsApp
+            </a>
+          )}
           <button
-                         onClick={() => {
-               setStep(1)
-               setSelectedSucursal('')
-               setSelectedDate(new Date())
-               setSelectedTime('')
-               setSelectedService('')
-               setConfirmedTurno(null)
-               setFormData({
-                 nombre: '',
-                 apellido: '',
-                 whatsapp: '',
-                 patente: '',
-                 modelo: ''
-               })
-             }}
+            onClick={() => {
+              setStep(1)
+              setSelectedSucursal('')
+              setSelectedDate(new Date())
+              setSelectedTime('')
+              setSelectedService('')
+              setConfirmedTurno(null)
+              setFormData({
+                nombre: '',
+                apellido: '',
+                whatsapp: '',
+                patente: '',
+                modelo: ''
+              })
+            }}
             className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
           >
             Reservar otro turno
