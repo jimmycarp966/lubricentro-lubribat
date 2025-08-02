@@ -587,7 +587,13 @@ const AdminPanel = () => {
         )}
 
         {activeTab === 'whatsapp' && (
-          <WhatsAppConfig />
+          <div>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4">
+              <h3 className="font-semibold text-yellow-800">🔧 Debug</h3>
+              <p className="text-sm text-yellow-600">Pestaña WhatsApp activa</p>
+            </div>
+            <WhatsAppConfig />
+          </div>
         )}
 
         {activeTab === 'productos' && (
