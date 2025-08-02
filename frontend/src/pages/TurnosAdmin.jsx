@@ -12,15 +12,20 @@ const TurnosAdmin = () => {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [editingTurno, setEditingTurno] = useState(null)
   const [showEditForm, setShowEditForm] = useState(false)
+  const [activeTab, setActiveTab] = useState('pendientes') // 'pendientes' o 'finalizados'
 
-  // Filtrar turnos por fecha seleccionada
+  // Filtrar turnos por fecha seleccionada y estado
   const filteredTurnos = turnos.filter(turno => {
     // Usar directamente la fecha del turno sin crear un nuevo Date object
     // para evitar problemas de zona horaria
     const turnoDateStr = turno.fecha
     const selectedDateStr = format(selectedDate, 'yyyy-MM-dd')
-    console.log('Filtering turno:', turno.fecha, 'vs selected:', selectedDateStr, 'match:', turnoDateStr === selectedDateStr)
-    return turnoDateStr === selectedDateStr
+    const estadoMatch = activeTab === 'pendientes' ? 
+      (turno.estado === 'pendiente' || turno.estado === 'confirmado') : 
+      turno.estado === 'finalizado'
+    
+    console.log('Filtering turno:', turno.fecha, 'vs selected:', selectedDateStr, 'match:', turnoDateStr === selectedDateStr, 'estado:', turno.estado, 'tab:', activeTab)
+    return turnoDateStr === selectedDateStr && estadoMatch
   })
 
   useEffect(() => {
@@ -71,10 +76,18 @@ const TurnosAdmin = () => {
         return 'bg-green-100 text-green-800'
       case 'pendiente':
         return 'bg-yellow-100 text-yellow-800'
+      case 'finalizado':
+        return 'bg-blue-100 text-blue-800'
       case 'cancelado':
         return 'bg-red-100 text-red-800'
       default:
         return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const handleFinalizarTurno = async (turnoId) => {
+    if (window.confirm('¿Confirmar que el turno ha sido finalizado?')) {
+      await actualizarTurno(turnoId, { estado: 'finalizado' })
     }
   }
 
@@ -120,18 +133,47 @@ const TurnosAdmin = () => {
           type="date"
           value={format(selectedDate, 'yyyy-MM-dd')}
           onChange={(e) => {
-            const newDate = new Date(e.target.value + 'T00:00:00')
-            console.log('Date changed from:', selectedDate, 'to:', newDate, 'input value:', e.target.value)
+            // Corregir problema de zona horaria - usar la fecha directamente
+            const dateValue = e.target.value
+            const [year, month, day] = dateValue.split('-')
+            const newDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+            console.log('Date changed from:', selectedDate, 'to:', newDate, 'input value:', dateValue)
             setSelectedDate(newDate)
           }}
           className="border border-gray-300 rounded px-3 py-2 max-w-xs"
         />
       </div>
 
+      {/* Tabs */}
+      <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <div className="flex space-x-4 border-b border-gray-200">
+          <button
+            onClick={() => setActiveTab('pendientes')}
+            className={`py-2 px-4 font-medium text-sm border-b-2 transition-colors ${
+              activeTab === 'pendientes'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Turnos Pendientes
+          </button>
+          <button
+            onClick={() => setActiveTab('finalizados')}
+            className={`py-2 px-4 font-medium text-sm border-b-2 transition-colors ${
+              activeTab === 'finalizados'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Turnos Finalizados
+          </button>
+        </div>
+      </div>
+
       {/* Turnos list */}
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-lg font-semibold mb-4">
-          Turnos para el {format(selectedDate, 'dd/MM/yyyy', { locale: es })}
+          {activeTab === 'pendientes' ? 'Turnos Pendientes' : 'Turnos Finalizados'} para el {format(selectedDate, 'dd/MM/yyyy', { locale: es })}
         </h2>
         
         {loading ? (
@@ -141,7 +183,9 @@ const TurnosAdmin = () => {
           </div>
                  ) : filteredTurnos.length === 0 ? (
            <div className="text-center py-8">
-             <p className="text-gray-600">No hay turnos para esta fecha</p>
+             <p className="text-gray-600">
+               {activeTab === 'pendientes' ? 'No hay turnos pendientes' : 'No hay turnos finalizados'} para esta fecha
+             </p>
            </div>
          ) : (
            <div className="space-y-4">
@@ -176,6 +220,14 @@ const TurnosAdmin = () => {
                      >
                        Editar
                      </button>
+                     {activeTab === 'pendientes' && (
+                       <button
+                         onClick={() => handleFinalizarTurno(turno._id)}
+                         className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded-lg transition-colors"
+                       >
+                         Finalizar
+                       </button>
+                     )}
                      <button
                        onClick={() => handleDelete(turno._id)}
                        className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded-lg transition-colors"
@@ -307,11 +359,12 @@ const TurnosAdmin = () => {
                  <label className="block text-sm font-medium text-gray-700 mb-1">
                    Estado
                  </label>
-                 <select name="estado" defaultValue={editingTurno.estado} className="border border-gray-300 rounded px-3 py-2 w-full">
-                   <option value="pendiente">Pendiente</option>
-                   <option value="confirmado">Confirmado</option>
-                   <option value="cancelado">Cancelado</option>
-                 </select>
+                                   <select name="estado" defaultValue={editingTurno.estado} className="border border-gray-300 rounded px-3 py-2 w-full">
+                    <option value="pendiente">Pendiente</option>
+                    <option value="confirmado">Confirmado</option>
+                    <option value="finalizado">Finalizado</option>
+                    <option value="cancelado">Cancelado</option>
+                  </select>
                </div>
 
                <div className="flex justify-end space-x-4 pt-4">
