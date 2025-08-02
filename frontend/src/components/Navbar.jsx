@@ -108,47 +108,84 @@ const Navbar = () => {
               <Link
                 to="/"
                 onClick={() => setIsMenuOpen(false)}
-                className="text-gray-700 hover:text-green-600 font-medium transition-colors py-2"
+                className="text-gray-700 hover:text-green-600 font-medium transition-colors py-3 text-lg"
               >
                 Inicio
               </Link>
               <Link
                 to="/turnos"
                 onClick={() => setIsMenuOpen(false)}
-                className="text-gray-700 hover:text-green-600 font-medium transition-colors py-2"
+                className="text-gray-700 hover:text-green-600 font-medium transition-colors py-3 text-lg"
               >
                 Turnos
               </Link>
               <Link
                 to="/sobre-nosotros"
                 onClick={() => setIsMenuOpen(false)}
-                className="text-gray-700 hover:text-green-600 font-medium transition-colors py-2"
+                className="text-gray-700 hover:text-green-600 font-medium transition-colors py-3 text-lg"
               >
                 Sobre Nosotros
               </Link>
               <Link
                 to="/resenas"
                 onClick={() => setIsMenuOpen(false)}
-                className="text-gray-700 hover:text-green-600 font-medium transition-colors py-2"
+                className="text-gray-700 hover:text-green-600 font-medium transition-colors py-3 text-lg"
               >
                 Reseñas
               </Link>
-                             <Link
-                 to="/contacto"
-                 onClick={() => setIsMenuOpen(false)}
-                 className="text-gray-700 hover:text-green-600 font-medium transition-colors py-2"
-               >
-                 Contáctanos
-               </Link>
-               {user && (user.role === 'admin' || user.role === 'employee') && (
-                 <Link
-                   to="/buscar-cliente"
-                   onClick={() => setIsMenuOpen(false)}
-                   className="text-gray-700 hover:text-green-600 font-medium transition-colors py-2"
-                 >
-                   Buscar Cliente
-                 </Link>
-               )}
+              <Link
+                to="/contacto"
+                onClick={() => setIsMenuOpen(false)}
+                className="text-gray-700 hover:text-green-600 font-medium transition-colors py-3 text-lg"
+              >
+                Contáctanos
+              </Link>
+              {user && (user.role === 'admin' || user.role === 'employee') && (
+                <Link
+                  to="/buscar-cliente"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-gray-700 hover:text-green-600 font-medium transition-colors py-3 text-lg"
+                >
+                  Buscar Cliente
+                </Link>
+              )}
+              
+              {/* Login/Logout en móvil */}
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                {user ? (
+                  <div className="space-y-3">
+                    <div className="text-sm text-gray-600 font-medium bg-gray-100 px-4 py-3 rounded-lg">
+                      Hola, {user.nombre}
+                    </div>
+                    {user.role === 'admin' && (
+                      <Link
+                        to="/dashboard"
+                        onClick={() => setIsMenuOpen(false)}
+                        className="block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors font-semibold text-center"
+                      >
+                        Dashboard
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => {
+                        logout()
+                        setIsMenuOpen(false)
+                      }}
+                      className="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition-colors font-semibold"
+                    >
+                      Cerrar Sesión
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    to="/mayorista/login"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg transition-colors font-semibold text-center"
+                  >
+                    Iniciar Sesión
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         )}
