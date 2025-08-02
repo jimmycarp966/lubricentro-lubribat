@@ -115,18 +115,18 @@ export const TurnosProvider = ({ children }) => {
     }
   }, [turnos])
 
-  // Guardar notificaciones en localStorage
+  // Cargar notificaciones desde localStorage al inicializar
+  useEffect(() => {
+    const notificacionesGuardadas = localStorage.getItem('notifications')
+    if (notificacionesGuardadas) {
+      setNotifications(JSON.parse(notificacionesGuardadas))
+    }
+  }, [])
+
+  // Guardar notificaciones en localStorage cuando cambien
   useEffect(() => {
     localStorage.setItem('notifications', JSON.stringify(notifications))
   }, [notifications])
-
-  // Cargar notificaciones desde localStorage
-  useEffect(() => {
-    const savedNotifications = localStorage.getItem('notifications')
-    if (savedNotifications) {
-      setNotifications(JSON.parse(savedNotifications))
-    }
-  }, [])
 
   const crearTurno = async (turnoData) => {
     try {
@@ -158,6 +158,10 @@ export const TurnosProvider = ({ children }) => {
           sucursal: turnoData.sucursal
         }
       }
+
+      // Debug log para verificar que se crea la notificación
+      console.log('🔔 Nueva notificación creada:', nuevaNotificacion)
+      console.log('📊 Total de notificaciones:', notifications.length + 1)
 
       setNotifications(prev => [nuevaNotificacion, ...prev])
 

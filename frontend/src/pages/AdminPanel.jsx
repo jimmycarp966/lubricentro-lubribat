@@ -195,6 +195,16 @@ const AdminPanel = () => {
 
     const notificacionesNoLeidas = obtenerNotificacionesNoLeidas().length
 
+    // Debug logs para verificar datos
+    console.log('📊 Stats calculados:', {
+      turnosHoy,
+      turnosPendientes,
+      turnosFinalizados,
+      notificacionesNoLeidas,
+      totalTurnos: turnos.length,
+      turnos: turnos.slice(0, 3) // Mostrar primeros 3 turnos para debug
+    })
+
     return {
       turnosHoy,
       turnosPendientes,
@@ -818,6 +828,98 @@ const AdminPanel = () => {
                 >
                   Finalizados ({turnos.filter(t => t.estado === 'finalizado').length})
                 </button>
+              </div>
+
+              {/* Debug Panel */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                <h3 className="font-semibold text-yellow-800 mb-2">🔧 Debug - Información de Turnos</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium">Total Turnos:</span> {turnos.length}
+                  </div>
+                  <div>
+                    <span className="font-medium">Fecha Seleccionada:</span> {format(selectedDate, 'yyyy-MM-dd')}
+                  </div>
+                  <div>
+                    <span className="font-medium">Sucursal Filtro:</span> {selectedSucursal}
+                  </div>
+                  <div>
+                    <span className="font-medium">Estado Filtro:</span> {selectedEstado}
+                  </div>
+                  <div>
+                    <span className="font-medium">Turnos Filtrados:</span> {turnos.filter(t => 
+                      t.fecha === format(selectedDate, 'yyyy-MM-dd') &&
+                      (selectedEstado === 'todos' || t.estado === selectedEstado) &&
+                      (selectedSucursal === 'todas' || t.sucursal === selectedSucursal)
+                    ).length}
+                  </div>
+                  <div>
+                    <span className="font-medium">Notificaciones No Leídas:</span> {obtenerNotificacionesNoLeidas().length}
+                  </div>
+                </div>
+                <div className="mt-3 flex space-x-2">
+                  <button
+                    onClick={() => {
+                      setSelectedDate(new Date())
+                      setSelectedSucursal('todas')
+                      setSelectedEstado('todos')
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs"
+                  >
+                    🔄 Limpiar Filtros
+                  </button>
+                  <button
+                    onClick={() => {
+                      console.log('📋 Todos los turnos:', turnos)
+                      console.log('🔔 Todas las notificaciones:', notifications)
+                    }}
+                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs"
+                  >
+                    📋 Ver en Consola
+                  </button>
+                  <button
+                    onClick={() => {
+                      // Crear un turno de prueba
+                      const turnoPrueba = {
+                        _id: Date.now().toString(),
+                        fecha: format(new Date(), 'yyyy-MM-dd'),
+                        horario: '10:00',
+                        servicio: 'Cambio de Aceite',
+                        sucursal: 'Sucursal Concepción',
+                        cliente: {
+                          nombre: 'Cliente Prueba',
+                          telefono: '+5493815123456',
+                          email: 'prueba@email.com'
+                        },
+                        vehiculo: {
+                          patente: 'TEST123',
+                          modelo: 'Toyota Corolla 2020'
+                        },
+                        estado: 'confirmado',
+                        createdAt: new Date().toISOString()
+                      }
+                      
+                      setTurnos(prev => [turnoPrueba, ...prev])
+                      
+                      // Crear notificación de prueba
+                      const notificacionPrueba = {
+                        id: Date.now().toString(),
+                        tipo: 'nuevo_turno',
+                        titulo: 'Turno de Prueba',
+                        mensaje: `Cliente Prueba reservó un turno para ${turnoPrueba.fecha} a las ${turnoPrueba.horario}`,
+                        turno: turnoPrueba,
+                        leida: false,
+                        timestamp: new Date().toISOString()
+                      }
+                      
+                      setNotifications(prev => [notificacionPrueba, ...prev])
+                      toast.success('Turno de prueba creado')
+                    }}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs"
+                  >
+                    🧪 Crear Turno Prueba
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-4">
