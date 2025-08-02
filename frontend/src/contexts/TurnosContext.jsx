@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 
 const TurnosContext = createContext()
@@ -13,6 +13,7 @@ export const useTurnos = () => {
 
 export const TurnosProvider = ({ children }) => {
   const [turnos, setTurnos] = useState([])
+  const [notifications, setNotifications] = useState([]) // NEW: Notifications array
   const [loading, setLoading] = useState(false)
 
   // Datos simulados de turnos
@@ -114,19 +115,54 @@ export const TurnosProvider = ({ children }) => {
     }
   }, [turnos])
 
+  // Guardar notificaciones en localStorage
+  useEffect(() => {
+    localStorage.setItem('notifications', JSON.stringify(notifications))
+  }, [notifications])
+
+  // Cargar notificaciones desde localStorage
+  useEffect(() => {
+    const savedNotifications = localStorage.getItem('notifications')
+    if (savedNotifications) {
+      setNotifications(JSON.parse(savedNotifications))
+    }
+  }, [])
+
   const crearTurno = async (turnoData) => {
     try {
       const nuevoTurno = {
         _id: Date.now().toString(),
         ...turnoData,
-        estado: 'pendiente',
-        createdAt: new Date().toISOString(),
-        // Asegurar que la fecha se guarde correctamente
-        fecha: turnoData.fecha // Ya viene formateada correctamente desde TurnosPublic
+        estado: 'confirmado',
+        createdAt: new Date().toISOString()
       }
-      setTurnos(prev => [...prev, nuevoTurno])
+
+      setTurnos(prev => [nuevoTurno, ...prev])
+
+      // Crear notificación para administradores (NEW)
+      const nuevaNotificacion = {
+        id: Date.now().toString(),
+        tipo: 'nuevo_turno',
+        titulo: 'Nuevo Turno Reservado',
+        mensaje: `${turnoData.cliente.nombre} reservó un turno para ${turnoData.fecha} a las ${turnoData.horario}`,
+        turno: nuevoTurno,
+        leida: false,
+        timestamp: new Date().toISOString(),
+        whatsappData: {
+          nombre: turnoData.cliente.nombre.split(' ')[0],
+          apellido: turnoData.cliente.nombre.split(' ').slice(1).join(' ') || '',
+          whatsapp: turnoData.cliente.telefono,
+          fecha: turnoData.fecha,
+          horario: turnoData.horario,
+          servicio: turnoData.servicio,
+          sucursal: turnoData.sucursal
+        }
+      }
+
+      setNotifications(prev => [nuevaNotificacion, ...prev])
+
       toast.success('Turno creado correctamente')
-      return { success: true }
+      return { success: true, turno: nuevoTurno }
     } catch (error) {
       toast.error('Error al crear turno')
       return { success: false, error: error.message }
@@ -159,6 +195,31 @@ export const TurnosProvider = ({ children }) => {
     try {
       setTurnos(prev => prev.map(t => t._id === id ? { ...t, ...turnoData } : t))
       toast.success('Turno actualizado correctamente')
+
+      // Si el turno se finaliza, crear notificación (NEW)
+      if (turnoData.estado === 'finalizado') {
+        const turno = turnos.find(t => t._id === id)
+        if (turno) {
+          const notificacionFinalizacion = {
+            id: Date.now().toString(),
+            tipo: 'turno_finalizado',
+            titulo: 'Turno Finalizado',
+            mensaje: `El turno de ${turno.cliente.nombre} ha sido completado`,
+            turno: { ...turno, ...turnoData },
+            leida: false,
+            timestamp: new Date().toISOString(),
+            whatsappData: {
+              nombre: turno.cliente.nombre.split(' ')[0],
+              apellido: turno.cliente.nombre.split(' ').slice(1).join(' ') || '',
+              whatsapp: turno.cliente.telefono,
+              servicio: turno.servicio,
+              sucursal: turno.sucursal
+            }
+          }
+          setNotifications(prev => [notificacionFinalizacion, ...prev])
+        }
+      }
+
       return { success: true }
     } catch (error) {
       toast.error('Error al actualizar turno')
@@ -188,6 +249,29 @@ export const TurnosProvider = ({ children }) => {
     }
   }
 
+  // Funciones para manejar notificaciones (NEW)
+  const marcarNotificacionComoLeida = (notificacionId) => {
+    setNotifications(prev => 
+      prev.map(notif => 
+        notif.id === notificacionId 
+          ? { ...notif, leida: true }
+          : notif
+      )
+    )
+  }
+
+  const eliminarNotificacion = (notificacionId) => {
+    setNotifications(prev => prev.filter(notif => notif.id !== notificacionId))
+  }
+
+  const obtenerNotificacionesNoLeidas = () => {
+    return notifications.filter(notif => !notif.leida)
+  }
+
+  const limpiarNotificaciones = () => {
+    setNotifications([])
+  }
+
   const value = {
     turnos,
     loading,
@@ -195,7 +279,12 @@ export const TurnosProvider = ({ children }) => {
     crearTurno,
     actualizarTurno,
     eliminarTurno,
-    cambiarEstado
+    cambiarEstado,
+    notifications, // NEW
+    marcarNotificacionComoLeida, // NEW
+    eliminarNotificacion, // NEW
+    obtenerNotificacionesNoLeidas, // NEW
+    limpiarNotificaciones // NEW
   }
 
   return (
