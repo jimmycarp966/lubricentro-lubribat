@@ -21,6 +21,7 @@ const TurnosPublic = () => {
     modelo: ''
   })
   const [step, setStep] = useState(1) // 1: sucursal, 2: fecha, 3: horario, 4: servicio, 5: datos, 6: confirmación
+  const [confirmedTurno, setConfirmedTurno] = useState(null) // Para guardar los datos del turno confirmado
 
   const { crearTurno } = useTurnos()
 
@@ -169,6 +170,16 @@ const TurnosPublic = () => {
     try {
       const result = await crearTurno(turnoData)
       if (result.success) {
+        // Guardar los datos del turno confirmado antes de resetear
+        setConfirmedTurno({
+          sucursal: selectedSucursal.nombre,
+          fecha: format(selectedDate, 'dd/MM/yyyy', { locale: es }),
+          horario: selectedTime,
+          servicio: selectedService.nombre,
+          cliente: `${formData.nombre} ${formData.apellido}`,
+          vehiculo: `${formData.patente} - ${formData.modelo}`,
+          contacto: formData.whatsapp
+        })
         setStep(6)
         toast.success('¡Turno confirmado! Te enviaremos un mensaje de WhatsApp.')
         // Reset form
@@ -493,31 +504,31 @@ const TurnosPublic = () => {
              <div className="grid md:grid-cols-2 gap-4 text-sm">
                <div>
                  <p className="font-medium text-gray-600">Sucursal</p>
-                 <p className="text-gray-800">{selectedSucursal.nombre}</p>
+                 <p className="text-gray-800">{confirmedTurno?.sucursal || 'No disponible'}</p>
                </div>
                <div>
                  <p className="font-medium text-gray-600">Fecha</p>
-                 <p className="text-gray-800">{format(selectedDate, 'dd/MM/yyyy', { locale: es })}</p>
+                 <p className="text-gray-800">{confirmedTurno?.fecha || 'No disponible'}</p>
                </div>
                <div>
                  <p className="font-medium text-gray-600">Horario</p>
-                 <p className="text-gray-800">{selectedTime}</p>
+                 <p className="text-gray-800">{confirmedTurno?.horario || 'No disponible'}</p>
                </div>
                <div>
                  <p className="font-medium text-gray-600">Servicio</p>
-                 <p className="text-gray-800">{selectedService.nombre}</p>
+                 <p className="text-gray-800">{confirmedTurno?.servicio || 'No disponible'}</p>
                </div>
                <div>
                  <p className="font-medium text-gray-600">Cliente</p>
-                 <p className="text-gray-800">{formData.nombre} {formData.apellido}</p>
+                 <p className="text-gray-800">{confirmedTurno?.cliente || 'No disponible'}</p>
                </div>
                <div>
                  <p className="font-medium text-gray-600">Vehículo</p>
-                 <p className="text-gray-800">{formData.patente} - {formData.modelo}</p>
+                 <p className="text-gray-800">{confirmedTurno?.vehiculo || 'No disponible'}</p>
                </div>
                <div>
                  <p className="font-medium text-gray-600">Contacto</p>
-                 <p className="text-gray-800">{formData.whatsapp}</p>
+                 <p className="text-gray-800">{confirmedTurno?.contacto || 'No disponible'}</p>
                </div>
              </div>
            </div>
@@ -530,6 +541,7 @@ const TurnosPublic = () => {
                setSelectedDate(new Date())
                setSelectedTime('')
                setSelectedService('')
+               setConfirmedTurno(null)
                setFormData({
                  nombre: '',
                  apellido: '',
