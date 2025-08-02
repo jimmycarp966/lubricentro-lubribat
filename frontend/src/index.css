@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+@layer components {
+  /* Colores de LUBRI-BAT */
+  .btn-primary {
+    @apply bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 shadow-md;
+  }
+  
+  .btn-secondary {
+    @apply bg-yellow-500 hover:bg-yellow-600 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200 shadow-md;
+  }
+  
+  .btn-accent {
+    @apply bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200 shadow-md;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500;
+  }
+  
+  .card-yellow {
+    @apply bg-white rounded-lg shadow-md p-6 border-l-4 border-yellow-500;
+  }
+  
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent;
+  }
+  
+  .header-gradient {
+    background: linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #fbbf24 100%);
+  }
+  
+  .service-card {
+    @apply bg-gradient-to-br from-green-50 to-yellow-50 border-2 border-green-200 hover:border-green-400 transition-all duration-200;
+  }
+  
+  .warning-stripe {
+    background: repeating-linear-gradient(
+      45deg,
+      #fbbf24,
+      #fbbf24 10px,
+      #000000 10px,
+      #000000 20px
+    );
+  }
+} 
