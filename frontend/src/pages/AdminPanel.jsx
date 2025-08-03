@@ -9,7 +9,7 @@ import toast from 'react-hot-toast'
 import logo from '../assets/logo.png'
 import TurnosCalendar from '../components/TurnosCalendar'
 import NotificationsPanel from '../components/NotificationsPanel'
-import WhatsAppConfig from '../components/WhatsAppConfig' // NEW IMPORT
+import WhatsAppConfig from '../components/WhatsAppConfig'
 import { sendReminderMessage, sendCompletionMessage } from '../utils/whatsappService'
 
 const AdminPanel = () => {
@@ -17,24 +17,24 @@ const AdminPanel = () => {
   const { productos, addProducto, updateProducto, deleteProducto } = useProductos()
   const { 
     turnos, 
-    setTurnos, // NEW: For debug buttons
+    setTurnos,
     actualizarTurno, 
     eliminarTurno, 
     fetchTurnos,
     notifications,
-    setNotifications, // NEW: For debug buttons
+    setNotifications,
     obtenerNotificacionesNoLeidas,
-    crearNotificacionPedido, // NEW: For pedidos notifications
-    crearNotificacionEstadoPedido // NEW: For pedido state change notifications
+    crearNotificacionPedido,
+    crearNotificacionEstadoPedido
   } = useTurnos()
   const navigate = useNavigate()
   const location = useLocation()
 
-  const [activeTab, setActiveTab] = useState('dashboard')
+  const [activeTab, setActiveTab] = useState('turnos')
   const [selectedDate, setSelectedDate] = useState(new Date())
-  const [selectedSucursal, setSelectedSucursal] = useState('todas')
-  const [selectedEstado, setSelectedEstado] = useState('todos')
-  const [activeTurnosTab, setActiveTurnosTab] = useState('pendientes')
+  const [selectedSucursal, setSelectedSucursal] = useState('')
+  const [selectedEstado, setSelectedEstado] = useState('')
+  const [showDebug, setShowDebug] = useState(false)
 
   // Estados para gestión de productos
   const [showProductForm, setShowProductForm] = useState(false)
@@ -66,10 +66,22 @@ const AdminPanel = () => {
   useEffect(() => {
     if (location.state?.activeTab) {
       setActiveTab(location.state.activeTab)
-      // Limpiar el estado para evitar que se mantenga en navegaciones posteriores
       navigate(location.pathname, { replace: true })
     }
   }, [location.state, navigate])
+
+  // Función para mostrar/ocultar debug con Ctrl+Shift+D
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (event.ctrlKey && event.shiftKey && event.key === 'D') {
+        setShowDebug(prev => !prev)
+        console.log('🔧 Debug mode:', !showDebug ? 'ON' : 'OFF')
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [showDebug])
 
   // Datos simulados para mayoristas y pedidos
   const [mayoristas, setMayoristas] = useState([
@@ -99,195 +111,137 @@ const AdminPanel = () => {
     {
       _id: '1',
       numero: 'PED-001',
-      fecha: '2024-01-15T10:00:00.000Z',
+      fecha: new Date().toISOString(),
       mayorista: 'AutoParts S.A.',
       items: [
-        { producto: 'Aceite de Motor 5W-30', cantidad: 5, precio: 2500 },
-        { producto: 'Filtro de Aceite', cantidad: 10, precio: 800 }
+        { producto: 'Aceite de Motor 5W-30', cantidad: 10, precio: 2500 },
+        { producto: 'Filtro de Aceite', cantidad: 15, precio: 800 }
       ],
-      total: 20500,
+      total: 37000,
       estado: 'pendiente',
-      notas: 'Urgente para mañana'
-    },
-    {
-      _id: '2',
-      numero: 'PED-002',
-      fecha: '2024-01-14T14:30:00.000Z',
-      mayorista: 'Filtros Pro',
-      items: [
-        { producto: 'Líquido de Frenos', cantidad: 3, precio: 1200 }
-      ],
-      total: 3600,
-      estado: 'recibido',
-      notas: ''
+      notas: 'Pedido mensual'
     }
   ])
 
-  // Datos de reportes
+  // Datos simulados para reportes
   const reportData = {
-    ingresosTotales: 125000,
+    ingresosTotales: 1250000,
     turnosCompletados: 156,
     clientesNuevos: 23,
     satisfaccion: 4.8,
     serviciosPopulares: [
-      { nombre: 'Cambio de Aceite', cantidad: 45, porcentaje: 29 },
-      { nombre: 'Cambio de Filtros', cantidad: 32, porcentaje: 21 },
-      { nombre: 'Alineación', cantidad: 28, porcentaje: 18 },
-      { nombre: 'Frenos', cantidad: 25, porcentaje: 16 },
-      { nombre: 'Otros', cantidad: 26, porcentaje: 16 }
+      { nombre: 'Cambio de Aceite', cantidad: 45, porcentaje: 28.8 },
+      { nombre: 'Cambio de Filtros', cantidad: 32, porcentaje: 20.5 },
+      { nombre: 'Alineación', cantidad: 28, porcentaje: 17.9 }
     ],
     ingresosPorSucursal: [
-      { nombre: 'Concepción', ingresos: 75000, turnos: 95, porcentaje: 60 },
-      { nombre: 'Monteros', ingresos: 50000, turnos: 61, porcentaje: 40 }
+      { nombre: 'Concepción', ingresos: 750000, turnos: 95, porcentaje: 60 },
+      { nombre: 'Monteros', ingresos: 500000, turnos: 61, porcentaje: 40 }
     ],
     tendencias: [
-      { metrica: 'Ingresos', cambio: 12, valor: '$125,000' },
+      { metrica: 'Ingresos', cambio: 12, valor: '$1,250,000' },
       { metrica: 'Turnos', cambio: 8, valor: '156 turnos' },
-      { metrica: 'Clientes Nuevos', cambio: 15, valor: '23 clientes' },
-      { metrica: 'Satisfacción', cambio: 4, valor: '4.8/5' }
+      { metrica: 'Clientes', cambio: 15, valor: '23 nuevos' }
     ],
-    clientesRecurrentes: 133,
-    porcentajeRecurrentes: 85,
-    porcentajeNuevos: 15,
-    valorPromedioCliente: 800,
+    clientesRecurrentes: 89,
+    porcentajeRecurrentes: 57,
+    porcentajeNuevos: 43,
+    valorPromedioCliente: 8012,
     recomendaciones: [
       {
-        prioridad: 'alta',
-        titulo: 'Stock Bajo',
-        descripcion: 'Reabastecer filtros de aceite - solo quedan 5 unidades'
+        titulo: 'Promocionar servicios premium',
+        descripcion: 'Los clientes están dispuestos a pagar más por servicios especializados',
+        prioridad: 'alta'
       },
       {
-        prioridad: 'media',
-        titulo: 'Promoción Sugerida',
-        descripcion: 'Ofrecer descuento en cambio de aceite + filtros'
-      },
-      {
-        prioridad: 'baja',
-        titulo: 'Capacitación',
-        descripcion: 'Capacitar equipo en nuevos servicios'
-      },
-      {
-        prioridad: 'media',
-        titulo: 'Horarios Extendidos',
-        descripcion: 'Considerar horarios vespertinos en Concepción'
+        titulo: 'Expandir horarios en Monteros',
+        descripcion: 'La sucursal tiene alta demanda pero horarios limitados',
+        prioridad: 'media'
       }
     ]
   }
 
-  // Verificar si el usuario es admin
-  useEffect(() => {
-    if (!user || (user.role !== 'admin' && user.role !== 'employee')) {
-      navigate('/')
+  // Cálculos y filtros
+  const filteredTurnos = turnos.filter(turno => {
+    const fechaMatch = !selectedDate || turno.fecha === format(selectedDate, 'yyyy-MM-dd')
+    const sucursalMatch = !selectedSucursal || turno.sucursal === selectedSucursal
+    const estadoMatch = !selectedEstado || turno.estado === selectedEstado
+    return fechaMatch && sucursalMatch && estadoMatch
+  })
+
+  const filteredNotifications = notifications.filter(notification => !notification.leida)
+
+  const filteredProductos = productos.filter(producto => {
+    const searchMatch = !searchTerm || producto.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+    const categoryMatch = !filterCategory || producto.categoria === filterCategory
+    const stockMatch = !filterStock || 
+      (filterStock === 'disponible' && producto.stock > 10) ||
+      (filterStock === 'bajo' && producto.stock <= 10 && producto.stock > 0) ||
+      (filterStock === 'agotado' && producto.stock === 0)
+    return searchMatch && categoryMatch && stockMatch
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case 'precio': return b.precio - a.precio
+      case 'stock': return b.stock - a.stock
+      case 'categoria': return a.categoria.localeCompare(b.categoria)
+      default: return a.nombre.localeCompare(b.nombre)
     }
-  }, [user, navigate])
+  })
 
-  // Productos más populares (datos estáticos)
-  const productosPopulares = productos.slice(0, 3).map((p, index) => ({
-    nombre: p.nombre,
-    ventas: [45, 32, 28][index] || 15 // STATIC DATA
-  }))
-
-  // Servicios más populares (datos estáticos)
-  const servicios = ['Cambio de Aceite', 'Revisión General', 'Cambio de Filtros', 'Lubricación Completa']
-  const serviciosPopulares = servicios.map((s, index) => ({
-    nombre: s,
-    turnos: [18, 12, 8, 6][index] || 5 // STATIC DATA
-  }))
-
-  const calcularStats = () => {
-    const turnosHoy = turnos.filter(t => 
-      t.fecha === format(new Date(), 'yyyy-MM-dd')
-    ).length
-
-    const turnosPendientes = turnos.filter(t => 
-      t.estado === 'pendiente' || t.estado === 'confirmado'
-    ).length
-
-    const turnosFinalizados = turnos.filter(t => 
-      t.estado === 'finalizado'
-    ).length
-
-    const notificacionesNoLeidas = obtenerNotificacionesNoLeidas().length
-
-    // Debug logs para verificar datos
-    console.log('📊 Stats calculados:', {
-      turnosHoy,
-      turnosPendientes,
-      turnosFinalizados,
-      notificacionesNoLeidas,
-      totalTurnos: turnos.length,
-      turnos: turnos.slice(0, 3) // Mostrar primeros 3 turnos para debug
-    })
-
-    return {
-      turnosHoy,
-      turnosPendientes,
-      turnosFinalizados,
-      notificacionesNoLeidas
+  const filteredMayoristas = mayoristas.filter(mayorista => {
+    const searchMatch = !searchMayorista || mayorista.nombre.toLowerCase().includes(searchMayorista.toLowerCase())
+    const tipoMatch = !filterTipoMayorista || mayorista.tipo === filterTipoMayorista
+    return searchMatch && tipoMatch
+  }).sort((a, b) => {
+    switch (sortMayoristas) {
+      case 'tipo': return a.tipo.localeCompare(b.tipo)
+      case 'ciudad': return a.ciudad.localeCompare(b.ciudad)
+      default: return a.nombre.localeCompare(b.nombre)
     }
-  }
+  })
 
-  const handleResetData = () => {
-    if (window.confirm('¿Querés recargar los datos de ejemplo? Esto eliminará todos los turnos actuales.')) {
-      localStorage.removeItem('turnos')
-      fetchTurnos()
-      toast.success('Datos de ejemplo recargados')
+  const filteredPedidos = pedidos.filter(pedido => {
+    const searchMatch = !searchPedido || pedido.numero.toLowerCase().includes(searchPedido.toLowerCase())
+    const estadoMatch = !filterEstadoPedido || pedido.estado === filterEstadoPedido
+    const mayoristaMatch = !filterMayoristaPedido || pedido.mayorista.includes(filterMayoristaPedido)
+    return searchMatch && estadoMatch && mayoristaMatch
+  }).sort((a, b) => {
+    switch (sortPedidos) {
+      case 'total': return b.total - a.total
+      case 'estado': return a.estado.localeCompare(b.estado)
+      case 'mayorista': return a.mayorista.localeCompare(b.mayorista)
+      default: return new Date(b.fecha) - new Date(a.fecha)
     }
-  }
+  })
 
-  const handleDateSelect = (date) => {
-    setSelectedDate(date)
-  }
+  const totalInvertido = pedidos.reduce((total, pedido) => total + pedido.total, 0)
 
-  const handleFinalizarTurno = async (turnoId) => {
-    if (window.confirm('¿Confirmar que el turno ha sido finalizado?')) {
-      await actualizarTurno(turnoId, { estado: 'finalizado' })
+  // Definición de tabs
+  const tabs = [
+    { id: 'turnos', name: 'Turnos' },
+    { id: 'productos', name: 'Productos' },
+    { id: 'mayoristas', name: 'Mayoristas' },
+    { id: 'pedidos', name: 'Pedidos' },
+    { id: 'reportes', name: 'Reportes' },
+    { id: 'notificaciones', name: 'Notificaciones' },
+    { id: 'whatsapp', name: 'WhatsApp' }
+  ]
 
-      // Enviar mensaje de finalización (NEW)
-      const turno = turnos.find(t => t._id === turnoId)
-      if (turno) {
-        const whatsappData = {
-          nombre: turno.cliente?.nombre?.split(' ')[0] || turno.nombre || '',
-          apellido: turno.cliente?.nombre?.split(' ')[1] || turno.apellido || '',
-          whatsapp: turno.cliente?.telefono || turno.whatsapp || '',
-          servicio: turno.servicio,
-          sucursal: turno.sucursal
-        }
-        const whatsappResult = sendCompletionMessage(whatsappData)
-        if (whatsappResult.url) {
-          window.open(whatsappResult.url, '_blank')
-        }
-      }
+  // Funciones de manejo
+  const handleEstadoChange = async (turnoId, nuevoEstado) => {
+    try {
+      await actualizarTurno(turnoId, { estado: nuevoEstado })
+      toast.success('Estado actualizado correctamente')
+    } catch (error) {
+      console.error('Error actualizando estado:', error)
+      toast.error('Error al actualizar estado')
     }
-  }
-
-  const handleEnviarRecordatorio = (turno) => {
-    const whatsappData = {
-      nombre: turno.cliente?.nombre?.split(' ')[0] || turno.nombre || '',
-      apellido: turno.cliente?.nombre?.split(' ')[1] || turno.apellido || '',
-      whatsapp: turno.cliente?.telefono || turno.whatsapp || '',
-      fecha: new Date(turno.fecha),
-      horario: turno.horario,
-      servicio: turno.servicio,
-      sucursal: turno.sucursal
-    }
-    const whatsappResult = sendReminderMessage(whatsappData)
-    if (whatsappResult.url) {
-      window.open(whatsappResult.url, '_blank')
-      toast.success('Recordatorio enviado por WhatsApp')
-    }
-  }
-
-  const handleEditTurno = (turno) => {
-    // Implementar edición de turno
-    toast.info('Función de edición en desarrollo')
   }
 
   const handleDeleteTurno = async (turnoId) => {
     if (window.confirm('¿Estás seguro de que querés eliminar este turno?')) {
       try {
         await eliminarTurno(turnoId)
-        // Forzar actualización del estado local para que se refleje en el calendario
         setTurnos(prev => prev.filter(t => t.id !== turnoId))
         toast.success('Turno eliminado correctamente')
       } catch (error) {
@@ -297,7 +251,6 @@ const AdminPanel = () => {
     }
   }
 
-  // Funciones para gestión de productos
   const handleEditProducto = (producto) => {
     setEditingProduct(producto)
     setShowProductForm(true)
@@ -305,8 +258,13 @@ const AdminPanel = () => {
 
   const handleDeleteProducto = async (productoId) => {
     if (window.confirm('¿Estás seguro de que querés eliminar este producto?')) {
-      await deleteProducto(productoId)
-      toast.success('Producto eliminado correctamente')
+      try {
+        await deleteProducto(productoId)
+        toast.success('Producto eliminado correctamente')
+      } catch (error) {
+        console.error('Error eliminando producto:', error)
+        toast.error('Error al eliminar el producto')
+      }
     }
   }
 
@@ -322,11 +280,11 @@ const AdminPanel = () => {
       setShowProductForm(false)
       setEditingProduct(null)
     } catch (error) {
+      console.error('Error guardando producto:', error)
       toast.error('Error al guardar el producto')
     }
   }
 
-  // Funciones para gestión de mayoristas
   const handleEditMayorista = (mayorista) => {
     setEditingMayorista(mayorista)
     setShowMayoristaForm(true)
@@ -334,28 +292,39 @@ const AdminPanel = () => {
 
   const handleDeleteMayorista = async (mayoristaId) => {
     if (window.confirm('¿Estás seguro de que querés eliminar este mayorista?')) {
-      // Aquí iría la lógica para eliminar el mayorista de la base de datos
-      toast.success('Mayorista eliminado correctamente')
+      try {
+        setMayoristas(prev => prev.filter(m => m._id !== mayoristaId))
+        toast.success('Mayorista eliminado correctamente')
+      } catch (error) {
+        console.error('Error eliminando mayorista:', error)
+        toast.error('Error al eliminar el mayorista')
+      }
     }
   }
 
   const handleSaveMayorista = async (mayoristaData) => {
     try {
       if (editingMayorista) {
-        // Aquí iría la lógica para actualizar el mayorista en la base de datos
+        setMayoristas(prev => prev.map(m => 
+          m._id === editingMayorista._id ? { ...m, ...mayoristaData } : m
+        ))
         toast.success('Mayorista actualizado correctamente')
       } else {
-        // Aquí iría la lógica para agregar un nuevo mayorista a la base de datos
+        const nuevoMayorista = {
+          _id: Date.now().toString(),
+          ...mayoristaData
+        }
+        setMayoristas(prev => [nuevoMayorista, ...prev])
         toast.success('Mayorista agregado correctamente')
       }
       setShowMayoristaForm(false)
       setEditingMayorista(null)
     } catch (error) {
+      console.error('Error guardando mayorista:', error)
       toast.error('Error al guardar el mayorista')
     }
   }
 
-  // Funciones para gestión de pedidos
   const handleEditPedido = (pedido) => {
     setEditingPedido(pedido)
     setShowPedidoForm(true)
@@ -363,223 +332,90 @@ const AdminPanel = () => {
 
   const handleDeletePedido = async (pedidoId) => {
     if (window.confirm('¿Estás seguro de que querés eliminar este pedido?')) {
-      // Aquí iría la lógica para eliminar el pedido de la base de datos
-      toast.success('Pedido eliminado correctamente')
+      try {
+        setPedidos(prev => prev.filter(p => p._id !== pedidoId))
+        toast.success('Pedido eliminado correctamente')
+      } catch (error) {
+        console.error('Error eliminando pedido:', error)
+        toast.error('Error al eliminar el pedido')
+      }
     }
   }
 
   const handleSavePedido = async (pedidoData) => {
     try {
       if (editingPedido) {
-        // Actualizar pedido existente
-        setPedidos(prev => prev.map(p => p._id === editingPedido._id ? { ...p, ...pedidoData } : p))
+        setPedidos(prev => prev.map(p => 
+          p._id === editingPedido._id ? { ...p, ...pedidoData } : p
+        ))
         toast.success('Pedido actualizado correctamente')
       } else {
-        // Crear nuevo pedido
         const nuevoPedido = {
           _id: Date.now().toString(),
           numero: `PED-${String(Date.now()).slice(-6)}`,
           fecha: new Date().toISOString(),
-          ...pedidoData,
-          estado: 'pendiente'
+          ...pedidoData
         }
-        
         setPedidos(prev => [nuevoPedido, ...prev])
         
-        // Crear notificación para el nuevo pedido
-        crearNotificacionPedido(nuevoPedido)
+        // Crear notificación de nuevo pedido
+        await crearNotificacionPedido(nuevoPedido)
         
         toast.success('Pedido agregado correctamente')
       }
       setShowPedidoForm(false)
       setEditingPedido(null)
     } catch (error) {
+      console.error('Error guardando pedido:', error)
       toast.error('Error al guardar el pedido')
     }
   }
 
   const getNextEstado = (currentEstado) => {
-    switch (currentEstado) {
-      case 'pendiente':
-        return 'confirmado'
-      case 'confirmado':
-        return 'enviado'
-      case 'enviado':
-        return 'recibido'
-      case 'recibido':
-        return 'finalizado' // Assuming 'finalizado' is the final state for a turno
-      default:
-        return currentEstado
-    }
+    const estados = ['pendiente', 'confirmado', 'enviado', 'recibido']
+    const currentIndex = estados.indexOf(currentEstado)
+    return estados[Math.min(currentIndex + 1, estados.length - 1)]
   }
 
   const getNextEstadoLabel = (currentEstado) => {
-    switch (currentEstado) {
-      case 'pendiente':
-        return 'Confirmar'
-      case 'confirmado':
-        return 'Enviar'
-      case 'enviado':
-        return 'Recibir'
-      case 'recibido':
-        return 'Finalizar'
-      default:
-        return currentEstado
+    const nextEstado = getNextEstado(currentEstado)
+    const labels = {
+      'pendiente': 'Confirmar',
+      'confirmado': 'Enviar',
+      'enviado': 'Recibir',
+      'recibido': 'Recibido'
     }
+    return labels[nextEstado] || 'Siguiente'
   }
 
   const handleUpdateEstadoPedido = async (pedidoId, nuevoEstado) => {
-    if (window.confirm(`¿Confirmar que el pedido ha pasado a estado "${nuevoEstado}"?`)) {
-      // Actualizar el estado del pedido
-      setPedidos(prev => prev.map(p => {
-        if (p._id === pedidoId) {
-          const pedidoActualizado = { ...p, estado: nuevoEstado }
-          
-          // Crear notificación para el cambio de estado
-          crearNotificacionEstadoPedido(p, nuevoEstado)
-          
-          return pedidoActualizado
-        }
-        return p
-      }))
+    try {
+      setPedidos(prev => prev.map(p => 
+        p._id === pedidoId ? { ...p, estado: nuevoEstado } : p
+      ))
       
-      toast.success(`Pedido actualizado a estado "${nuevoEstado}"`)
+      // Crear notificación de cambio de estado
+      const pedido = pedidos.find(p => p._id === pedidoId)
+      if (pedido) {
+        await crearNotificacionEstadoPedido(pedido, nuevoEstado)
+      }
+      
+      toast.success('Estado del pedido actualizado correctamente')
+    } catch (error) {
+      console.error('Error actualizando estado del pedido:', error)
+      toast.error('Error al actualizar el estado del pedido')
     }
   }
-
-  // Filtrar y ordenar productos
-  const filteredProductos = productos
-    .filter(producto => {
-      const matchesSearch = producto.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           producto.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesCategory = !filterCategory || producto.categoria === filterCategory
-      const matchesStock = !filterStock || 
-        (filterStock === 'disponible' && producto.stock > 10) ||
-        (filterStock === 'bajo' && producto.stock <= 10 && producto.stock > 0) ||
-        (filterStock === 'agotado' && producto.stock === 0)
-      
-      return matchesSearch && matchesCategory && matchesStock
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'nombre':
-          return a.nombre.localeCompare(b.nombre)
-        case 'precio':
-          return b.precio - a.precio
-        case 'stock':
-          return b.stock - a.stock
-        case 'categoria':
-          return a.categoria.localeCompare(b.categoria)
-        default:
-          return 0
-      }
-    })
-
-  // Filtrar mayoristas
-  const filteredMayoristas = mayoristas // Assuming 'mayoristas' is defined elsewhere or will be added
-    .filter(mayorista => {
-      const matchesSearch = mayorista.nombre.toLowerCase().includes(searchMayorista.toLowerCase()) ||
-                           mayorista.empresa.toLowerCase().includes(searchMayorista.toLowerCase()) ||
-                           mayorista.email.toLowerCase().includes(searchMayorista.toLowerCase()) ||
-                           mayorista.telefono.toLowerCase().includes(searchMayorista.toLowerCase()) ||
-                           mayorista.ciudad.toLowerCase().includes(searchMayorista.toLowerCase())
-      const matchesTipo = !filterTipoMayorista || mayorista.tipo === filterTipoMayorista
-      
-      return matchesSearch && matchesTipo
-    })
-    .sort((a, b) => {
-      switch (sortMayoristas) {
-        case 'nombre':
-          return a.nombre.localeCompare(b.nombre)
-        case 'tipo':
-          return a.tipo.localeCompare(b.tipo)
-        case 'ciudad':
-          return a.ciudad.localeCompare(b.ciudad)
-        default:
-          return 0
-      }
-    })
-
-  // Filtrar pedidos
-  const filteredPedidos = pedidos // Assuming 'pedidos' is defined elsewhere or will be added
-    .filter(pedido => {
-      const matchesSearch = pedido.numero.toString().includes(searchPedido) ||
-                           pedido.mayorista.toLowerCase().includes(searchPedido.toLowerCase()) ||
-                           pedido.notas?.toLowerCase().includes(searchPedido.toLowerCase())
-      const matchesEstado = !filterEstadoPedido || pedido.estado === filterEstadoPedido
-      const matchesMayorista = !filterMayoristaPedido || pedido.mayorista.toLowerCase().includes(filterMayoristaPedido.toLowerCase())
-      
-      return matchesSearch && matchesEstado && matchesMayorista
-    })
-    .sort((a, b) => {
-      switch (sortPedidos) {
-        case 'fecha':
-          return new Date(b.fecha) - new Date(a.fecha)
-        case 'total':
-          return b.total - a.total
-        case 'estado':
-          return a.estado.localeCompare(b.estado)
-        case 'mayorista':
-          return a.mayorista.localeCompare(b.mayorista)
-        default:
-          return 0
-      }
-    })
-
-  // Cálculos para pedidos (ejemplo, en un caso real, estos datos deberían provenir de la base de datos)
-  const totalInvertido = pedidos.reduce((sum, pedido) => sum + pedido.total, 0)
-
-  const stats = calcularStats()
-
-  const [showDebug, setShowDebug] = useState(false)
-  const [debugInfo, setDebugInfo] = useState('')
-
-  // Función para actualizar información de debug
-  const updateDebugInfo = () => {
-    const info = {
-      turnos: turnos.length,
-      notifications: notifications.length,
-      productos: productos.length,
-      mayoristas: mayoristas.length,
-      pedidos: pedidos.length,
-      localStorage: {
-        turnos: localStorage.getItem('turnos') ? 'Sí' : 'No',
-        notifications: localStorage.getItem('notifications') ? 'Sí' : 'No',
-        productos: localStorage.getItem('productos') ? 'Sí' : 'No',
-        mayoristas: localStorage.getItem('mayoristas') ? 'Sí' : 'No',
-        pedidos: localStorage.getItem('pedidos') ? 'Sí' : 'No'
-      },
-      ultimosTurnos: turnos.slice(0, 3).map(t => ({
-        id: t._id,
-        fecha: t.fecha,
-        cliente: t.cliente?.nombre || 'Sin nombre',
-        sucursal: t.sucursal
-      })),
-      ultimasNotificaciones: notifications.slice(0, 3).map(n => ({
-        id: n.id,
-        tipo: n.tipo,
-        titulo: n.titulo,
-        leida: n.leida
-      }))
-    }
-    setDebugInfo(JSON.stringify(info, null, 2))
-  }
-
-  // Función para mostrar/ocultar debug con Ctrl+Shift+D
-  useEffect(() => {
-    const handleKeyPress = (event) => {
-      if (event.ctrlKey && event.shiftKey && event.key === 'D') {
-        setShowDebug(prev => !prev)
-        console.log('🔧 Debug mode:', !showDebug ? 'ON' : 'OFF')
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyPress)
-    return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [showDebug])
 
   if (!user || (user.role !== 'admin' && user.role !== 'employee')) {
-    return null
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Acceso Denegado</h1>
+          <p className="text-gray-600">No tenés permisos para acceder a esta página.</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -613,7 +449,6 @@ const AdminPanel = () => {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={async () => {
-                  // Debug completo del sistema con Firebase
                   console.log('🔥 DEBUG COMPLETO DEL SISTEMA FIREBASE:')
                   console.log('📊 Estado actual:')
                   console.log('- Turnos:', turnos.length)
@@ -653,7 +488,6 @@ const AdminPanel = () => {
               <button
                 onClick={async () => {
                   try {
-                    // Crear turno de prueba con Firebase
                     const turnoPrueba = {
                       cliente: {
                         nombre: 'Cliente Prueba',
@@ -699,7 +533,6 @@ const AdminPanel = () => {
               <button
                 onClick={async () => {
                   try {
-                    // Limpiar todos los datos de Firebase
                     const { turnosService, notificationsService } = await import('../services/firebaseService')
                     const turnosActuales = await turnosService.getTurnos()
                     const notificationsActuales = await notificationsService.getNotifications()
@@ -938,7 +771,109 @@ const AdminPanel = () => {
           </div>
         )}
 
-        {/* ... rest of existing tabs ... */}
+        {activeTab === 'productos' && (
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Gestión de Productos</h2>
+                  <p className="text-gray-600">Administra el inventario de aceites, filtros y repuestos</p>
+                </div>
+                <button
+                  onClick={() => setShowProductForm(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                >
+                  ➕ Agregar Producto
+                </button>
+              </div>
+              <div className="text-center py-12 text-gray-500">
+                <p className="text-lg">Funcionalidad en desarrollo</p>
+                <p className="text-sm">Próximamente: Gestión completa de productos</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'mayoristas' && (
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Gestión de Mayoristas</h2>
+                  <p className="text-gray-600">Administra proveedores y contactos comerciales</p>
+                </div>
+                <button
+                  onClick={() => setShowMayoristaForm(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                >
+                  ➕ Agregar Mayorista
+                </button>
+              </div>
+              <div className="text-center py-12 text-gray-500">
+                <p className="text-lg">Funcionalidad en desarrollo</p>
+                <p className="text-sm">Próximamente: Gestión completa de mayoristas</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'pedidos' && (
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Gestión de Pedidos</h2>
+                  <p className="text-gray-600">Administra órdenes de compra y pedidos a proveedores</p>
+                </div>
+                <button
+                  onClick={() => setShowPedidoForm(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                >
+                  ➕ Nuevo Pedido
+                </button>
+              </div>
+              <div className="text-center py-12 text-gray-500">
+                <p className="text-lg">Funcionalidad en desarrollo</p>
+                <p className="text-sm">Próximamente: Gestión completa de pedidos</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'reportes' && (
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Reportes y Estadísticas</h2>
+                  <p className="text-gray-600">Análisis completo del negocio y métricas de rendimiento</p>
+                </div>
+              </div>
+              <div className="text-center py-12 text-gray-500">
+                <p className="text-lg">Funcionalidad en desarrollo</p>
+                <p className="text-sm">Próximamente: Reportes completos y estadísticas</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'notificaciones' && (
+          <NotificationsPanel />
+        )}
+
+        {activeTab === 'whatsapp' && (
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Configuración de WhatsApp</h2>
+                  <p className="text-gray-600">Configura el número de WhatsApp Business</p>
+                </div>
+              </div>
+              <WhatsAppConfig />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
