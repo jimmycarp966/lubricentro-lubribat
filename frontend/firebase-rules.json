@@ -2,15 +2,35 @@
   "rules": {
     "turnos": {
       ".read": true,
-      ".write": true
+      ".write": true,
+      "$turnoId": {
+        ".read": true,
+        ".write": true
+      }
     },
     "notifications": {
       ".read": true,
-      ".write": true
+      ".write": true,
+      "$notificationId": {
+        ".read": true,
+        ".write": true
+      }
     },
     "productos": {
       ".read": true,
-      ".write": true
+      ".write": true,
+      "$productoId": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "users": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$userId": {
+        ".read": "auth != null && auth.uid == $userId",
+        ".write": "auth != null && auth.uid == $userId"
+      }
     }
   }
 } 

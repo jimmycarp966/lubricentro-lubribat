@@ -6,7 +6,7 @@ import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Card from '../components/ui/Card'
 import Modal from '../components/ui/Modal'
-import { testFirebaseConfig, testAuthState } from '../utils/firebaseTest'
+import { testFirebaseConfig, testAuthState, testProductosAccess, testTurnosAccess } from '../utils/firebaseTest'
 
 const Login = () => {
   const [email, setEmail] = useState('')
@@ -53,10 +53,17 @@ const Login = () => {
   }
 
   // Función de diagnóstico temporal
-  const handleDiagnostic = () => {
-    console.log('🔍 Iniciando diagnóstico de Firebase...')
+  const handleDiagnostic = async () => {
+    console.log('🔍 Iniciando diagnóstico completo de Firebase...')
+    
+    // Pruebas básicas
     testFirebaseConfig()
     testAuthState()
+    
+    // Pruebas específicas de acceso
+    console.log('\n🔍 Probando acceso a datos...')
+    await testProductosAccess()
+    await testTurnosAccess()
   }
 
   return (

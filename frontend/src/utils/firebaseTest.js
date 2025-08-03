@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getDatabase } from 'firebase/database'
+import { ref, get, set } from 'firebase/database'
 
 // Configuración de Firebase
 const firebaseConfig = {
@@ -70,6 +71,81 @@ export const testAuthState = async () => {
     }
   } catch (error) {
     console.error('❌ Error verificando autenticación:', error)
+    return {
+      success: false,
+      error: error.message
+    }
+  }
+}
+
+// Función para probar acceso a productos
+export const testProductosAccess = async () => {
+  try {
+    console.log('🔍 Probando acceso a productos...')
+    
+    const { database } = testFirebaseConfig()
+    if (!database) {
+      throw new Error('Database no disponible')
+    }
+    
+    // Intentar leer productos
+    const productosRef = ref(database, 'productos')
+    console.log('📖 Intentando leer productos...')
+    
+    const snapshot = await get(productosRef)
+    console.log('✅ Productos leídos exitosamente:', snapshot.val())
+    
+    // Intentar escribir un producto de prueba
+    console.log('📝 Intentando escribir producto de prueba...')
+    const testProductoRef = ref(database, 'productos/test-producto')
+    await set(testProductoRef, {
+      nombre: 'Producto de Prueba',
+      precio: 100,
+      stock: 10,
+      timestamp: Date.now()
+    })
+    console.log('✅ Producto de prueba escrito exitosamente')
+    
+    // Limpiar producto de prueba
+    await set(testProductoRef, null)
+    console.log('✅ Producto de prueba eliminado')
+    
+    return {
+      success: true,
+      message: 'Acceso a productos funcionando correctamente'
+    }
+  } catch (error) {
+    console.error('❌ Error accediendo a productos:', error)
+    return {
+      success: false,
+      error: error.message
+    }
+  }
+}
+
+// Función para probar acceso a turnos
+export const testTurnosAccess = async () => {
+  try {
+    console.log('🔍 Probando acceso a turnos...')
+    
+    const { database } = testFirebaseConfig()
+    if (!database) {
+      throw new Error('Database no disponible')
+    }
+    
+    // Intentar leer turnos
+    const turnosRef = ref(database, 'turnos')
+    console.log('📖 Intentando leer turnos...')
+    
+    const snapshot = await get(turnosRef)
+    console.log('✅ Turnos leídos exitosamente:', snapshot.val())
+    
+    return {
+      success: true,
+      message: 'Acceso a turnos funcionando correctamente'
+    }
+  } catch (error) {
+    console.error('❌ Error accediendo a turnos:', error)
     return {
       success: false,
       error: error.message
