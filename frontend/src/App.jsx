@@ -20,13 +20,16 @@ import { AuthProvider } from './contexts/AuthContext'
 import { TurnosProvider } from './contexts/TurnosContext'
 import { ProductosProvider } from './contexts/ProductosContext'
 
+// Importar estilos globales
+import './styles/globals.css'
+
 function App() {
   return (
     <AuthProvider>
       <TurnosProvider>
         <ProductosProvider>
-          <div className="min-h-screen bg-gray-50">
-                  <Navbar />
+          <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            <Navbar />
             <main className="container mx-auto px-4 py-8">
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -51,6 +54,8 @@ function App() {
                 style: {
                   background: '#363636',
                   color: '#fff',
+                  borderRadius: '12px',
+                  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
                 },
               }}
             />

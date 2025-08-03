@@ -6,10 +6,16 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import toast from 'react-hot-toast'
+import { Icon } from '@iconify/react'
+import Button from '../components/ui/Button'
+import Card from '../components/ui/Card'
+import Badge from '../components/ui/Badge'
+import Input from '../components/ui/Input'
 import logo from '../assets/logo.png'
 import TurnosCalendar from '../components/TurnosCalendar'
 import NotificationsPanel from '../components/NotificationsPanel'
 import WhatsAppConfig from '../components/WhatsAppConfig'
+import DashboardStats from '../components/DashboardStats'
 import { sendReminderMessage, sendCompletionMessage } from '../utils/whatsappService'
 
 const AdminPanel = () => {
@@ -30,7 +36,7 @@ const AdminPanel = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const [activeTab, setActiveTab] = useState('turnos')
+  const [activeTab, setActiveTab] = useState('dashboard')
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [selectedSucursal, setSelectedSucursal] = useState('')
   const [selectedEstado, setSelectedEstado] = useState('')
@@ -218,6 +224,7 @@ const AdminPanel = () => {
 
   // Definición de tabs
   const tabs = [
+    { id: 'dashboard', name: 'Dashboard' },
     { id: 'turnos', name: 'Turnos' },
     { id: 'productos', name: 'Productos' },
     { id: 'mayoristas', name: 'Mayoristas' },
@@ -615,6 +622,94 @@ const AdminPanel = () => {
         </div>
 
         {/* Tab Content */}
+        {activeTab === 'dashboard' && (
+          <div className="space-y-6">
+            {/* Dashboard Stats */}
+            <DashboardStats turnos={turnos} productos={productos} />
+            
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="text-center hover:shadow-xl transition-all duration-300">
+                <Card.Body className="p-6">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Icon icon="mdi:calendar-plus" className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Nuevo Turno</h3>
+                  <p className="text-gray-600 mb-4">Crear un turno manualmente</p>
+                  <Button variant="primary" size="sm" icon="mdi:plus">
+                    Crear Turno
+                  </Button>
+                </Card.Body>
+              </Card>
+              
+              <Card className="text-center hover:shadow-xl transition-all duration-300">
+                <Card.Body className="p-6">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Icon icon="mdi:package-variant-plus" className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Nuevo Producto</h3>
+                  <p className="text-gray-600 mb-4">Agregar producto al inventario</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    icon="mdi:plus"
+                    onClick={() => setActiveTab('productos')}
+                  >
+                    Agregar Producto
+                  </Button>
+                </Card.Body>
+              </Card>
+              
+              <Card className="text-center hover:shadow-xl transition-all duration-300">
+                <Card.Body className="p-6">
+                  <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Icon icon="mdi:chart-line" className="w-8 h-8 text-yellow-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Ver Reportes</h3>
+                  <p className="text-gray-600 mb-4">Análisis y estadísticas</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    icon="mdi:chart-bar"
+                    onClick={() => setActiveTab('reportes')}
+                  >
+                    Ver Reportes
+                  </Button>
+                </Card.Body>
+              </Card>
+            </div>
+            
+            {/* Recent Activity */}
+            <Card>
+              <Card.Header>
+                <h3 className="text-lg font-semibold text-gray-900">Actividad Reciente</h3>
+              </Card.Header>
+              <Card.Body>
+                <div className="space-y-4">
+                  {turnos.slice(0, 5).map((turno, index) => (
+                    <div key={turno.id || index} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <Icon icon="mdi:calendar" className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900">{turno.cliente?.nombre}</p>
+                        <p className="text-sm text-gray-600">{turno.fecha} - {turno.horario}</p>
+                      </div>
+                      <Badge 
+                        variant={turno.estado === 'pendiente' ? 'warning' : 
+                                turno.estado === 'confirmado' ? 'success' : 
+                                turno.estado === 'completado' ? 'info' : 'default'}
+                      >
+                        {turno.estado}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </Card.Body>
+            </Card>
+          </div>
+        )}
+        
         {activeTab === 'turnos' && (
           <div className="space-y-6">
             {/* Filtros */}
@@ -664,16 +759,19 @@ const AdminPanel = () => {
                   </select>
                 </div>
                 <div className="flex items-end">
-                  <button
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    icon="mdi:refresh"
                     onClick={() => {
                       setSelectedSucursal('')
                       setSelectedDate(null)
                       setSelectedEstado('')
                     }}
-                    className="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition-colors"
+                    className="w-full"
                   >
                     Limpiar Filtros
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
