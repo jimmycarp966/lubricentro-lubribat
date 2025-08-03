@@ -648,6 +648,28 @@ const AdminPanel = () => {
               >
                 🔄 Sincronizar Manual
               </button>
+              <button
+                onClick={() => {
+                  // Forzar evento de sincronización
+                  window.dispatchEvent(new CustomEvent('forceSync', { detail: { type: 'all' } }))
+                  
+                  // También verificar localStorage
+                  const turnosAPI = JSON.parse(localStorage.getItem('api_turnos') || '[]')
+                  const notificationsAPI = JSON.parse(localStorage.getItem('api_notifications') || '[]')
+                  
+                  console.log('🔧 Force Sync: Disparando evento forceSync')
+                  console.log('🔧 Force Sync: Turnos disponibles:', turnosAPI.length)
+                  console.log('🔧 Force Sync: Notificaciones disponibles:', notificationsAPI.length)
+                  
+                  setTurnos(turnosAPI)
+                  setNotifications(notificationsAPI)
+                  
+                  toast.success('Sincronización forzada completada')
+                }}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm"
+              >
+                ⚡ Forzar Sync
+              </button>
             </div>
           </div>
           {showDebug && (

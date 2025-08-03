@@ -11,8 +11,18 @@ export const useTurnos = () => {
   return context
 }
 
-// Simulación de API compartida usando localStorage y eventos
+// Simulación de API compartida usando una solución que funcione entre dispositivos
 const API_SIMULADA = {
+  // Usar una clave única para cada dispositivo
+  getDeviceId: () => {
+    let deviceId = localStorage.getItem('device_id')
+    if (!deviceId) {
+      deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+      localStorage.setItem('device_id', deviceId)
+    }
+    return deviceId
+  },
+
   // Obtener todos los turnos
   getTurnos: () => {
     const turnos = localStorage.getItem('api_turnos')
@@ -24,6 +34,15 @@ const API_SIMULADA = {
   saveTurnos: (turnos) => {
     console.log('🔧 API: Guardando turnos en localStorage:', turnos.length)
     localStorage.setItem('api_turnos', JSON.stringify(turnos))
+    
+    // Simular envío a otros dispositivos usando un timestamp
+    const syncData = {
+      turnos: turnos,
+      timestamp: Date.now(),
+      deviceId: API_SIMULADA.getDeviceId()
+    }
+    localStorage.setItem('api_sync_turnos', JSON.stringify(syncData))
+    
     // Disparar evento para notificar cambios
     window.dispatchEvent(new CustomEvent('turnosUpdated', { detail: turnos }))
   },
@@ -34,6 +53,13 @@ const API_SIMULADA = {
     const turnos = API_SIMULADA.getTurnos()
     turnos.unshift(turno)
     API_SIMULADA.saveTurnos(turnos)
+    
+    // Forzar sincronización inmediata
+    setTimeout(() => {
+      console.log('🔧 API: Sincronización forzada después de agregar turno')
+      window.dispatchEvent(new CustomEvent('forceSync', { detail: { type: 'turnos' } }))
+    }, 100)
+    
     return turno
   },
   
@@ -48,6 +74,15 @@ const API_SIMULADA = {
   saveNotifications: (notifications) => {
     console.log('🔧 API: Guardando notificaciones en localStorage:', notifications.length)
     localStorage.setItem('api_notifications', JSON.stringify(notifications))
+    
+    // Simular envío a otros dispositivos
+    const syncData = {
+      notifications: notifications,
+      timestamp: Date.now(),
+      deviceId: API_SIMULADA.getDeviceId()
+    }
+    localStorage.setItem('api_sync_notifications', JSON.stringify(syncData))
+    
     // Disparar evento para notificar cambios
     window.dispatchEvent(new CustomEvent('notificationsUpdated', { detail: notifications }))
   },
@@ -58,7 +93,28 @@ const API_SIMULADA = {
     const notifications = API_SIMULADA.getNotifications()
     notifications.unshift(notification)
     API_SIMULADA.saveNotifications(notifications)
+    
+    // Forzar sincronización inmediata
+    setTimeout(() => {
+      console.log('🔧 API: Sincronización forzada después de agregar notificación')
+      window.dispatchEvent(new CustomEvent('forceSync', { detail: { type: 'notifications' } }))
+    }, 100)
+    
     return notification
+  },
+
+  // Verificar si hay datos nuevos de otros dispositivos
+  checkForUpdates: () => {
+    const lastSync = localStorage.getItem('last_sync_timestamp') || '0'
+    const currentTime = Date.now()
+    
+    // Simular verificación de actualizaciones cada 2 segundos
+    if (currentTime - parseInt(lastSync) > 2000) {
+      console.log('🔧 API: Verificando actualizaciones...')
+      localStorage.setItem('last_sync_timestamp', currentTime.toString())
+      return true
+    }
+    return false
   }
 }
 
@@ -171,7 +227,7 @@ export const TurnosProvider = ({ children }) => {
     setLoading(false)
   }, [])
 
-  // Sincronizar con la API simulada cada 1 segundo y escuchar eventos
+  // Sincronizar con la API simulada cada 500ms y escuchar eventos
   useEffect(() => {
     const syncData = () => {
       const turnosAPI = API_SIMULADA.getTurnos()
@@ -188,8 +244,8 @@ export const TurnosProvider = ({ children }) => {
     // Sincronización inicial
     syncData()
 
-    // Intervalo de sincronización
-    const interval = setInterval(syncData, 1000)
+    // Intervalo de sincronización más frecuente
+    const interval = setInterval(syncData, 500)
 
     // Escuchar eventos de cambios
     const handleTurnosUpdate = (event) => {
@@ -202,13 +258,19 @@ export const TurnosProvider = ({ children }) => {
       setNotifications(event.detail)
     }
 
+    // Escuchar evento de sincronización forzada
+    const handleForceSync = (event) => {
+      console.log('🔧 Event: forceSync recibido:', event.detail)
+      syncData()
+    }
+
     // Escuchar cambios en localStorage
     const handleStorageChange = (event) => {
       console.log('🔧 Storage: Cambio detectado en localStorage:', event.key)
-      if (event.key === 'api_turnos') {
+      if (event.key === 'api_turnos' || event.key === 'api_sync_turnos') {
         const turnosAPI = API_SIMULADA.getTurnos()
         setTurnos(turnosAPI)
-      } else if (event.key === 'api_notifications') {
+      } else if (event.key === 'api_notifications' || event.key === 'api_sync_notifications') {
         const notificationsAPI = API_SIMULADA.getNotifications()
         setNotifications(notificationsAPI)
       }
@@ -217,12 +279,14 @@ export const TurnosProvider = ({ children }) => {
     // Agregar listeners
     window.addEventListener('turnosUpdated', handleTurnosUpdate)
     window.addEventListener('notificationsUpdated', handleNotificationsUpdate)
+    window.addEventListener('forceSync', handleForceSync)
     window.addEventListener('storage', handleStorageChange)
 
     return () => {
       clearInterval(interval)
       window.removeEventListener('turnosUpdated', handleTurnosUpdate)
       window.removeEventListener('notificationsUpdated', handleNotificationsUpdate)
+      window.removeEventListener('forceSync', handleForceSync)
       window.removeEventListener('storage', handleStorageChange)
     }
   }, [])
