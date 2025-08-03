@@ -230,6 +230,40 @@ const AdminPanel = () => {
   // Funciones de manejo
   const handleEstadoChange = async (turnoId, nuevoEstado) => {
     try {
+      // Si se está confirmando el turno, enviar WhatsApp
+      if (nuevoEstado === 'confirmado') {
+        const turno = turnos.find(t => t.id === turnoId)
+        if (turno) {
+          console.log('🔍 Confirmando turno:', turno)
+          
+          // Preparar datos para WhatsApp
+          const whatsappData = {
+            nombre: turno.cliente?.nombre?.split(' ')[0] || '',
+            apellido: turno.cliente?.nombre?.split(' ').slice(1).join(' ') || '',
+            whatsapp: turno.cliente?.telefono || '',
+            fecha: turno.fecha,
+            horario: turno.horario,
+            servicio: turno.servicio,
+            sucursal: turno.sucursal || 'LUBRI-BAT'
+          }
+          
+          console.log('📱 Datos para WhatsApp:', whatsappData)
+          
+          // Importar la función de WhatsApp
+          const { sendWhatsAppMessage } = await import('../utils/whatsappService')
+          
+          // Generar y enviar WhatsApp
+          const whatsappResult = sendWhatsAppMessage(whatsappData)
+          console.log('📱 Resultado WhatsApp:', whatsappResult)
+          
+          // Abrir WhatsApp automáticamente
+          console.log('🌐 Abriendo WhatsApp con URL:', whatsappResult.url)
+          window.open(whatsappResult.url, '_blank')
+          
+          toast.success('Turno confirmado y WhatsApp enviado')
+        }
+      }
+      
       await actualizarTurno(turnoId, { estado: nuevoEstado })
       toast.success('Estado actualizado correctamente')
     } catch (error) {
