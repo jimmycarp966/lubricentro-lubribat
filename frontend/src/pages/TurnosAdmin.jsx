@@ -102,45 +102,52 @@ const TurnosAdmin = () => {
   const handleConfirmarTurno = async (turnoId) => {
     console.log('🔍 Iniciando confirmación de turno:', turnoId)
     
+    // Buscar el turno ANTES de actualizarlo
+    const turnoOriginal = turnos.find(t => t._id === turnoId)
+    console.log('🔍 Turno original encontrado:', turnoOriginal)
+    
+    if (!turnoOriginal) {
+      console.error('❌ No se encontró el turno original')
+      alert('❌ Error: No se encontró el turno')
+      return
+    }
+    
     if (window.confirm('¿Confirmar este turno? Se enviará un mensaje de WhatsApp automáticamente.')) {
       console.log('✅ Usuario confirmó la acción')
       
+      // Preparar datos de WhatsApp ANTES de actualizar
+      const whatsappData = {
+        nombre: turnoOriginal.cliente?.nombre?.split(' ')[0] || turnoOriginal.nombre || '',
+        apellido: turnoOriginal.cliente?.nombre?.split(' ').slice(1).join(' ') || turnoOriginal.apellido || '',
+        whatsapp: turnoOriginal.cliente?.telefono || turnoOriginal.whatsapp || '',
+        fecha: turnoOriginal.fecha,
+        horario: turnoOriginal.horario,
+        servicio: turnoOriginal.servicio,
+        sucursal: turnoOriginal.sucursal || 'LUBRI-BAT'
+      }
+      
+      console.log('📱 Datos para WhatsApp preparados:', whatsappData)
+      
+      // Actualizar el turno
       const result = await actualizarTurno(turnoId, { estado: 'confirmado' })
       console.log('📝 Resultado de actualización:', result)
       
       if (result.success) {
         console.log('✅ Turno actualizado exitosamente')
         
-        // Enviar mensaje de WhatsApp automáticamente
-        const turno = turnos.find(t => t._id === turnoId)
-        console.log('🔍 Turno encontrado:', turno)
+        // Generar y enviar WhatsApp
+        const whatsappResult = sendWhatsAppMessage(whatsappData)
+        console.log('📱 Resultado WhatsApp:', whatsappResult)
         
-        if (turno) {
-          const whatsappData = {
-            nombre: turno.cliente?.nombre?.split(' ')[0] || turno.nombre || '',
-            apellido: turno.cliente?.nombre?.split(' ').slice(1).join(' ') || turno.apellido || '',
-            whatsapp: turno.cliente?.telefono || turno.whatsapp || '',
-            fecha: turno.fecha,
-            horario: turno.horario,
-            servicio: turno.servicio,
-            sucursal: turno.sucursal || 'LUBRI-BAT'
-          }
-          
-          console.log('📱 Datos para WhatsApp:', whatsappData)
-          
-          const whatsappResult = sendWhatsAppMessage(whatsappData)
-          console.log('📱 Resultado WhatsApp:', whatsappResult)
-          
-          // Abrir WhatsApp automáticamente
-          console.log('🌐 Abriendo WhatsApp con URL:', whatsappResult.url)
-          window.open(whatsappResult.url, '_blank')
-          
-          // Mostrar mensaje de éxito
-          alert('✅ Turno confirmado y WhatsApp abierto automáticamente')
-        } else {
-          console.error('❌ No se encontró el turno')
-          alert('❌ Error: No se encontró el turno')
-        }
+        // Abrir WhatsApp automáticamente
+        console.log('🌐 Abriendo WhatsApp con URL:', whatsappResult.url)
+        window.open(whatsappResult.url, '_blank')
+        
+        // Mostrar mensaje de éxito
+        alert('✅ Turno confirmado y WhatsApp abierto automáticamente')
+        
+        // Recargar los turnos para actualizar la vista
+        await fetchTurnos()
       } else {
         console.error('❌ Error al actualizar turno:', result)
         alert('❌ Error al confirmar el turno')
