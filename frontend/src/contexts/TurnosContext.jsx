@@ -276,6 +276,44 @@ export const TurnosProvider = ({ children }) => {
     setNotifications([])
   }
 
+  // Función para crear notificaciones de pedidos (NEW)
+  const crearNotificacionPedido = (pedidoData) => {
+    const nuevaNotificacion = {
+      id: Date.now().toString(),
+      tipo: 'nuevo_pedido',
+      titulo: 'Nuevo Pedido de Mayorista',
+      mensaje: `${pedidoData.mayorista} realizó un pedido por $${pedidoData.total.toLocaleString()}`,
+      pedido: pedidoData,
+      leida: false,
+      timestamp: new Date().toISOString(),
+      whatsappData: {
+        mayorista: pedidoData.mayorista,
+        total: pedidoData.total,
+        items: pedidoData.items.length,
+        estado: pedidoData.estado
+      }
+    }
+
+    console.log('🔔 Nueva notificación de pedido:', nuevaNotificacion)
+    setNotifications(prev => [nuevaNotificacion, ...prev])
+  }
+
+  // Función para crear notificaciones de cambio de estado de pedido (NEW)
+  const crearNotificacionEstadoPedido = (pedidoData, nuevoEstado) => {
+    const nuevaNotificacion = {
+      id: Date.now().toString(),
+      tipo: 'estado_pedido',
+      titulo: `Pedido ${nuevoEstado.charAt(0).toUpperCase() + nuevoEstado.slice(1)}`,
+      mensaje: `El pedido de ${pedidoData.mayorista} cambió a estado "${nuevoEstado}"`,
+      pedido: { ...pedidoData, estado: nuevoEstado },
+      leida: false,
+      timestamp: new Date().toISOString()
+    }
+
+    console.log('🔔 Nueva notificación de estado de pedido:', nuevaNotificacion)
+    setNotifications(prev => [nuevaNotificacion, ...prev])
+  }
+
   const value = {
     turnos,
     setTurnos, // NEW: Expose setTurnos for debug purposes
@@ -290,7 +328,9 @@ export const TurnosProvider = ({ children }) => {
     marcarNotificacionComoLeida, // NEW
     eliminarNotificacion, // NEW
     obtenerNotificacionesNoLeidas, // NEW
-    limpiarNotificaciones // NEW
+    limpiarNotificaciones, // NEW
+    crearNotificacionPedido, // NEW: For pedidos notifications
+    crearNotificacionEstadoPedido // NEW: For pedido state change notifications
   }
 
   return (

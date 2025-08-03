@@ -23,7 +23,9 @@ const AdminPanel = () => {
     fetchTurnos,
     notifications,
     setNotifications, // NEW: For debug buttons
-    obtenerNotificacionesNoLeidas 
+    obtenerNotificacionesNoLeidas,
+    crearNotificacionPedido, // NEW: For pedidos notifications
+    crearNotificacionEstadoPedido // NEW: For pedido state change notifications
   } = useTurnos()
   const navigate = useNavigate()
 
@@ -352,10 +354,24 @@ const AdminPanel = () => {
   const handleSavePedido = async (pedidoData) => {
     try {
       if (editingPedido) {
-        // Aquí iría la lógica para actualizar el pedido en la base de datos
+        // Actualizar pedido existente
+        setPedidos(prev => prev.map(p => p._id === editingPedido._id ? { ...p, ...pedidoData } : p))
         toast.success('Pedido actualizado correctamente')
       } else {
-        // Aquí iría la lógica para agregar un nuevo pedido a la base de datos
+        // Crear nuevo pedido
+        const nuevoPedido = {
+          _id: Date.now().toString(),
+          numero: `PED-${String(Date.now()).slice(-6)}`,
+          fecha: new Date().toISOString(),
+          ...pedidoData,
+          estado: 'pendiente'
+        }
+        
+        setPedidos(prev => [nuevoPedido, ...prev])
+        
+        // Crear notificación para el nuevo pedido
+        crearNotificacionPedido(nuevoPedido)
+        
         toast.success('Pedido agregado correctamente')
       }
       setShowPedidoForm(false)
@@ -397,7 +413,19 @@ const AdminPanel = () => {
 
   const handleUpdateEstadoPedido = async (pedidoId, nuevoEstado) => {
     if (window.confirm(`¿Confirmar que el pedido ha pasado a estado "${nuevoEstado}"?`)) {
-      // Aquí iría la lógica para actualizar el estado del pedido en la base de datos
+      // Actualizar el estado del pedido
+      setPedidos(prev => prev.map(p => {
+        if (p._id === pedidoId) {
+          const pedidoActualizado = { ...p, estado: nuevoEstado }
+          
+          // Crear notificación para el cambio de estado
+          crearNotificacionEstadoPedido(p, nuevoEstado)
+          
+          return pedidoActualizado
+        }
+        return p
+      }))
+      
       toast.success(`Pedido actualizado a estado "${nuevoEstado}"`)
     }
   }
@@ -936,6 +964,43 @@ const AdminPanel = () => {
                     className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs"
                   >
                     🧪 Crear Turno Prueba
+                  </button>
+                  <button
+                    onClick={() => {
+                      console.log('🔧 Debug: Botón "Crear Pedido Prueba" clickeado')
+                      
+                      // Crear un pedido de prueba
+                      const pedidoPrueba = {
+                        _id: Date.now().toString(),
+                        numero: `PED-${String(Date.now()).slice(-6)}`,
+                        fecha: new Date().toISOString(),
+                        mayorista: 'AutoParts S.A.',
+                        items: [
+                          { producto: 'Aceite de Motor 5W-30', cantidad: 3, precio: 2500 },
+                          { producto: 'Filtro de Aceite', cantidad: 5, precio: 800 }
+                        ],
+                        total: 11500,
+                        estado: 'pendiente',
+                        notas: 'Pedido de prueba para testing'
+                      }
+                      
+                      console.log('🔧 Debug: Creando pedido de prueba:', pedidoPrueba)
+                      setPedidos(prev => {
+                        console.log('🔧 Debug: Pedidos anteriores:', prev.length)
+                        const nuevosPedidos = [pedidoPrueba, ...prev]
+                        console.log('🔧 Debug: Nuevos pedidos:', nuevosPedidos.length)
+                        return nuevosPedidos
+                      })
+                      
+                      // Crear notificación de pedido de prueba
+                      crearNotificacionPedido(pedidoPrueba)
+                      
+                      toast.success('Pedido de prueba creado')
+                      console.log('🔧 Debug: Toast mostrado')
+                    }}
+                    className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-xs"
+                  >
+                    📦 Crear Pedido Prueba
                   </button>
                 </div>
               </div>
