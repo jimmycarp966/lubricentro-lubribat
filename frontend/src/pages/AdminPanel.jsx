@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useProductos } from '../contexts/ProductosContext'
 import { useTurnos } from '../contexts/TurnosContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import toast from 'react-hot-toast'
@@ -28,6 +28,7 @@ const AdminPanel = () => {
     crearNotificacionEstadoPedido // NEW: For pedido state change notifications
   } = useTurnos()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const [activeTab, setActiveTab] = useState('dashboard')
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -60,6 +61,15 @@ const AdminPanel = () => {
 
   // Estados para reportes
   const [reportPeriod, setReportPeriod] = useState('mes')
+
+  // Manejar navegación desde notificaciones
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab)
+      // Limpiar el estado para evitar que se mantenga en navegaciones posteriores
+      navigate(location.pathname, { replace: true })
+    }
+  }, [location.state, navigate])
 
   // Datos simulados para mayoristas y pedidos
   const [mayoristas, setMayoristas] = useState([
@@ -275,8 +285,15 @@ const AdminPanel = () => {
 
   const handleDeleteTurno = async (turnoId) => {
     if (window.confirm('¿Estás seguro de que querés eliminar este turno?')) {
-      await eliminarTurno(turnoId)
-      toast.success('Turno eliminado correctamente')
+      try {
+        await eliminarTurno(turnoId)
+        // Forzar actualización del estado local para que se refleje en el calendario
+        setTurnos(prev => prev.filter(t => t.id !== turnoId))
+        toast.success('Turno eliminado correctamente')
+      } catch (error) {
+        console.error('Error eliminando turno:', error)
+        toast.error('Error al eliminar el turno')
+      }
     }
   }
 

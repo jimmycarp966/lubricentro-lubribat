@@ -49,7 +49,8 @@ ${BUSINESS_CONFIG.businessDescription}`
   const mensajeCodificado = encodeURIComponent(mensaje)
   
   // URL para que el negocio envíe mensaje al cliente
-  const urlWhatsApp = `https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${mensajeCodificado}`
+  // Usar el número del cliente como destinatario, no el del negocio
+  const urlWhatsApp = `https://wa.me/${numeroCliente}?text=${mensajeCodificado}`
 
   return {
     url: urlWhatsApp,
@@ -94,7 +95,7 @@ ${BUSINESS_CONFIG.businessName}`
 
   const numeroCliente = whatsapp.replace(/\D/g, '')
   const mensajeCodificado = encodeURIComponent(mensaje)
-  const urlWhatsApp = `https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${mensajeCodificado}`
+  const urlWhatsApp = `https://wa.me/${numeroCliente}?text=${mensajeCodificado}`
 
   return {
     url: urlWhatsApp,
@@ -131,7 +132,7 @@ ${BUSINESS_CONFIG.businessName}`
 
   const numeroCliente = whatsapp.replace(/\D/g, '')
   const mensajeCodificado = encodeURIComponent(mensaje)
-  const urlWhatsApp = `https://wa.me/${BUSINESS_CONFIG.whatsappNumber}?text=${mensajeCodificado}`
+  const urlWhatsApp = `https://wa.me/${numeroCliente}?text=${mensajeCodificado}`
 
   return {
     url: urlWhatsApp,

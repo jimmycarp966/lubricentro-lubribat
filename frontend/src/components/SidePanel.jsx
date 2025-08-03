@@ -20,8 +20,24 @@ const SidePanel = () => {
   const notificacionesRecientes = notifications.slice(0, 3)
 
   const handleNotificationClick = (notificacion) => {
-    // Marcar como leída y navegar al panel de admin
-    navigate('/admin')
+    // Marcar como leída
+    if (!notificacion.leida) {
+      // Aquí podrías llamar a una función para marcar como leída
+      console.log('Marcando notificación como leída:', notificacion.id)
+    }
+    
+    // Navegar según el tipo de notificación
+    if (notificacion.tipo === 'nuevo_turno' || notificacion.tipo === 'turno_finalizado') {
+      // Navegar a gestión de turnos
+      navigate('/admin', { state: { activeTab: 'turnos' } })
+    } else if (notificacion.tipo === 'nuevo_pedido' || notificacion.tipo === 'estado_pedido') {
+      // Navegar a gestión de pedidos
+      navigate('/admin', { state: { activeTab: 'pedidos' } })
+    } else {
+      // Navegar al panel general
+      navigate('/admin')
+    }
+    
     setIsOpen(false)
   }
 
