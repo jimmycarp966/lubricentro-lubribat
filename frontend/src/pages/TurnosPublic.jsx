@@ -23,6 +23,8 @@ const TurnosPublic = () => {
   })
   const [step, setStep] = useState(1) // 1: sucursal, 2: fecha, 3: horario, 4: servicio, 5: datos, 6: confirmación
   const [confirmedTurno, setConfirmedTurno] = useState(null) // Para guardar los datos del turno confirmado
+  const [debugInfo, setDebugInfo] = useState('')
+  const [showDebug, setShowDebug] = useState(false)
 
   const { crearTurno } = useTurnos()
 
@@ -147,6 +149,7 @@ const TurnosPublic = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     console.log('🔧 Debug: Iniciando creación de turno...')
+    setDebugInfo('🔧 Iniciando creación de turno...')
     setStep(5)
 
     const turnoData = {
@@ -170,14 +173,18 @@ const TurnosPublic = () => {
     }
 
     console.log('🔧 Debug: Datos del turno a crear:', turnoData)
+    setDebugInfo(prev => prev + '\n📋 Datos del turno: ' + JSON.stringify(turnoData, null, 2))
 
     try {
       console.log('🔧 Debug: Llamando a crearTurno...')
+      setDebugInfo(prev => prev + '\n🔄 Llamando a crearTurno...')
       const result = await crearTurno(turnoData)
       console.log('🔧 Debug: Resultado de crearTurno:', result)
+      setDebugInfo(prev => prev + '\n✅ Resultado: ' + JSON.stringify(result, null, 2))
       
       if (result.success) {
         console.log('🔧 Debug: Turno creado exitosamente')
+        setDebugInfo(prev => prev + '\n🎉 Turno creado exitosamente')
         // Generar mensaje de WhatsApp
         const whatsappData = {
           nombre: formData.nombre,
@@ -216,10 +223,12 @@ const TurnosPublic = () => {
         setSelectedService('')
       } else {
         console.log('🔧 Debug: Error en crearTurno:', result.error)
+        setDebugInfo(prev => prev + '\n❌ Error: ' + result.error)
         toast.error('Error al crear el turno')
       }
     } catch (error) {
       console.log('🔧 Debug: Excepción en handleSubmit:', error)
+      setDebugInfo(prev => prev + '\n💥 Excepción: ' + error.message)
       toast.error('Error al crear el turno')
     }
   }
@@ -602,24 +611,78 @@ const TurnosPublic = () => {
   )
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Reservá tu turno
-        </h1>
-        <p className="text-gray-600">
-          Elegí el día, horario y servicio que más te convenga
-        </p>
-      </div>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
+            Reserva tu Turno
+          </h1>
 
+          {/* Debug Panel - Visible for testing */}
+          <div className="mb-4 p-4 bg-yellow-100 border border-yellow-300 rounded">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-bold text-yellow-800">🔧 Panel de Debug</h3>
+              <button
+                onClick={() => setShowDebug(!showDebug)}
+                className="text-xs bg-yellow-600 text-white px-2 py-1 rounded"
+              >
+                {showDebug ? 'Ocultar' : 'Mostrar'}
+              </button>
+            </div>
+            {showDebug && (
+              <div className="text-xs text-yellow-800">
+                <pre className="whitespace-pre-wrap">{debugInfo || 'Sin información de debug'}</pre>
+              </div>
+            )}
+          </div>
 
+          {/* Progress Indicator */}
+          <div className="mb-8">
+            <div className="flex justify-between items-center">
+              {[1, 2, 3, 4, 5, 6].map((stepNumber) => (
+                <div
+                  key={stepNumber}
+                  className={`flex items-center ${
+                    stepNumber < 6 ? 'flex-1' : ''
+                  }`}
+                >
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                      step <= stepNumber
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-300 text-gray-600'
+                    }`}
+                  >
+                    {stepNumber}
+                  </div>
+                  {stepNumber < 6 && (
+                    <div
+                      className={`flex-1 h-1 mx-2 ${
+                        step > stepNumber ? 'bg-blue-600' : 'bg-gray-300'
+                      }`}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-between text-xs text-gray-600 mt-2">
+              <span>Sucursal</span>
+              <span>Fecha</span>
+              <span>Horario</span>
+              <span>Servicio</span>
+              <span>Datos</span>
+              <span>Confirmar</span>
+            </div>
+          </div>
 
-             {step === 1 && renderStep1()}
+          {step === 1 && renderStep1()}
        {step === 2 && renderStep2()}
        {step === 3 && renderStep3()}
        {step === 4 && renderStep4()}
        {step === 5 && renderStep5()}
               {step === 6 && renderStep6()}
+        </div>
+      </div>
     </div>
   )
 }

@@ -514,6 +514,40 @@ const AdminPanel = () => {
 
   const stats = calcularStats()
 
+  const [showDebug, setShowDebug] = useState(false)
+  const [debugInfo, setDebugInfo] = useState('')
+
+  // Función para actualizar información de debug
+  const updateDebugInfo = () => {
+    const info = {
+      turnos: turnos.length,
+      notifications: notifications.length,
+      productos: productos.length,
+      mayoristas: mayoristas.length,
+      pedidos: pedidos.length,
+      localStorage: {
+        turnos: localStorage.getItem('turnos') ? 'Sí' : 'No',
+        notifications: localStorage.getItem('notifications') ? 'Sí' : 'No',
+        productos: localStorage.getItem('productos') ? 'Sí' : 'No',
+        mayoristas: localStorage.getItem('mayoristas') ? 'Sí' : 'No',
+        pedidos: localStorage.getItem('pedidos') ? 'Sí' : 'No'
+      },
+      ultimosTurnos: turnos.slice(0, 3).map(t => ({
+        id: t._id,
+        fecha: t.fecha,
+        cliente: t.cliente?.nombre || 'Sin nombre',
+        sucursal: t.sucursal
+      })),
+      ultimasNotificaciones: notifications.slice(0, 3).map(n => ({
+        id: n.id,
+        tipo: n.tipo,
+        titulo: n.titulo,
+        leida: n.leida
+      }))
+    }
+    setDebugInfo(JSON.stringify(info, null, 2))
+  }
+
   if (!user || (user.role !== 'admin' && user.role !== 'employee')) {
     return null
   }
@@ -539,6 +573,52 @@ const AdminPanel = () => {
               <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
             </div>
           </div>
+        </div>
+
+        {/* Debug Panel - Visible for testing */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold text-gray-800">🔧 Panel de Debug</h3>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  updateDebugInfo()
+                  setShowDebug(!showDebug)
+                }}
+                className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm"
+              >
+                {showDebug ? 'Ocultar Debug' : 'Mostrar Debug'}
+              </button>
+              <button
+                onClick={() => {
+                  console.log('🔧 Debug: Verificando estado actual...')
+                  console.log('🔧 Debug: Turnos actuales:', turnos.length)
+                  console.log('🔧 Debug: Notificaciones actuales:', notifications.length)
+                  console.log('🔧 Debug: Turnos en localStorage:', localStorage.getItem('turnos'))
+                  console.log('🔧 Debug: Notificaciones en localStorage:', localStorage.getItem('notifications'))
+                  
+                  // Mostrar en consola los últimos 3 turnos
+                  console.log('🔧 Debug: Últimos 3 turnos:', turnos.slice(0, 3))
+                  
+                  // Mostrar en consola las últimas 3 notificaciones
+                  console.log('🔧 Debug: Últimas 3 notificaciones:', notifications.slice(0, 3))
+                  
+                  updateDebugInfo()
+                  toast.success('Estado verificado en consola')
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
+              >
+                🔍 Verificar Estado
+              </button>
+            </div>
+          </div>
+          {showDebug && (
+            <div className="bg-yellow-100 border border-yellow-300 rounded p-4">
+              <div className="text-xs text-yellow-800">
+                <pre className="whitespace-pre-wrap">{debugInfo || 'Sin información de debug'}</pre>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Tabs de navegación */}
@@ -1017,6 +1097,7 @@ const AdminPanel = () => {
             // Mostrar en consola las últimas 3 notificaciones
             console.log('🔧 Debug: Últimas 3 notificaciones:', notifications.slice(0, 3))
             
+            updateDebugInfo()
             toast.success('Estado verificado en consola')
           }}
           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs"
