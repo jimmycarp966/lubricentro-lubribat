@@ -1,9 +1,20 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 const TurnosCalendar = ({ selectedDate, onDateSelect, turnos }) => {
-  const [currentMonth, setCurrentMonth] = useState(selectedDate)
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    // Usar la fecha actual real, no la fecha pasada como prop
+    const today = new Date()
+    return startOfMonth(today)
+  })
+
+  // Sincronizar currentMonth con selectedDate cuando cambie
+  useEffect(() => {
+    if (selectedDate) {
+      setCurrentMonth(startOfMonth(selectedDate))
+    }
+  }, [selectedDate])
 
   // Obtener todos los días del mes actual
   const monthStart = startOfMonth(currentMonth)

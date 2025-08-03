@@ -11,21 +11,24 @@ export const useTurnos = () => {
   return context
 }
 
-// Simulación de API compartida usando sessionStorage como "servidor"
+// Simulación de API compartida usando localStorage como "servidor"
 const API_SIMULADA = {
   // Obtener todos los turnos
   getTurnos: () => {
-    const turnos = sessionStorage.getItem('api_turnos')
+    const turnos = localStorage.getItem('api_turnos')
+    console.log('🔧 API: Obteniendo turnos desde localStorage:', turnos ? JSON.parse(turnos).length : 0)
     return turnos ? JSON.parse(turnos) : []
   },
   
   // Guardar turnos
   saveTurnos: (turnos) => {
-    sessionStorage.setItem('api_turnos', JSON.stringify(turnos))
+    console.log('🔧 API: Guardando turnos en localStorage:', turnos.length)
+    localStorage.setItem('api_turnos', JSON.stringify(turnos))
   },
   
   // Agregar un turno
   addTurno: (turno) => {
+    console.log('🔧 API: Agregando turno:', turno._id)
     const turnos = API_SIMULADA.getTurnos()
     turnos.unshift(turno)
     API_SIMULADA.saveTurnos(turnos)
@@ -34,17 +37,20 @@ const API_SIMULADA = {
   
   // Obtener notificaciones
   getNotifications: () => {
-    const notifications = sessionStorage.getItem('api_notifications')
+    const notifications = localStorage.getItem('api_notifications')
+    console.log('🔧 API: Obteniendo notificaciones desde localStorage:', notifications ? JSON.parse(notifications).length : 0)
     return notifications ? JSON.parse(notifications) : []
   },
   
   // Guardar notificaciones
   saveNotifications: (notifications) => {
-    sessionStorage.setItem('api_notifications', JSON.stringify(notifications))
+    console.log('🔧 API: Guardando notificaciones en localStorage:', notifications.length)
+    localStorage.setItem('api_notifications', JSON.stringify(notifications))
   },
   
   // Agregar notificación
   addNotification: (notification) => {
+    console.log('🔧 API: Agregando notificación:', notification.id)
     const notifications = API_SIMULADA.getNotifications()
     notifications.unshift(notification)
     API_SIMULADA.saveNotifications(notifications)
@@ -161,15 +167,19 @@ export const TurnosProvider = ({ children }) => {
     setLoading(false)
   }, [])
 
-  // Sincronizar con la API simulada cada 2 segundos
+  // Sincronizar con la API simulada cada 1 segundo
   useEffect(() => {
     const interval = setInterval(() => {
       const turnosAPI = API_SIMULADA.getTurnos()
       const notificationsAPI = API_SIMULADA.getNotifications()
       
+      console.log('🔧 Sync: Sincronizando datos...')
+      console.log('🔧 Sync: Turnos en API:', turnosAPI.length, 'Turnos en estado:', turnos.length)
+      console.log('🔧 Sync: Notificaciones en API:', notificationsAPI.length, 'Notificaciones en estado:', notifications.length)
+      
       setTurnos(turnosAPI)
       setNotifications(notificationsAPI)
-    }, 2000)
+    }, 1000)
 
     return () => clearInterval(interval)
   }, [])

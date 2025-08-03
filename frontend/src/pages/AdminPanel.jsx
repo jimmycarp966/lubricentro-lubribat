@@ -610,6 +610,23 @@ const AdminPanel = () => {
               >
                 🔍 Verificar Estado
               </button>
+              <button
+                onClick={() => {
+                  // Limpiar localStorage y reinicializar
+                  localStorage.removeItem('api_turnos')
+                  localStorage.removeItem('api_notifications')
+                  localStorage.removeItem('turnos')
+                  localStorage.removeItem('notifications')
+                  
+                  // Recargar la página para reinicializar
+                  window.location.reload()
+                  
+                  toast.success('Datos limpiados y reinicializados')
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+              >
+                🗑️ Limpiar Datos
+              </button>
             </div>
           </div>
           {showDebug && (
