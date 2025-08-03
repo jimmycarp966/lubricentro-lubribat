@@ -11,9 +11,50 @@ export const useTurnos = () => {
   return context
 }
 
+// Simulación de API compartida usando sessionStorage como "servidor"
+const API_SIMULADA = {
+  // Obtener todos los turnos
+  getTurnos: () => {
+    const turnos = sessionStorage.getItem('api_turnos')
+    return turnos ? JSON.parse(turnos) : []
+  },
+  
+  // Guardar turnos
+  saveTurnos: (turnos) => {
+    sessionStorage.setItem('api_turnos', JSON.stringify(turnos))
+  },
+  
+  // Agregar un turno
+  addTurno: (turno) => {
+    const turnos = API_SIMULADA.getTurnos()
+    turnos.unshift(turno)
+    API_SIMULADA.saveTurnos(turnos)
+    return turno
+  },
+  
+  // Obtener notificaciones
+  getNotifications: () => {
+    const notifications = sessionStorage.getItem('api_notifications')
+    return notifications ? JSON.parse(notifications) : []
+  },
+  
+  // Guardar notificaciones
+  saveNotifications: (notifications) => {
+    sessionStorage.setItem('api_notifications', JSON.stringify(notifications))
+  },
+  
+  // Agregar notificación
+  addNotification: (notification) => {
+    const notifications = API_SIMULADA.getNotifications()
+    notifications.unshift(notification)
+    API_SIMULADA.saveNotifications(notifications)
+    return notification
+  }
+}
+
 export const TurnosProvider = ({ children }) => {
   const [turnos, setTurnos] = useState([])
-  const [notifications, setNotifications] = useState([]) // NEW: Notifications array
+  const [notifications, setNotifications] = useState([])
   const [loading, setLoading] = useState(false)
 
   // Datos simulados de turnos
@@ -92,41 +133,46 @@ export const TurnosProvider = ({ children }) => {
     }
   ]
 
-  // Cargar turnos desde localStorage o usar datos simulados
+  // Cargar datos desde la API simulada
   useEffect(() => {
     setLoading(true)
-    const turnosGuardados = localStorage.getItem('turnos')
     
-    if (turnosGuardados) {
-      setTurnos(JSON.parse(turnosGuardados))
-    } else {
-      // Primera vez: usar datos simulados
+    // Verificar si ya hay datos en la API simulada
+    const turnosAPI = API_SIMULADA.getTurnos()
+    const notificationsAPI = API_SIMULADA.getNotifications()
+    
+    if (turnosAPI.length === 0) {
+      // Primera vez: inicializar con datos simulados
+      API_SIMULADA.saveTurnos(turnosSimulados)
       setTurnos(turnosSimulados)
-      localStorage.setItem('turnos', JSON.stringify(turnosSimulados))
+    } else {
+      // Usar datos existentes de la API
+      setTurnos(turnosAPI)
+    }
+    
+    if (notificationsAPI.length === 0) {
+      // Inicializar notificaciones vacías
+      API_SIMULADA.saveNotifications([])
+      setNotifications([])
+    } else {
+      setNotifications(notificationsAPI)
     }
     
     setLoading(false)
   }, [])
 
-  // Guardar turnos en localStorage cuando cambien
+  // Sincronizar con la API simulada cada 2 segundos
   useEffect(() => {
-    if (turnos.length > 0) {
-      localStorage.setItem('turnos', JSON.stringify(turnos))
-    }
-  }, [turnos])
+    const interval = setInterval(() => {
+      const turnosAPI = API_SIMULADA.getTurnos()
+      const notificationsAPI = API_SIMULADA.getNotifications()
+      
+      setTurnos(turnosAPI)
+      setNotifications(notificationsAPI)
+    }, 2000)
 
-  // Cargar notificaciones desde localStorage al inicializar
-  useEffect(() => {
-    const notificacionesGuardadas = localStorage.getItem('notifications')
-    if (notificacionesGuardadas) {
-      setNotifications(JSON.parse(notificacionesGuardadas))
-    }
+    return () => clearInterval(interval)
   }, [])
-
-  // Guardar notificaciones en localStorage cuando cambien
-  useEffect(() => {
-    localStorage.setItem('notifications', JSON.stringify(notifications))
-  }, [notifications])
 
   const crearTurno = async (turnoData) => {
     try {
@@ -141,14 +187,11 @@ export const TurnosProvider = ({ children }) => {
 
       console.log('🔧 Debug: Nuevo turno creado:', nuevoTurno)
 
-      setTurnos(prev => {
-        console.log('🔧 Debug: Turnos anteriores:', prev.length)
-        const nuevosTurnos = [nuevoTurno, ...prev]
-        console.log('🔧 Debug: Nuevos turnos:', nuevosTurnos.length)
-        return nuevosTurnos
-      })
+      // Guardar en la API simulada
+      API_SIMULADA.addTurno(nuevoTurno)
+      console.log('🔧 Debug: Turno guardado en API simulada')
 
-      // Crear notificación para administradores (NEW)
+      // Crear notificación para administradores
       const nuevaNotificacion = {
         id: Date.now().toString(),
         tipo: 'nuevo_turno',
@@ -168,16 +211,11 @@ export const TurnosProvider = ({ children }) => {
         }
       }
 
-      // Debug log para verificar que se crea la notificación
       console.log('🔔 Nueva notificación creada:', nuevaNotificacion)
-      console.log('📊 Total de notificaciones actuales:', notifications.length)
 
-      setNotifications(prev => {
-        console.log('🔧 Debug: Notificaciones anteriores:', prev.length)
-        const nuevasNotificaciones = [nuevaNotificacion, ...prev]
-        console.log('🔧 Debug: Nuevas notificaciones:', nuevasNotificaciones.length)
-        return nuevasNotificaciones
-      })
+      // Guardar notificación en la API simulada
+      API_SIMULADA.addNotification(nuevaNotificacion)
+      console.log('🔧 Debug: Notificación guardada en API simulada')
 
       console.log('🔧 Debug: Turno y notificación creados exitosamente')
       toast.success('Turno creado correctamente')
@@ -192,16 +230,8 @@ export const TurnosProvider = ({ children }) => {
   const fetchTurnos = async () => {
     try {
       setLoading(true)
-      const turnosGuardados = localStorage.getItem('turnos')
-      
-      if (turnosGuardados) {
-        setTurnos(JSON.parse(turnosGuardados))
-      } else {
-        // Primera vez: usar datos simulados
-        setTurnos(turnosSimulados)
-        localStorage.setItem('turnos', JSON.stringify(turnosSimulados))
-      }
-      
+      const turnosAPI = API_SIMULADA.getTurnos()
+      setTurnos(turnosAPI)
       setLoading(false)
       return { success: true }
     } catch (error) {
@@ -213,12 +243,17 @@ export const TurnosProvider = ({ children }) => {
 
   const actualizarTurno = async (id, turnoData) => {
     try {
-      setTurnos(prev => prev.map(t => t._id === id ? { ...t, ...turnoData } : t))
+      const turnosActuales = API_SIMULADA.getTurnos()
+      const turnosActualizados = turnosActuales.map(t => 
+        t._id === id ? { ...t, ...turnoData } : t
+      )
+      API_SIMULADA.saveTurnos(turnosActualizados)
+      setTurnos(turnosActualizados)
       toast.success('Turno actualizado correctamente')
 
-      // Si el turno se finaliza, crear notificación (NEW)
+      // Si el turno se finaliza, crear notificación
       if (turnoData.estado === 'finalizado') {
-        const turno = turnos.find(t => t._id === id)
+        const turno = turnosActuales.find(t => t._id === id)
         if (turno) {
           const notificacionFinalizacion = {
             id: Date.now().toString(),
@@ -236,7 +271,7 @@ export const TurnosProvider = ({ children }) => {
               sucursal: turno.sucursal
             }
           }
-          setNotifications(prev => [notificacionFinalizacion, ...prev])
+          API_SIMULADA.addNotification(notificacionFinalizacion)
         }
       }
 
@@ -249,7 +284,10 @@ export const TurnosProvider = ({ children }) => {
 
   const eliminarTurno = async (id) => {
     try {
-      setTurnos(prev => prev.filter(t => t._id !== id))
+      const turnosActuales = API_SIMULADA.getTurnos()
+      const turnosFiltrados = turnosActuales.filter(t => t._id !== id)
+      API_SIMULADA.saveTurnos(turnosFiltrados)
+      setTurnos(turnosFiltrados)
       toast.success('Turno eliminado correctamente')
       return { success: true }
     } catch (error) {
@@ -260,7 +298,12 @@ export const TurnosProvider = ({ children }) => {
 
   const cambiarEstado = async (id, nuevoEstado) => {
     try {
-      setTurnos(prev => prev.map(t => t._id === id ? { ...t, estado: nuevoEstado } : t))
+      const turnosActuales = API_SIMULADA.getTurnos()
+      const turnosActualizados = turnosActuales.map(t => 
+        t._id === id ? { ...t, estado: nuevoEstado } : t
+      )
+      API_SIMULADA.saveTurnos(turnosActualizados)
+      setTurnos(turnosActualizados)
       toast.success('Estado del turno actualizado')
       return { success: true }
     } catch (error) {
@@ -269,19 +312,23 @@ export const TurnosProvider = ({ children }) => {
     }
   }
 
-  // Funciones para manejar notificaciones (NEW)
+  // Funciones para manejar notificaciones
   const marcarNotificacionComoLeida = (notificacionId) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === notificacionId 
-          ? { ...notif, leida: true }
-          : notif
-      )
+    const notificationsActuales = API_SIMULADA.getNotifications()
+    const notificationsActualizadas = notificationsActuales.map(notif => 
+      notif.id === notificacionId 
+        ? { ...notif, leida: true }
+        : notif
     )
+    API_SIMULADA.saveNotifications(notificationsActualizadas)
+    setNotifications(notificationsActualizadas)
   }
 
   const eliminarNotificacion = (notificacionId) => {
-    setNotifications(prev => prev.filter(notif => notif.id !== notificacionId))
+    const notificationsActuales = API_SIMULADA.getNotifications()
+    const notificationsFiltradas = notificationsActuales.filter(notif => notif.id !== notificacionId)
+    API_SIMULADA.saveNotifications(notificationsFiltradas)
+    setNotifications(notificationsFiltradas)
   }
 
   const obtenerNotificacionesNoLeidas = () => {
@@ -289,10 +336,11 @@ export const TurnosProvider = ({ children }) => {
   }
 
   const limpiarNotificaciones = () => {
+    API_SIMULADA.saveNotifications([])
     setNotifications([])
   }
 
-  // Función para crear notificaciones de pedidos (NEW)
+  // Función para crear notificaciones de pedidos
   const crearNotificacionPedido = (pedidoData) => {
     const nuevaNotificacion = {
       id: Date.now().toString(),
@@ -311,10 +359,10 @@ export const TurnosProvider = ({ children }) => {
     }
 
     console.log('🔔 Nueva notificación de pedido:', nuevaNotificacion)
-    setNotifications(prev => [nuevaNotificacion, ...prev])
+    API_SIMULADA.addNotification(nuevaNotificacion)
   }
 
-  // Función para crear notificaciones de cambio de estado de pedido (NEW)
+  // Función para crear notificaciones de cambio de estado de pedido
   const crearNotificacionEstadoPedido = (pedidoData, nuevoEstado) => {
     const nuevaNotificacion = {
       id: Date.now().toString(),
@@ -327,7 +375,7 @@ export const TurnosProvider = ({ children }) => {
     }
 
     console.log('🔔 Nueva notificación de estado de pedido:', nuevaNotificacion)
-    setNotifications(prev => [nuevaNotificacion, ...prev])
+    API_SIMULADA.addNotification(nuevaNotificacion)
   }
 
   const value = {
