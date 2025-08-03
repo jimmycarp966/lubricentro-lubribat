@@ -101,6 +101,19 @@ const TurnosPublic = () => {
     }
   }, [selectedDate])
 
+  // Función para mostrar/ocultar debug con Ctrl+Shift+D
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (event.ctrlKey && event.shiftKey && event.key === 'D') {
+        setShowDebug(prev => !prev)
+        console.log('🔧 Debug mode:', !showDebug ? 'ON' : 'OFF')
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [showDebug])
+
   const handleSucursalSelect = (sucursal) => {
     setSelectedSucursal(sucursal)
     setStep(2)
@@ -612,30 +625,82 @@ const TurnosPublic = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
-            Reserva tu Turno
-          </h1>
+      {/* Debug Panel - Solo visible con Ctrl+Shift+D */}
+      {showDebug && (
+        <div className="bg-yellow-50 border-b border-yellow-200 p-4">
+          <div className="max-w-4xl mx-auto">
+            <h3 className="text-lg font-semibold text-yellow-800 mb-3">
+              🔧 Panel de Debug Cliente (Ctrl+Shift+D para ocultar)
+            </h3>
+            <div className="bg-white rounded-lg p-4 mb-4">
+              <h4 className="font-semibold text-gray-800 mb-2">Estado del Formulario:</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <span className="font-medium">Paso Actual:</span> {step}
+                </div>
+                <div>
+                  <span className="font-medium">Sucursal:</span> {selectedSucursal || 'No seleccionada'}
+                </div>
+                <div>
+                  <span className="font-medium">Fecha:</span> {selectedDate ? format(selectedDate, 'dd/MM/yyyy') : 'No seleccionada'}
+                </div>
+                <div>
+                  <span className="font-medium">Horario:</span> {selectedTime || 'No seleccionado'}
+                </div>
+                <div>
+                  <span className="font-medium">Servicio:</span> {selectedService || 'No seleccionado'}
+                </div>
+                <div>
+                  <span className="font-medium">Cliente:</span> {formData.nombre || 'No ingresado'}
+                </div>
+                <div>
+                  <span className="font-medium">Teléfono:</span> {formData.whatsapp || 'No ingresado'}
+                </div>
+                <div>
+                  <span className="font-medium">WhatsApp:</span> {formData.whatsapp || 'No ingresado'}
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-lg p-4">
+              <h4 className="font-semibold text-gray-800 mb-2">Información del Vehículo:</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <span className="font-medium">Marca:</span> {formData.patente || 'No ingresada'}
+                </div>
+                <div>
+                  <span className="font-medium">Modelo:</span> {formData.modelo || 'No ingresado'}
+                </div>
+                <div>
+                  <span className="font-medium">Año:</span> {formData.patente || 'No ingresado'}
+                </div>
+                <div>
+                  <span className="font-medium">Patente:</span> {formData.patente || 'No ingresada'}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-          {/* Debug Panel - Visible for testing */}
-          <div className="mb-4 p-4 bg-yellow-100 border border-yellow-300 rounded">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="font-bold text-yellow-800">🔧 Panel de Debug</h3>
-              <button
-                onClick={() => setShowDebug(!showDebug)}
-                className="text-xs bg-yellow-600 text-white px-2 py-1 rounded"
-              >
-                {showDebug ? 'Ocultar' : 'Mostrar'}
-              </button>
+      {/* Header */}
+      <div className="bg-white shadow-lg">
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">Reservar Turno</h1>
+              <p className="text-gray-600 mt-2">Agenda tu servicio de lubricentro</p>
             </div>
             {showDebug && (
-              <div className="text-xs text-yellow-800">
-                <pre className="whitespace-pre-wrap">{debugInfo || 'Sin información de debug'}</pre>
-              </div>
+              <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                🔧 DEBUG MODE
+              </span>
             )}
           </div>
+        </div>
+      </div>
 
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="bg-white rounded-lg shadow-lg p-6">
           {/* Progress Indicator */}
           <div className="mb-8">
             <div className="flex justify-between items-center">
