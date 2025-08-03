@@ -16,6 +16,7 @@ import { database } from '../firebase/config'
 // Referencias a las colecciones
 const turnosRef = ref(database, 'turnos')
 const notificationsRef = ref(database, 'notifications')
+const productosRef = ref(database, 'productos')
 
 // Servicio para Turnos
 export const turnosService = {
@@ -47,7 +48,7 @@ export const turnosService = {
       const newTurno = {
         ...turnoData,
         createdAt: new Date().toISOString(),
-        status: 'pendiente'
+        estado: turnoData.estado || 'pendiente'
       }
       await set(newTurnoRef, newTurno)
       return { id: newTurnoRef.key, ...newTurno }
@@ -94,6 +95,88 @@ export const turnosService = {
         })
       }
       callback(turnos)
+    })
+    return unsubscribe
+  }
+}
+
+// Servicio para Productos
+export const productosService = {
+  // Obtener todos los productos
+  async getProductos() {
+    try {
+      const snapshot = await get(productosRef)
+      if (snapshot.exists()) {
+        const productos = []
+        snapshot.forEach((childSnapshot) => {
+          productos.push({
+            id: childSnapshot.key,
+            ...childSnapshot.val()
+          })
+        })
+        return productos
+      }
+      return []
+    } catch (error) {
+      console.error('Error obteniendo productos:', error)
+      return []
+    }
+  },
+
+  // Crear un nuevo producto
+  async createProducto(productoData) {
+    try {
+      const newProductoRef = push(productosRef)
+      const newProducto = {
+        ...productoData,
+        createdAt: new Date().toISOString(),
+        activo: true
+      }
+      await set(newProductoRef, newProducto)
+      return { id: newProductoRef.key, ...newProducto }
+    } catch (error) {
+      console.error('Error creando producto:', error)
+      throw error
+    }
+  },
+
+  // Actualizar un producto
+  async updateProducto(productoId, updates) {
+    try {
+      const productoRef = ref(database, `productos/${productoId}`)
+      await update(productoRef, updates)
+      return true
+    } catch (error) {
+      console.error('Error actualizando producto:', error)
+      throw error
+    }
+  },
+
+  // Eliminar un producto
+  async deleteProducto(productoId) {
+    try {
+      const productoRef = ref(database, `productos/${productoId}`)
+      await remove(productoRef)
+      return true
+    } catch (error) {
+      console.error('Error eliminando producto:', error)
+      throw error
+    }
+  },
+
+  // Escuchar cambios en tiempo real
+  onProductosChange(callback) {
+    const unsubscribe = onValue(productosRef, (snapshot) => {
+      const productos = []
+      if (snapshot.exists()) {
+        snapshot.forEach((childSnapshot) => {
+          productos.push({
+            id: childSnapshot.key,
+            ...childSnapshot.val()
+          })
+        })
+      }
+      callback(productos)
     })
     return unsubscribe
   }

@@ -14,7 +14,7 @@ import { sendReminderMessage, sendCompletionMessage } from '../utils/whatsappSer
 
 const AdminPanel = () => {
   const { user } = useAuth()
-  const { productos, addProducto, updateProducto, deleteProducto } = useProductos()
+  const { productos, agregarProducto, actualizarProducto, eliminarProducto } = useProductos()
   const { 
     turnos, 
     setTurnos,
@@ -293,7 +293,7 @@ const AdminPanel = () => {
   const handleDeleteProducto = async (productoId) => {
     if (window.confirm('¿Estás seguro de que querés eliminar este producto?')) {
       try {
-        await deleteProducto(productoId)
+        await eliminarProducto(productoId)
         toast.success('Producto eliminado correctamente')
       } catch (error) {
         console.error('Error eliminando producto:', error)
@@ -305,10 +305,10 @@ const AdminPanel = () => {
   const handleSaveProducto = async (productoData) => {
     try {
       if (editingProduct) {
-        await updateProducto(editingProduct._id, productoData)
+        await actualizarProducto(editingProduct._id, productoData)
         toast.success('Producto actualizado correctamente')
       } else {
-        await addProducto(productoData)
+        await agregarProducto(productoData)
         toast.success('Producto agregado correctamente')
       }
       setShowProductForm(false)

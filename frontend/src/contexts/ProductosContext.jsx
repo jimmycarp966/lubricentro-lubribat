@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
+import { productosService } from '../services/firebaseService'
 
 const ProductosContext = createContext()
 
@@ -15,71 +16,50 @@ export const ProductosProvider = ({ children }) => {
   const [productos, setProductos] = useState([])
   const [loading, setLoading] = useState(false)
 
-  // Datos simulados de productos
-  const productosSimulados = [
-    {
-      _id: '1',
-      nombre: 'Aceite de Motor 5W-30',
-      descripcion: 'Aceite sintético de alta calidad',
-      precio: 2500,
-      stock: 50,
-      categoria: 'Aceites',
-      marca: 'Shell'
-    },
-    {
-      _id: '2',
-      nombre: 'Filtro de Aceite',
-      descripcion: 'Filtro de aceite universal',
-      precio: 800,
-      stock: 100,
-      categoria: 'Filtros',
-      marca: 'Fram'
-    },
-    {
-      _id: '3',
-      nombre: 'Líquido de Frenos',
-      descripcion: 'Líquido de frenos DOT 4',
-      precio: 1200,
-      stock: 30,
-      categoria: 'Líquidos',
-      marca: 'Castrol'
-    }
-  ]
-
-  // Cargar productos desde localStorage o usar datos simulados
+  // Cargar productos desde Firebase
   useEffect(() => {
-    setLoading(true)
-    const productosGuardados = localStorage.getItem('productos')
-    
-    if (productosGuardados) {
-      setProductos(JSON.parse(productosGuardados))
-    } else {
-      // Primera vez: usar datos simulados
-      setProductos(productosSimulados)
-      localStorage.setItem('productos', JSON.stringify(productosSimulados))
+    const loadProductos = async () => {
+      setLoading(true)
+      try {
+        console.log('🔥 Firebase: Cargando productos...')
+        const productosData = await productosService.getProductos()
+        console.log('🔥 Firebase: Productos cargados:', productosData.length)
+        setProductos(productosData)
+      } catch (error) {
+        console.error('🔥 Firebase: Error cargando productos:', error)
+        toast.error('Error conectando con la base de datos')
+      } finally {
+        setLoading(false)
+      }
     }
-    
-    setLoading(false)
+
+    loadProductos()
   }, [])
 
-  // Guardar productos en localStorage cuando cambien
+  // Escuchar cambios en tiempo real
   useEffect(() => {
-    if (productos.length > 0) {
-      localStorage.setItem('productos', JSON.stringify(productos))
+    console.log('🔥 Firebase: Configurando listener para productos...')
+    
+    const unsubscribeProductos = productosService.onProductosChange((productosData) => {
+      console.log('🔥 Firebase: Productos actualizados en tiempo real:', productosData.length)
+      setProductos(productosData)
+    })
+
+    return () => {
+      console.log('🔥 Firebase: Limpiando listener de productos...')
+      unsubscribeProductos()
     }
-  }, [productos])
+  }, [])
 
   const agregarProducto = async (producto) => {
     try {
-      const nuevoProducto = {
-        _id: Date.now().toString(),
-        ...producto,
-        createdAt: new Date().toISOString()
-      }
-      setProductos(prev => [...prev, nuevoProducto])
+      console.log('🔥 Firebase: Agregando producto:', producto)
+      const nuevoProducto = await productosService.createProducto(producto)
+      console.log('🔥 Firebase: Producto agregado exitosamente:', nuevoProducto.id)
       toast.success('Producto agregado correctamente')
-      return { success: true }
+      return { success: true, producto: nuevoProducto }
     } catch (error) {
+      console.error('🔥 Firebase: Error agregando producto:', error)
       toast.error('Error al agregar producto')
       return { success: false, error: error.message }
     }
@@ -87,10 +67,13 @@ export const ProductosProvider = ({ children }) => {
 
   const actualizarProducto = async (id, producto) => {
     try {
-      setProductos(prev => prev.map(p => p._id === id ? { ...p, ...producto } : p))
+      console.log('🔥 Firebase: Actualizando producto:', id, producto)
+      await productosService.updateProducto(id, producto)
+      console.log('🔥 Firebase: Producto actualizado exitosamente')
       toast.success('Producto actualizado correctamente')
       return { success: true }
     } catch (error) {
+      console.error('🔥 Firebase: Error actualizando producto:', error)
       toast.error('Error al actualizar producto')
       return { success: false, error: error.message }
     }
@@ -98,10 +81,13 @@ export const ProductosProvider = ({ children }) => {
 
   const eliminarProducto = async (id) => {
     try {
-      setProductos(prev => prev.filter(p => p._id !== id))
+      console.log('🔥 Firebase: Eliminando producto:', id)
+      await productosService.deleteProducto(id)
+      console.log('🔥 Firebase: Producto eliminado exitosamente')
       toast.success('Producto eliminado correctamente')
       return { success: true }
     } catch (error) {
+      console.error('🔥 Firebase: Error eliminando producto:', error)
       toast.error('Error al eliminar producto')
       return { success: false, error: error.message }
     }
