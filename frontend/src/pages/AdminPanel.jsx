@@ -18,6 +18,7 @@ import WhatsAppConfig from '../components/WhatsAppConfig'
 import DashboardStats from '../components/DashboardStats'
 import TurnosChart from '../components/dashboard/TurnosChart'
 import AdvancedMetrics from '../components/dashboard/AdvancedMetrics'
+import IntelligentCalendar from '../components/calendar/IntelligentCalendar'
 import { sendReminderMessage, sendCompletionMessage } from '../utils/whatsappService'
 import { sendTurnoConfirmationNotification, sendWhatsAppNotification, notificationManager } from '../services/notificationService'
 
@@ -228,6 +229,7 @@ const AdminPanel = () => {
   // Definición de tabs
   const tabs = [
     { id: 'dashboard', name: 'Dashboard' },
+    { id: 'calendario', name: 'Calendario' },
     { id: 'turnos', name: 'Turnos' },
     { id: 'productos', name: 'Productos' },
     { id: 'mayoristas', name: 'Mayoristas' },
@@ -1645,6 +1647,28 @@ const AdminPanel = () => {
                   ))}
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'calendario' && (
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Calendario Inteligente</h2>
+                  <p className="text-gray-600">Gestión avanzada de turnos con IA</p>
+                </div>
+              </div>
+              <IntelligentCalendar 
+                turnos={turnos}
+                onDateSelect={(date) => {
+                  console.log('Fecha seleccionada:', date)
+                }}
+                onTurnoSelect={(turno) => {
+                  console.log('Turno seleccionado:', turno)
+                }}
+              />
             </div>
           </div>
         )}

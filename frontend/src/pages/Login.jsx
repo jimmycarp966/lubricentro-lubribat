@@ -6,6 +6,7 @@ import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Card from '../components/ui/Card'
 import Modal from '../components/ui/Modal'
+import { testFirebaseConfig, testAuthState } from '../utils/firebaseTest'
 
 const Login = () => {
   const [email, setEmail] = useState('')
@@ -49,6 +50,13 @@ const Login = () => {
       setShowResetModal(false)
       setResetEmail('')
     }
+  }
+
+  // Función de diagnóstico temporal
+  const handleDiagnostic = () => {
+    console.log('🔍 Iniciando diagnóstico de Firebase...')
+    testFirebaseConfig()
+    testAuthState()
   }
 
   return (
@@ -143,6 +151,18 @@ const Login = () => {
                   Regístrate aquí
                 </Link>
               </p>
+            </div>
+
+            {/* Botón de diagnóstico temporal */}
+            <div className="text-center mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDiagnostic}
+                className="text-xs"
+              >
+                🔍 Diagnóstico Firebase
+              </Button>
             </div>
           </Card.Body>
         </Card>
