@@ -8,8 +8,10 @@ const Input = ({
   icon,
   iconPosition = 'left',
   className = '',
+  id,
   ...props 
 }) => {
+  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`
   const baseClasses = 'input'
   const stateClasses = error ? 'input-error' : success ? 'input-success' : ''
   
@@ -24,7 +26,7 @@ const Input = ({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor={inputId} className="block text-sm font-medium text-gray-700 mb-2">
           {label}
         </label>
       )}
@@ -37,8 +39,11 @@ const Input = ({
         )}
         
         <input 
+          id={inputId}
           className={classes}
           style={icon && iconPosition === 'left' ? { paddingLeft: '2.75rem' } : {}}
+          aria-invalid={error ? 'true' : 'false'}
+          aria-describedby={error ? `${inputId}-error` : success ? `${inputId}-success` : undefined}
           {...props}
         />
         
@@ -50,14 +55,14 @@ const Input = ({
       </div>
       
       {error && (
-        <p className="mt-1 text-sm text-red-600 flex items-center">
+        <p id={`${inputId}-error`} className="mt-1 text-sm text-red-600 flex items-center" role="alert">
           <Icon icon="mdi:alert-circle" className="w-4 h-4 mr-1" />
           {error}
         </p>
       )}
       
       {success && (
-        <p className="mt-1 text-sm text-green-600 flex items-center">
+        <p id={`${inputId}-success`} className="mt-1 text-sm text-green-600 flex items-center">
           <Icon icon="mdi:check-circle" className="w-4 h-4 mr-1" />
           {success}
         </p>

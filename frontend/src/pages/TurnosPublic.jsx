@@ -269,7 +269,7 @@ const TurnosPublic = () => {
                 </h3>
                 <p className="text-gray-600 mt-2">{sucursal.direccion}</p>
                 <div className="mt-4 space-y-2 text-sm text-gray-600">
-                  <p>• Horarios: Lunes a Viernes 8:00-18:00</p>
+                  <p>• Horarios: Lunes a Viernes 08:00-13:00 y 16:00-20:00, Sábados 08:30-13:00</p>
                   <p>• Sábados: 8:00-12:00</p>
                   <p>• Servicio rápido y profesional</p>
                 </div>

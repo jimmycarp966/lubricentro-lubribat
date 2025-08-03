@@ -92,9 +92,14 @@ export const TurnosProvider = ({ children }) => {
         }
       }
 
-      console.log('🔔 Firebase: Creando notificación:', nuevaNotificacion)
-      await notificationsService.createNotification(nuevaNotificacion)
-      console.log('🔔 Firebase: Notificación creada exitosamente')
+      try {
+        console.log('🔔 Firebase: Creando notificación:', nuevaNotificacion)
+        await notificationsService.createNotification(nuevaNotificacion)
+        console.log('🔔 Firebase: Notificación creada exitosamente')
+      } catch (notificationError) {
+        console.warn('⚠️ Firebase: Error creando notificación (no crítico):', notificationError)
+        // No fallar el turno si la notificación falla
+      }
 
       toast.success('Turno creado correctamente')
       return { success: true, turno: nuevoTurno }

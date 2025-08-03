@@ -63,7 +63,7 @@ const Home = () => {
           <div className="flex items-center justify-center space-x-3">
             <Icon icon="mdi:alert-circle" className="w-6 h-6 text-yellow-900 animate-pulse" />
             <p className="text-yellow-900 font-bold text-lg">
-              ATENCIÓN: Horarios de atención de Lunes a Viernes de 8:00 a 18:00 hs
+              ATENCIÓN: Horarios de atención Lunes a Viernes 08:00-13:00 y 16:00-20:00, Sábados 08:30-13:00
             </p>
           </div>
         </div>
