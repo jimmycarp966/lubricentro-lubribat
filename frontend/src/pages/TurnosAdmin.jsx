@@ -100,11 +100,21 @@ const TurnosAdmin = () => {
   }
 
   const handleConfirmarTurno = async (turnoId) => {
+    console.log('🔍 Iniciando confirmación de turno:', turnoId)
+    
     if (window.confirm('¿Confirmar este turno? Se enviará un mensaje de WhatsApp automáticamente.')) {
+      console.log('✅ Usuario confirmó la acción')
+      
       const result = await actualizarTurno(turnoId, { estado: 'confirmado' })
+      console.log('📝 Resultado de actualización:', result)
+      
       if (result.success) {
+        console.log('✅ Turno actualizado exitosamente')
+        
         // Enviar mensaje de WhatsApp automáticamente
         const turno = turnos.find(t => t._id === turnoId)
+        console.log('🔍 Turno encontrado:', turno)
+        
         if (turno) {
           const whatsappData = {
             nombre: turno.cliente?.nombre?.split(' ')[0] || turno.nombre || '',
@@ -116,18 +126,36 @@ const TurnosAdmin = () => {
             sucursal: turno.sucursal || 'LUBRI-BAT'
           }
           
+          console.log('📱 Datos para WhatsApp:', whatsappData)
+          
           const whatsappResult = sendWhatsAppMessage(whatsappData)
-          console.log('📱 WhatsApp enviado:', whatsappResult)
+          console.log('📱 Resultado WhatsApp:', whatsappResult)
           
           // Abrir WhatsApp automáticamente
+          console.log('🌐 Abriendo WhatsApp con URL:', whatsappResult.url)
           window.open(whatsappResult.url, '_blank')
+          
+          // Mostrar mensaje de éxito
+          alert('✅ Turno confirmado y WhatsApp abierto automáticamente')
+        } else {
+          console.error('❌ No se encontró el turno')
+          alert('❌ Error: No se encontró el turno')
         }
+      } else {
+        console.error('❌ Error al actualizar turno:', result)
+        alert('❌ Error al confirmar el turno')
       }
+    } else {
+      console.log('❌ Usuario canceló la confirmación')
     }
   }
 
   const handleEnviarRecordatorio = async (turnoId) => {
+    console.log('🔍 Iniciando envío de recordatorio:', turnoId)
+    
     const turno = turnos.find(t => t._id === turnoId)
+    console.log('🔍 Turno encontrado para recordatorio:', turno)
+    
     if (turno && turno.estado === 'pendiente') {
       const whatsappData = {
         nombre: turno.cliente?.nombre?.split(' ')[0] || turno.nombre || '',
@@ -139,11 +167,20 @@ const TurnosAdmin = () => {
         sucursal: turno.sucursal || 'LUBRI-BAT'
       }
       
+      console.log('📱 Datos para recordatorio WhatsApp:', whatsappData)
+      
       const whatsappResult = sendPendingReminderMessage(whatsappData)
-      console.log('📱 Recordatorio enviado:', whatsappResult)
+      console.log('📱 Resultado recordatorio WhatsApp:', whatsappResult)
       
       // Abrir WhatsApp automáticamente
+      console.log('🌐 Abriendo WhatsApp recordatorio con URL:', whatsappResult.url)
       window.open(whatsappResult.url, '_blank')
+      
+      // Mostrar mensaje de éxito
+      alert('📱 Recordatorio enviado por WhatsApp')
+    } else {
+      console.error('❌ Turno no encontrado o no está pendiente')
+      alert('❌ Error: El turno no está pendiente')
     }
   }
 
