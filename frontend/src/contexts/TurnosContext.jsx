@@ -130,6 +130,8 @@ export const TurnosProvider = ({ children }) => {
 
   const crearTurno = async (turnoData) => {
     try {
+      console.log('🔧 Debug: Iniciando crearTurno con datos:', turnoData)
+      
       const nuevoTurno = {
         _id: Date.now().toString(),
         ...turnoData,
@@ -137,7 +139,14 @@ export const TurnosProvider = ({ children }) => {
         createdAt: new Date().toISOString()
       }
 
-      setTurnos(prev => [nuevoTurno, ...prev])
+      console.log('🔧 Debug: Nuevo turno creado:', nuevoTurno)
+
+      setTurnos(prev => {
+        console.log('🔧 Debug: Turnos anteriores:', prev.length)
+        const nuevosTurnos = [nuevoTurno, ...prev]
+        console.log('🔧 Debug: Nuevos turnos:', nuevosTurnos.length)
+        return nuevosTurnos
+      })
 
       // Crear notificación para administradores (NEW)
       const nuevaNotificacion = {
@@ -161,13 +170,20 @@ export const TurnosProvider = ({ children }) => {
 
       // Debug log para verificar que se crea la notificación
       console.log('🔔 Nueva notificación creada:', nuevaNotificacion)
-      console.log('📊 Total de notificaciones:', notifications.length + 1)
+      console.log('📊 Total de notificaciones actuales:', notifications.length)
 
-      setNotifications(prev => [nuevaNotificacion, ...prev])
+      setNotifications(prev => {
+        console.log('🔧 Debug: Notificaciones anteriores:', prev.length)
+        const nuevasNotificaciones = [nuevaNotificacion, ...prev]
+        console.log('🔧 Debug: Nuevas notificaciones:', nuevasNotificaciones.length)
+        return nuevasNotificaciones
+      })
 
+      console.log('🔧 Debug: Turno y notificación creados exitosamente')
       toast.success('Turno creado correctamente')
       return { success: true, turno: nuevoTurno }
     } catch (error) {
+      console.log('🔧 Debug: Error en crearTurno:', error)
       toast.error('Error al crear turno')
       return { success: false, error: error.message }
     }

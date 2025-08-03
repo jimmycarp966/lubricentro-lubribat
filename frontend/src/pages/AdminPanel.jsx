@@ -965,43 +965,64 @@ const AdminPanel = () => {
                   >
                     🧪 Crear Turno Prueba
                   </button>
-                  <button
-                    onClick={() => {
-                      console.log('🔧 Debug: Botón "Crear Pedido Prueba" clickeado')
-                      
-                      // Crear un pedido de prueba
-                      const pedidoPrueba = {
-                        _id: Date.now().toString(),
-                        numero: `PED-${String(Date.now()).slice(-6)}`,
-                        fecha: new Date().toISOString(),
-                        mayorista: 'AutoParts S.A.',
-                        items: [
-                          { producto: 'Aceite de Motor 5W-30', cantidad: 3, precio: 2500 },
-                          { producto: 'Filtro de Aceite', cantidad: 5, precio: 800 }
-                        ],
-                        total: 11500,
-                        estado: 'pendiente',
-                        notas: 'Pedido de prueba para testing'
-                      }
-                      
-                      console.log('🔧 Debug: Creando pedido de prueba:', pedidoPrueba)
-                      setPedidos(prev => {
-                        console.log('🔧 Debug: Pedidos anteriores:', prev.length)
-                        const nuevosPedidos = [pedidoPrueba, ...prev]
-                        console.log('🔧 Debug: Nuevos pedidos:', nuevosPedidos.length)
-                        return nuevosPedidos
-                      })
-                      
-                      // Crear notificación de pedido de prueba
-                      crearNotificacionPedido(pedidoPrueba)
-                      
-                      toast.success('Pedido de prueba creado')
-                      console.log('🔧 Debug: Toast mostrado')
-                    }}
-                    className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-xs"
-                  >
-                    📦 Crear Pedido Prueba
-                  </button>
+                          <button
+          onClick={() => {
+            console.log('🔧 Debug: Botón "Crear Pedido Prueba" clickeado')
+            
+            // Crear un pedido de prueba
+            const pedidoPrueba = {
+              _id: Date.now().toString(),
+              numero: `PED-${String(Date.now()).slice(-6)}`,
+              fecha: new Date().toISOString(),
+              mayorista: 'AutoParts S.A.',
+              items: [
+                { producto: 'Aceite de Motor 5W-30', cantidad: 3, precio: 2500 },
+                { producto: 'Filtro de Aceite', cantidad: 5, precio: 800 }
+              ],
+              total: 11500,
+              estado: 'pendiente',
+              notas: 'Pedido de prueba para testing'
+            }
+            
+            console.log('🔧 Debug: Creando pedido de prueba:', pedidoPrueba)
+            setPedidos(prev => {
+              console.log('🔧 Debug: Pedidos anteriores:', prev.length)
+              const nuevosPedidos = [pedidoPrueba, ...prev]
+              console.log('🔧 Debug: Nuevos pedidos:', nuevosPedidos.length)
+              return nuevosPedidos
+            })
+            
+            // Crear notificación de pedido de prueba
+            crearNotificacionPedido(pedidoPrueba)
+            
+            toast.success('Pedido de prueba creado')
+            console.log('🔧 Debug: Toast mostrado')
+          }}
+          className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-xs"
+        >
+          📦 Crear Pedido Prueba
+        </button>
+        
+        <button
+          onClick={() => {
+            console.log('🔧 Debug: Verificando estado actual...')
+            console.log('🔧 Debug: Turnos actuales:', turnos.length)
+            console.log('🔧 Debug: Notificaciones actuales:', notifications.length)
+            console.log('🔧 Debug: Turnos en localStorage:', localStorage.getItem('turnos'))
+            console.log('🔧 Debug: Notificaciones en localStorage:', localStorage.getItem('notifications'))
+            
+            // Mostrar en consola los últimos 3 turnos
+            console.log('🔧 Debug: Últimos 3 turnos:', turnos.slice(0, 3))
+            
+            // Mostrar en consola las últimas 3 notificaciones
+            console.log('🔧 Debug: Últimas 3 notificaciones:', notifications.slice(0, 3))
+            
+            toast.success('Estado verificado en consola')
+          }}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs"
+        >
+          🔍 Verificar Estado
+        </button>
                 </div>
               </div>
 

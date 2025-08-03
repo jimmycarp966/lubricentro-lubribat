@@ -146,6 +146,7 @@ const TurnosPublic = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    console.log('🔧 Debug: Iniciando creación de turno...')
     setStep(5)
 
     const turnoData = {
@@ -168,9 +169,15 @@ const TurnosPublic = () => {
       estado: 'confirmado'
     }
 
+    console.log('🔧 Debug: Datos del turno a crear:', turnoData)
+
     try {
+      console.log('🔧 Debug: Llamando a crearTurno...')
       const result = await crearTurno(turnoData)
+      console.log('🔧 Debug: Resultado de crearTurno:', result)
+      
       if (result.success) {
+        console.log('🔧 Debug: Turno creado exitosamente')
         // Generar mensaje de WhatsApp
         const whatsappData = {
           nombre: formData.nombre,
@@ -207,8 +214,12 @@ const TurnosPublic = () => {
         })
         setSelectedTime('')
         setSelectedService('')
+      } else {
+        console.log('🔧 Debug: Error en crearTurno:', result.error)
+        toast.error('Error al crear el turno')
       }
     } catch (error) {
+      console.log('🔧 Debug: Excepción en handleSubmit:', error)
       toast.error('Error al crear el turno')
     }
   }
