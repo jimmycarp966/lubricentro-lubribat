@@ -6,12 +6,16 @@ const TurnosCalendar = ({ selectedDate, onDateSelect, turnos }) => {
   const [currentMonth, setCurrentMonth] = useState(() => {
     // Usar la fecha actual real, no la fecha pasada como prop
     const today = new Date()
+    console.log('🔧 Calendar: Fecha actual:', today)
+    console.log('🔧 Calendar: Día de la semana:', format(today, 'EEEE', { locale: es }))
+    console.log('🔧 Calendar: Fecha formateada:', format(today, 'yyyy-MM-dd'))
     return startOfMonth(today)
   })
 
   // Sincronizar currentMonth con selectedDate cuando cambie
   useEffect(() => {
     if (selectedDate) {
+      console.log('🔧 Calendar: selectedDate cambiado:', selectedDate)
       setCurrentMonth(startOfMonth(selectedDate))
     }
   }, [selectedDate])
@@ -20,6 +24,9 @@ const TurnosCalendar = ({ selectedDate, onDateSelect, turnos }) => {
   const monthStart = startOfMonth(currentMonth)
   const monthEnd = endOfMonth(currentMonth)
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd })
+
+  console.log('🔧 Calendar: Mes actual:', format(currentMonth, 'MMMM yyyy', { locale: es }))
+  console.log('🔧 Calendar: Primer día del mes:', format(monthStart, 'EEEE dd/MM/yyyy', { locale: es }))
 
   // Función para obtener el color del día basado en los turnos
   const getDayColor = (day) => {

@@ -627,6 +627,27 @@ const AdminPanel = () => {
               >
                 🗑️ Limpiar Datos
               </button>
+              <button
+                onClick={() => {
+                  // Forzar sincronización manual
+                  const turnosAPI = JSON.parse(localStorage.getItem('api_turnos') || '[]')
+                  const notificationsAPI = JSON.parse(localStorage.getItem('api_notifications') || '[]')
+                  
+                  console.log('🔧 Manual Sync: Turnos en localStorage:', turnosAPI.length)
+                  console.log('🔧 Manual Sync: Notificaciones en localStorage:', notificationsAPI.length)
+                  console.log('🔧 Manual Sync: Últimos turnos:', turnosAPI.slice(0, 3))
+                  console.log('🔧 Manual Sync: Últimas notificaciones:', notificationsAPI.slice(0, 3))
+                  
+                  // Forzar actualización del estado
+                  setTurnos(turnosAPI)
+                  setNotifications(notificationsAPI)
+                  
+                  toast.success('Sincronización manual completada')
+                }}
+                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
+              >
+                🔄 Sincronizar Manual
+              </button>
             </div>
           </div>
           {showDebug && (

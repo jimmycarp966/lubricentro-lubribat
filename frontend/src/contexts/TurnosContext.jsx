@@ -11,7 +11,7 @@ export const useTurnos = () => {
   return context
 }
 
-// Simulación de API compartida usando localStorage como "servidor"
+// Simulación de API compartida usando localStorage y eventos
 const API_SIMULADA = {
   // Obtener todos los turnos
   getTurnos: () => {
@@ -24,6 +24,8 @@ const API_SIMULADA = {
   saveTurnos: (turnos) => {
     console.log('🔧 API: Guardando turnos en localStorage:', turnos.length)
     localStorage.setItem('api_turnos', JSON.stringify(turnos))
+    // Disparar evento para notificar cambios
+    window.dispatchEvent(new CustomEvent('turnosUpdated', { detail: turnos }))
   },
   
   // Agregar un turno
@@ -46,6 +48,8 @@ const API_SIMULADA = {
   saveNotifications: (notifications) => {
     console.log('🔧 API: Guardando notificaciones en localStorage:', notifications.length)
     localStorage.setItem('api_notifications', JSON.stringify(notifications))
+    // Disparar evento para notificar cambios
+    window.dispatchEvent(new CustomEvent('notificationsUpdated', { detail: notifications }))
   },
   
   // Agregar notificación
@@ -167,9 +171,9 @@ export const TurnosProvider = ({ children }) => {
     setLoading(false)
   }, [])
 
-  // Sincronizar con la API simulada cada 1 segundo
+  // Sincronizar con la API simulada cada 1 segundo y escuchar eventos
   useEffect(() => {
-    const interval = setInterval(() => {
+    const syncData = () => {
       const turnosAPI = API_SIMULADA.getTurnos()
       const notificationsAPI = API_SIMULADA.getNotifications()
       
@@ -179,9 +183,48 @@ export const TurnosProvider = ({ children }) => {
       
       setTurnos(turnosAPI)
       setNotifications(notificationsAPI)
-    }, 1000)
+    }
 
-    return () => clearInterval(interval)
+    // Sincronización inicial
+    syncData()
+
+    // Intervalo de sincronización
+    const interval = setInterval(syncData, 1000)
+
+    // Escuchar eventos de cambios
+    const handleTurnosUpdate = (event) => {
+      console.log('🔧 Event: turnosUpdated recibido')
+      setTurnos(event.detail)
+    }
+
+    const handleNotificationsUpdate = (event) => {
+      console.log('🔧 Event: notificationsUpdated recibido')
+      setNotifications(event.detail)
+    }
+
+    // Escuchar cambios en localStorage
+    const handleStorageChange = (event) => {
+      console.log('🔧 Storage: Cambio detectado en localStorage:', event.key)
+      if (event.key === 'api_turnos') {
+        const turnosAPI = API_SIMULADA.getTurnos()
+        setTurnos(turnosAPI)
+      } else if (event.key === 'api_notifications') {
+        const notificationsAPI = API_SIMULADA.getNotifications()
+        setNotifications(notificationsAPI)
+      }
+    }
+
+    // Agregar listeners
+    window.addEventListener('turnosUpdated', handleTurnosUpdate)
+    window.addEventListener('notificationsUpdated', handleNotificationsUpdate)
+    window.addEventListener('storage', handleStorageChange)
+
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('turnosUpdated', handleTurnosUpdate)
+      window.removeEventListener('notificationsUpdated', handleNotificationsUpdate)
+      window.removeEventListener('storage', handleStorageChange)
+    }
   }, [])
 
   const crearTurno = async (turnoData) => {
