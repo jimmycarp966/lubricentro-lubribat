@@ -4,6 +4,7 @@ import { es } from 'date-fns/locale'
 import { useTurnos } from '../contexts/TurnosContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { sendWhatsAppMessage, sendPendingReminderMessage } from '../utils/whatsappService'
 
 const TurnosAdmin = () => {
   const { user } = useAuth()
@@ -26,6 +27,19 @@ const TurnosAdmin = () => {
     
     console.log('Filtering turno:', turno.fecha, 'vs selected:', selectedDateStr, 'match:', turnoDateStr === selectedDateStr, 'estado:', turno.estado, 'tab:', activeTab)
     return turnoDateStr === selectedDateStr && estadoMatch
+  })
+
+  // Contar turnos por estado para mostrar en las pestañas
+  const turnosPendientes = turnos.filter(turno => {
+    const turnoDateStr = turno.fecha
+    const selectedDateStr = format(selectedDate, 'yyyy-MM-dd')
+    return turnoDateStr === selectedDateStr && (turno.estado === 'pendiente' || turno.estado === 'confirmado')
+  })
+
+  const turnosFinalizados = turnos.filter(turno => {
+    const turnoDateStr = turno.fecha
+    const selectedDateStr = format(selectedDate, 'yyyy-MM-dd')
+    return turnoDateStr === selectedDateStr && turno.estado === 'finalizado'
   })
 
   useEffect(() => {
@@ -82,6 +96,54 @@ const TurnosAdmin = () => {
         return 'bg-red-100 text-red-800'
       default:
         return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const handleConfirmarTurno = async (turnoId) => {
+    if (window.confirm('¿Confirmar este turno? Se enviará un mensaje de WhatsApp automáticamente.')) {
+      const result = await actualizarTurno(turnoId, { estado: 'confirmado' })
+      if (result.success) {
+        // Enviar mensaje de WhatsApp automáticamente
+        const turno = turnos.find(t => t._id === turnoId)
+        if (turno) {
+          const whatsappData = {
+            nombre: turno.cliente?.nombre?.split(' ')[0] || turno.nombre || '',
+            apellido: turno.cliente?.nombre?.split(' ').slice(1).join(' ') || turno.apellido || '',
+            whatsapp: turno.cliente?.telefono || turno.whatsapp || '',
+            fecha: turno.fecha,
+            horario: turno.horario,
+            servicio: turno.servicio,
+            sucursal: turno.sucursal || 'LUBRI-BAT'
+          }
+          
+          const whatsappResult = sendWhatsAppMessage(whatsappData)
+          console.log('📱 WhatsApp enviado:', whatsappResult)
+          
+          // Abrir WhatsApp automáticamente
+          window.open(whatsappResult.url, '_blank')
+        }
+      }
+    }
+  }
+
+  const handleEnviarRecordatorio = async (turnoId) => {
+    const turno = turnos.find(t => t._id === turnoId)
+    if (turno && turno.estado === 'pendiente') {
+      const whatsappData = {
+        nombre: turno.cliente?.nombre?.split(' ')[0] || turno.nombre || '',
+        apellido: turno.cliente?.nombre?.split(' ').slice(1).join(' ') || turno.apellido || '',
+        whatsapp: turno.cliente?.telefono || turno.whatsapp || '',
+        fecha: turno.fecha,
+        horario: turno.horario,
+        servicio: turno.servicio,
+        sucursal: turno.sucursal || 'LUBRI-BAT'
+      }
+      
+      const whatsappResult = sendPendingReminderMessage(whatsappData)
+      console.log('📱 Recordatorio enviado:', whatsappResult)
+      
+      // Abrir WhatsApp automáticamente
+      window.open(whatsappResult.url, '_blank')
     }
   }
 
@@ -155,7 +217,7 @@ const TurnosAdmin = () => {
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
-            Turnos Pendientes
+            Turnos Pendientes ({turnosPendientes.length})
           </button>
           <button
             onClick={() => setActiveTab('finalizados')}
@@ -165,7 +227,7 @@ const TurnosAdmin = () => {
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
-            Turnos Finalizados
+            Turnos Finalizados ({turnosFinalizados.length})
           </button>
         </div>
       </div>
@@ -173,7 +235,7 @@ const TurnosAdmin = () => {
       {/* Turnos list */}
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-lg font-semibold mb-4">
-          {activeTab === 'pendientes' ? 'Turnos Pendientes' : 'Turnos Finalizados'} para el {format(selectedDate, 'dd/MM/yyyy', { locale: es })}
+          {activeTab === 'pendientes' ? 'Turnos Pendientes y Confirmados' : 'Turnos Finalizados'} para el {format(selectedDate, 'dd/MM/yyyy', { locale: es })}
         </h2>
         
         {loading ? (
@@ -220,10 +282,26 @@ const TurnosAdmin = () => {
                      >
                        Editar
                      </button>
-                     {activeTab === 'pendientes' && (
+                     {activeTab === 'pendientes' && turno.estado === 'pendiente' && (
+                       <>
+                         <button
+                           onClick={() => handleConfirmarTurno(turno._id)}
+                           className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded-lg transition-colors"
+                         >
+                           Confirmar
+                         </button>
+                         <button
+                           onClick={() => handleEnviarRecordatorio(turno._id)}
+                           className="bg-yellow-600 hover:bg-yellow-700 text-white text-sm px-3 py-1 rounded-lg transition-colors"
+                         >
+                           Recordatorio
+                         </button>
+                       </>
+                     )}
+                     {activeTab === 'pendientes' && turno.estado === 'confirmado' && (
                        <button
                          onClick={() => handleFinalizarTurno(turno._id)}
-                         className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded-lg transition-colors"
+                         className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded-lg transition-colors"
                        >
                          Finalizar
                        </button>

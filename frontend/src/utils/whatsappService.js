@@ -2,8 +2,8 @@
 
 // CONFIGURACIÓN DEL NEGOCIO
 const BUSINESS_CONFIG = {
-  // CAMBIAR ESTE NÚMERO POR EL NÚMERO DE WHATSAPP BUSINESS DEL LUBRICENTRO
-  whatsappNumber: '5493815123456', // Ejemplo: 5493815123456 (código país + código área + número)
+  // NÚMERO DE WHATSAPP BUSINESS DEL LUBRICENTRO
+  whatsappNumber: '5493863513507', // +54 9 386 351-3507
   businessName: 'LUBRI-BAT',
   businessDescription: 'Servicio de calidad desde 2000'
 }
@@ -30,14 +30,14 @@ export const sendWhatsAppMessage = (turnoData) => {
   // Crear el mensaje
   const mensaje = `¡Hola ${nombre} ${apellido}! 🚗
 
-✅ Tu turno ha sido confirmado exitosamente:
+✅ Tu turno ha sido confirmado por nuestro equipo:
 
 📅 Fecha: ${fechaFormateada}
 ⏰ Horario: ${horario}
 🔧 Servicio: ${servicio}
 🏢 Sucursal: ${sucursal}
 
-📱 Para cualquier consulta, respondé a este mensaje.
+📱 Para cualquier consulta o cambio, contactanos.
 
 ¡Te esperamos! 🛠️
 
@@ -90,6 +90,51 @@ export const sendReminderMessage = (turnoData) => {
 📱 Si necesitás cambiar o cancelar, contactanos.
 
 ¡Te esperamos! 🛠️
+
+${BUSINESS_CONFIG.businessName}`
+
+  const numeroCliente = whatsapp.replace(/\D/g, '')
+  const mensajeCodificado = encodeURIComponent(mensaje)
+  const urlWhatsApp = `https://wa.me/${numeroCliente}?text=${mensajeCodificado}`
+
+  return {
+    url: urlWhatsApp,
+    mensaje: mensaje,
+    numeroNegocio: BUSINESS_CONFIG.whatsappNumber,
+    numeroCliente: numeroCliente
+  }
+}
+
+export const sendPendingReminderMessage = (turnoData) => {
+  const {
+    nombre,
+    apellido,
+    whatsapp,
+    fecha,
+    horario,
+    servicio,
+    sucursal
+  } = turnoData
+
+  const fechaFormateada = new Date(fecha).toLocaleDateString('es-AR', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+
+  const mensaje = `¡Hola ${nombre} ${apellido}! 🚗
+
+⏰ Recordatorio de tu turno pendiente:
+
+📅 Fecha: ${fechaFormateada}
+⏰ Horario: ${horario}
+🔧 Servicio: ${servicio}
+🏢 Sucursal: ${sucursal}
+
+📱 Te notificaremos cuando sea confirmado por nuestro equipo.
+
+¡Gracias por tu paciencia! 🛠️
 
 ${BUSINESS_CONFIG.businessName}`
 

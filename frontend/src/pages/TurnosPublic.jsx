@@ -182,7 +182,7 @@ const TurnosPublic = () => {
       // Datos para tracking del cliente
       puntosServicio: selectedService.duracion >= 60 ? 100 : 50, // Puntos según duración
       fechaCreacion: new Date(),
-      estado: 'confirmado'
+      estado: 'pendiente'
     }
 
     console.log('🔧 Debug: Datos del turno a crear:', turnoData)
@@ -223,7 +223,7 @@ const TurnosPublic = () => {
           whatsappUrl: whatsappResult.url // Agregar URL de WhatsApp
         })
         setStep(6)
-        toast.success('¡Turno confirmado! Te enviaremos un mensaje de WhatsApp.')
+        toast.success('¡Turno reservado! Te notificaremos cuando sea confirmado.')
         // Reset form
         setFormData({
           nombre: '',
@@ -537,14 +537,14 @@ const TurnosPublic = () => {
       <BookingProgress currentStep={6} />
       
       <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-        <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div className="w-20 h-20 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
           <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-3xl font-bold mb-4 text-green-600">¡Turno confirmado!</h2>
+        <h2 className="text-3xl font-bold mb-4 text-yellow-600">¡Turno reservado!</h2>
         <p className="text-gray-600 mb-8 text-lg">
-          Tu turno ha sido reservado exitosamente. Te enviaremos un recordatorio por WhatsApp.
+          Tu turno ha sido reservado exitosamente. Te notificaremos cuando sea confirmado por nuestro equipo.
         </p>
         
                    <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border border-green-200 mb-8">
