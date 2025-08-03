@@ -16,6 +16,8 @@ import TurnosCalendar from '../components/TurnosCalendar'
 import NotificationsPanel from '../components/NotificationsPanel'
 import WhatsAppConfig from '../components/WhatsAppConfig'
 import DashboardStats from '../components/DashboardStats'
+import TurnosChart from '../components/dashboard/TurnosChart'
+import AdvancedMetrics from '../components/dashboard/AdvancedMetrics'
 import { sendReminderMessage, sendCompletionMessage } from '../utils/whatsappService'
 
 const AdminPanel = () => {
@@ -626,6 +628,17 @@ const AdminPanel = () => {
           <div className="space-y-6">
             {/* Dashboard Stats */}
             <DashboardStats turnos={turnos} productos={productos} />
+            
+            {/* Métricas Avanzadas */}
+            <AdvancedMetrics turnos={turnos} productos={productos} />
+            
+            {/* Gráficos */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TurnosChart turnos={turnos} type="line" />
+              <TurnosChart turnos={turnos} type="bar" />
+            </div>
+            
+            <TurnosChart turnos={turnos} type="pie" />
             
             {/* Quick Actions */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
