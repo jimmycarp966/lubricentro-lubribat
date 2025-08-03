@@ -90,7 +90,7 @@ const Button = ({
   // Botón normal
   return (
     <button 
-      className={classes}
+      className={`${classes} ripple`}
       disabled={disabled || loading}
       {...props}
     >

@@ -186,6 +186,91 @@
     animation: pulseSlow 3s infinite;
   }
   
+  /* Micro-interacciones avanzadas */
+  .hover-lift {
+    @apply transition-all duration-300 transform hover:scale-105 hover:-translate-y-1;
+  }
+  
+  .hover-glow {
+    @apply transition-all duration-300 hover:shadow-2xl hover:shadow-green-500/25;
+  }
+  
+  .hover-rotate {
+    @apply transition-all duration-300 hover:rotate-3;
+  }
+  
+  .hover-bounce {
+    @apply transition-all duration-300 hover:animate-bounce;
+  }
+  
+  .ripple {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+  
+  .ripple:active::after {
+    width: 300px;
+    height: 300px;
+  }
+  
+  /* Animaciones de entrada */
+  .animate-slide-in-left {
+    animation: slideInLeft 0.6s ease-out;
+  }
+  
+  .animate-slide-in-right {
+    animation: slideInRight 0.6s ease-out;
+  }
+  
+  .animate-zoom-in {
+    animation: zoomIn 0.5s ease-out;
+  }
+  
+  .animate-flip-in {
+    animation: flipIn 0.6s ease-out;
+  }
+  
+  /* Efectos de parallax */
+  .parallax {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  
+  /* Hover effects sofisticados */
+  .card-hover {
+    @apply transition-all duration-500 transform hover:scale-105 hover:rotate-1 hover:shadow-2xl;
+  }
+  
+  .button-hover {
+    @apply transition-all duration-300 transform hover:scale-105 hover:shadow-xl active:scale-95;
+  }
+  
+  /* Efectos de glassmorphism */
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
   /* Gradientes */
   .gradient-primary {
     background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-light) 100%);
@@ -248,6 +333,77 @@
   }
   50% {
     opacity: 0.7;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes flipIn {
+  from {
+    opacity: 0;
+    transform: perspective(400px) rotateY(90deg);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(400px) rotateY(0deg);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
   }
 }
 

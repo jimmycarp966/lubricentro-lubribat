@@ -74,16 +74,16 @@ const DashboardStats = ({ turnos, productos }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
       {stats.map((stat, index) => (
-        <Card key={index} className="hover:shadow-xl transition-all duration-300">
+                 <Card key={index} className="card-hover animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
           <Card.Body className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">{stat.title}</p>
                 <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
               </div>
-              <div className={`w-12 h-12 ${stat.bgColor} rounded-full flex items-center justify-center`}>
-                <Icon icon={stat.icon} className={`w-6 h-6 ${stat.textColor}`} />
-              </div>
+                                   <div className={`w-12 h-12 ${stat.bgColor} rounded-full flex items-center justify-center hover-rotate transition-all duration-300`}>
+                       <Icon icon={stat.icon} className={`w-6 h-6 ${stat.textColor} animate-pulse-slow`} />
+                     </div>
             </div>
             
             {stat.title === 'Bajo Stock' && productosBajoStock > 0 && (

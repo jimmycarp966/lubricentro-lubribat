@@ -8,7 +8,7 @@ const Home = () => {
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Hero Section */}
-      <div className="text-center py-16 gradient-hero rounded-2xl shadow-brand relative overflow-hidden">
+      <div className="text-center py-16 gradient-hero rounded-2xl shadow-brand relative overflow-hidden glass">
         {/* Background decoration */}
         <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 to-yellow-50/50"></div>
         <div className="absolute top-0 left-0 w-32 h-32 bg-green-200 rounded-full -translate-x-16 -translate-y-16 opacity-20"></div>
@@ -38,7 +38,7 @@ const Home = () => {
               icon="mdi:calendar-plus"
               as="Link"
               to="/turnos"
-              className="text-lg sm:text-xl"
+              className="text-lg sm:text-xl button-hover hover-glow"
             >
               Reservar Turno
             </Button>
@@ -49,7 +49,7 @@ const Home = () => {
               icon="mdi:store"
               as="Link"
               to="/mayorista/login"
-              className="text-lg sm:text-xl"
+              className="text-lg sm:text-xl button-hover hover-glow"
             >
               Portal Mayoristas
             </Button>
@@ -75,7 +75,7 @@ const Home = () => {
           Nuestros Servicios
         </h2>
         <div className="grid md:grid-cols-3 gap-6 sm:gap-10 px-4">
-          <Card className="text-center group hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+          <Card className="text-center group card-hover animate-slide-in-left">
             <Card.Body className="p-8">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-green-200 transition-colors">
                 <Icon icon="mdi:oil" className="w-10 h-10 text-green-600 animate-bounce-gentle" />
@@ -91,7 +91,7 @@ const Home = () => {
             </Card.Body>
           </Card>
           
-          <Card className="text-center group hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+          <Card className="text-center group card-hover animate-zoom-in">
             <Card.Body className="p-8">
               <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-yellow-200 transition-colors">
                 <Icon icon="mdi:wrench" className="w-10 h-10 text-yellow-600 animate-pulse-slow" />
@@ -107,7 +107,7 @@ const Home = () => {
             </Card.Body>
           </Card>
           
-          <Card className="text-center group hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+          <Card className="text-center group card-hover animate-slide-in-right">
             <Card.Body className="p-8">
               <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-200 transition-colors">
                 <Icon icon="mdi:store" className="w-10 h-10 text-blue-600 animate-bounce-gentle" />
