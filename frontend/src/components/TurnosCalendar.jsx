@@ -1,32 +1,51 @@
 import React, { useState, useEffect } from 'react'
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, getDay } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 const TurnosCalendar = ({ selectedDate, onDateSelect, turnos }) => {
   const [currentMonth, setCurrentMonth] = useState(() => {
-    // Usar la fecha actual real, no la fecha pasada como prop
     const today = new Date()
     console.log('🔧 Calendar: Fecha actual:', today)
     console.log('🔧 Calendar: Día de la semana:', format(today, 'EEEE', { locale: es }))
-    console.log('🔧 Calendar: Fecha formateada:', format(today, 'yyyy-MM-dd'))
     return startOfMonth(today)
   })
 
-  // Sincronizar currentMonth con selectedDate cuando cambie
   useEffect(() => {
     if (selectedDate) {
-      console.log('🔧 Calendar: selectedDate cambiado:', selectedDate)
       setCurrentMonth(startOfMonth(selectedDate))
     }
   }, [selectedDate])
 
-  // Obtener todos los días del mes actual
-  const monthStart = startOfMonth(currentMonth)
-  const monthEnd = endOfMonth(currentMonth)
-  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd })
+  // Función para generar el calendario manualmente
+  const generateCalendarDays = (year, month) => {
+    const firstDay = new Date(year, month, 1)
+    const lastDay = new Date(year, month + 1, 0)
+    const startDate = new Date(firstDay)
+    const endDate = new Date(lastDay)
+    
+    // Ajustar para que la semana empiece en domingo (0)
+    const startDayOfWeek = firstDay.getDay()
+    const startDateAdjusted = new Date(firstDay)
+    startDateAdjusted.setDate(1 - startDayOfWeek)
+    
+    const days = []
+    const currentDate = new Date(startDateAdjusted)
+    
+    while (currentDate <= endDate || days.length < 42) { // 6 semanas máximo
+      days.push(new Date(currentDate))
+      currentDate.setDate(currentDate.getDate() + 1)
+    }
+    
+    return days
+  }
 
-  console.log('🔧 Calendar: Mes actual:', format(currentMonth, 'MMMM yyyy', { locale: es }))
-  console.log('🔧 Calendar: Primer día del mes:', format(monthStart, 'EEEE dd/MM/yyyy', { locale: es }))
+  const year = currentMonth.getFullYear()
+  const month = currentMonth.getMonth()
+  const calendarDays = generateCalendarDays(year, month)
+
+  console.log('🔧 Calendar: Generando calendario para:', year, month)
+  console.log('🔧 Calendar: Primer día del mes:', format(new Date(year, month, 1), 'EEEE dd/MM/yyyy', { locale: es }))
+  console.log('🔧 Calendar: Día 2 del mes:', format(new Date(year, month, 2), 'EEEE dd/MM/yyyy', { locale: es }))
 
   // Función para obtener el color del día basado en los turnos
   const getDayColor = (day) => {
@@ -35,19 +54,18 @@ const TurnosCalendar = ({ selectedDate, onDateSelect, turnos }) => {
     
     if (turnosDelDia.length === 0) return 'bg-white'
     
-    // Contar turnos por estado
     const pendientes = turnosDelDia.filter(t => t.estado === 'pendiente' || t.estado === 'confirmado').length
     const finalizados = turnosDelDia.filter(t => t.estado === 'finalizado').length
     
     if (pendientes > 0 && finalizados > 0) {
-      return 'bg-gradient-to-r from-yellow-200 to-green-200' // Mixto
+      return 'bg-gradient-to-r from-yellow-200 to-green-200'
     } else if (pendientes > 0) {
-      return 'bg-yellow-200' // Pendientes
+      return 'bg-yellow-200'
     } else if (finalizados > 0) {
-      return 'bg-green-200' // Finalizados
+      return 'bg-green-200'
     }
     
-    return 'bg-gray-200' // Otros estados
+    return 'bg-gray-200'
   }
 
   // Función para obtener el número de turnos del día
@@ -56,7 +74,7 @@ const TurnosCalendar = ({ selectedDate, onDateSelect, turnos }) => {
     return turnos.filter(turno => turno.fecha === dayStr).length
   }
 
-  // Función para obtener el tooltip con información del día
+  // Función para obtener el tooltip
   const getDayTooltip = (day) => {
     const dayStr = format(day, 'yyyy-MM-dd')
     const turnosDelDia = turnos.filter(turno => turno.fecha === dayStr)
@@ -105,9 +123,9 @@ const TurnosCalendar = ({ selectedDate, onDateSelect, turnos }) => {
 
       {/* Días del mes */}
       <div className="grid grid-cols-7 gap-1">
-        {daysInMonth.map((day, index) => {
-          const isCurrentMonth = isSameMonth(day, currentMonth)
-          const isSelected = isSameDay(day, selectedDate)
+        {calendarDays.map((day, index) => {
+          const isCurrentMonth = day.getMonth() === month
+          const isSelected = selectedDate && isSameDay(day, selectedDate)
           const turnosCount = getTurnosCount(day)
           const dayColor = getDayColor(day)
           const tooltip = getDayTooltip(day)
@@ -125,7 +143,7 @@ const TurnosCalendar = ({ selectedDate, onDateSelect, turnos }) => {
               `}
               title={tooltip}
             >
-              <span className="text-sm">{format(day, 'd')}</span>
+              <span className="text-sm">{day.getDate()}</span>
               {turnosCount > 0 && (
                 <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {turnosCount}
