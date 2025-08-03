@@ -19,6 +19,7 @@ import DashboardStats from '../components/DashboardStats'
 import TurnosChart from '../components/dashboard/TurnosChart'
 import AdvancedMetrics from '../components/dashboard/AdvancedMetrics'
 import { sendReminderMessage, sendCompletionMessage } from '../utils/whatsappService'
+import { sendTurnoConfirmationNotification, sendWhatsAppNotification, notificationManager } from '../services/notificationService'
 
 const AdminPanel = () => {
   const { user } = useAuth()
@@ -268,6 +269,10 @@ const AdminPanel = () => {
           // Abrir WhatsApp automáticamente
           console.log('🌐 Abriendo WhatsApp con URL:', whatsappResult.url)
           window.open(whatsappResult.url, '_blank')
+          
+          // Enviar notificaciones
+          sendTurnoConfirmationNotification(turno)
+          sendWhatsAppNotification(turno)
           
           toast.success('Turno confirmado y WhatsApp enviado')
         }

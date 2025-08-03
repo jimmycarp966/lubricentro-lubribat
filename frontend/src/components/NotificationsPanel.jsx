@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useTurnos } from '../contexts/TurnosContext'
 import { sendWhatsAppMessage, sendCompletionMessage } from '../utils/whatsappService'
+import { notificationManager, requestNotificationPermission } from '../services/notificationService'
+import NotificationSettings from './NotificationSettings'
 import toast from 'react-hot-toast'
 
 const NotificationsPanel = () => {
@@ -14,6 +16,14 @@ const NotificationsPanel = () => {
   } = useTurnos()
   
   const [activeTab, setActiveTab] = useState('todas')
+  const [notificationPermission, setNotificationPermission] = useState('default')
+
+  useEffect(() => {
+    // Verificar permisos de notificaciones
+    if ('Notification' in window) {
+      setNotificationPermission(Notification.permission)
+    }
+  }, [])
 
   const notificacionesNoLeidas = obtenerNotificacionesNoLeidas()
   const notificacionesFiltradas = activeTab === 'no-leidas' 
@@ -95,21 +105,34 @@ const NotificationsPanel = () => {
         >
           No leídas ({notificacionesNoLeidas.length})
         </button>
+        <button
+          onClick={() => setActiveTab('configuracion')}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            activeTab === 'configuracion'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          Configuración
+        </button>
       </div>
 
-      {/* Lista de notificaciones */}
-      <div className="space-y-4">
-        {notificacionesFiltradas.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="text-gray-400 text-6xl mb-4">🔔</div>
-            <p className="text-gray-500">
-              {activeTab === 'no-leidas' 
-                ? 'No hay notificaciones no leídas'
-                : 'No hay notificaciones'
-              }
-            </p>
-          </div>
-        ) : (
+      {/* Contenido según la pestaña activa */}
+      {activeTab === 'configuracion' ? (
+        <NotificationSettings />
+      ) : (
+        <div className="space-y-4">
+          {notificacionesFiltradas.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-gray-400 text-6xl mb-4">🔔</div>
+              <p className="text-gray-500">
+                {activeTab === 'no-leidas' 
+                  ? 'No hay notificaciones no leídas'
+                  : 'No hay notificaciones'
+                }
+              </p>
+            </div>
+          ) : (
           notificacionesFiltradas.map((notificacion) => (
             <div
               key={notificacion.id}
@@ -199,7 +222,8 @@ const NotificationsPanel = () => {
             </div>
           ))
         )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
