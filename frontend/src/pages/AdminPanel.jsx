@@ -786,9 +786,154 @@ const AdminPanel = () => {
                   ➕ Agregar Producto
                 </button>
               </div>
-              <div className="text-center py-12 text-gray-500">
-                <p className="text-lg">Funcionalidad en desarrollo</p>
-                <p className="text-sm">Próximamente: Gestión completa de productos</p>
+
+              {/* Filtros y búsqueda */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Buscar productos..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <select
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Todas las categorías</option>
+                    <option value="aceites">Aceites</option>
+                    <option value="filtros">Filtros</option>
+                    <option value="repuestos">Repuestos</option>
+                    <option value="lubricantes">Lubricantes</option>
+                  </select>
+                </div>
+                <div>
+                  <select
+                    value={filterStock}
+                    onChange={(e) => setFilterStock(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Todo el stock</option>
+                    <option value="disponible">Disponible</option>
+                    <option value="bajo">Stock bajo</option>
+                    <option value="agotado">Agotado</option>
+                  </select>
+                </div>
+                <div>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="nombre">Ordenar por nombre</option>
+                    <option value="precio">Ordenar por precio</option>
+                    <option value="stock">Ordenar por stock</option>
+                    <option value="categoria">Ordenar por categoría</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Estadísticas rápidas */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-blue-600">Total Productos</p>
+                      <p className="text-2xl font-bold text-blue-800">{filteredProductos.length}</p>
+                    </div>
+                    <div className="text-3xl">📦</div>
+                  </div>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-green-600">Disponible</p>
+                      <p className="text-2xl font-bold text-green-800">{productos.filter(p => p.stock > 10).length}</p>
+                    </div>
+                    <div className="text-3xl">✅</div>
+                  </div>
+                </div>
+                <div className="bg-yellow-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-yellow-600">Stock Bajo</p>
+                      <p className="text-2xl font-bold text-yellow-800">{productos.filter(p => p.stock <= 10 && p.stock > 0).length}</p>
+                    </div>
+                    <div className="text-3xl">⚠️</div>
+                  </div>
+                </div>
+                <div className="bg-red-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-red-600">Agotado</p>
+                      <p className="text-2xl font-bold text-red-800">{productos.filter(p => p.stock === 0).length}</p>
+                    </div>
+                    <div className="text-3xl">❌</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Lista de productos */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProductos.length === 0 ? (
+                  <div className="col-span-full text-center py-12">
+                    <div className="text-gray-400 text-6xl mb-4">📦</div>
+                    <p className="text-gray-500 text-lg">No se encontraron productos</p>
+                    <p className="text-gray-400">Intenta ajustar los filtros de búsqueda</p>
+                  </div>
+                ) : (
+                  filteredProductos.map((producto) => (
+                    <div key={producto._id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg text-gray-800 mb-1">{producto.nombre}</h3>
+                          <p className="text-gray-600 text-sm mb-2">{producto.descripcion}</p>
+                          <div className="flex items-center space-x-2">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              producto.categoria === 'aceites' ? 'bg-blue-100 text-blue-800' :
+                              producto.categoria === 'filtros' ? 'bg-green-100 text-green-800' :
+                              producto.categoria === 'repuestos' ? 'bg-purple-100 text-purple-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {producto.categoria}
+                            </span>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              producto.stock === 0 ? 'bg-red-100 text-red-800' :
+                              producto.stock <= 10 ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-green-100 text-green-800'
+                            }`}>
+                              {producto.stock === 0 ? 'Agotado' : 
+                               producto.stock <= 10 ? 'Stock bajo' : 'Disponible'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-green-600">${producto.precio}</p>
+                          <p className="text-sm text-gray-500">Stock: {producto.stock}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEditProducto(producto)}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                        >
+                          ✏️ Editar
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProducto(producto._id)}
+                          className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                        >
+                          🗑️ Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -809,9 +954,135 @@ const AdminPanel = () => {
                   ➕ Agregar Mayorista
                 </button>
               </div>
-              <div className="text-center py-12 text-gray-500">
-                <p className="text-lg">Funcionalidad en desarrollo</p>
-                <p className="text-sm">Próximamente: Gestión completa de mayoristas</p>
+
+              {/* Filtros y búsqueda */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Buscar mayoristas..."
+                    value={searchMayorista}
+                    onChange={(e) => setSearchMayorista(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <select
+                    value={filterTipoMayorista}
+                    onChange={(e) => setFilterTipoMayorista(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Todos los tipos</option>
+                    <option value="aceites">Proveedor de Aceites</option>
+                    <option value="filtros">Proveedor de Filtros</option>
+                    <option value="repuestos">Proveedor de Repuestos</option>
+                    <option value="general">Proveedor General</option>
+                  </select>
+                </div>
+                <div>
+                  <select
+                    value={sortMayoristas}
+                    onChange={(e) => setSortMayoristas(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="nombre">Ordenar por nombre</option>
+                    <option value="tipo">Ordenar por tipo</option>
+                    <option value="ciudad">Ordenar por ciudad</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Estadísticas rápidas */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-blue-600">Total Mayoristas</p>
+                      <p className="text-2xl font-bold text-blue-800">{filteredMayoristas.length}</p>
+                    </div>
+                    <div className="text-3xl">🏢</div>
+                  </div>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-green-600">Aceites</p>
+                      <p className="text-2xl font-bold text-green-800">{mayoristas.filter(m => m.tipo === 'aceites').length}</p>
+                    </div>
+                    <div className="text-3xl">🛢️</div>
+                  </div>
+                </div>
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-purple-600">Filtros</p>
+                      <p className="text-2xl font-bold text-purple-800">{mayoristas.filter(m => m.tipo === 'filtros').length}</p>
+                    </div>
+                    <div className="text-3xl">🔧</div>
+                  </div>
+                </div>
+                <div className="bg-orange-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-orange-600">Repuestos</p>
+                      <p className="text-2xl font-bold text-orange-800">{mayoristas.filter(m => m.tipo === 'repuestos').length}</p>
+                    </div>
+                    <div className="text-3xl">⚙️</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Lista de mayoristas */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredMayoristas.length === 0 ? (
+                  <div className="col-span-full text-center py-12">
+                    <div className="text-gray-400 text-6xl mb-4">🏢</div>
+                    <p className="text-gray-500 text-lg">No se encontraron mayoristas</p>
+                    <p className="text-gray-400">Intenta ajustar los filtros de búsqueda</p>
+                  </div>
+                ) : (
+                  filteredMayoristas.map((mayorista) => (
+                    <div key={mayorista._id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg text-gray-800 mb-1">{mayorista.nombre}</h3>
+                          <p className="text-gray-600 text-sm mb-2">{mayorista.empresa}</p>
+                          <div className="flex items-center space-x-2 mb-2">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              mayorista.tipo === 'aceites' ? 'bg-blue-100 text-blue-800' :
+                              mayorista.tipo === 'filtros' ? 'bg-green-100 text-green-800' :
+                              mayorista.tipo === 'repuestos' ? 'bg-purple-100 text-purple-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {mayorista.tipo}
+                            </span>
+                            <span className="text-xs text-gray-500">{mayorista.ciudad}</span>
+                          </div>
+                          <div className="space-y-1 text-sm text-gray-600">
+                            <p>📧 {mayorista.email}</p>
+                            <p>📱 {mayorista.telefono}</p>
+                            {mayorista.contacto && <p>👤 {mayorista.contacto}</p>}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEditMayorista(mayorista)}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                        >
+                          ✏️ Editar
+                        </button>
+                        <button
+                          onClick={() => handleDeleteMayorista(mayorista._id)}
+                          className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                        >
+                          🗑️ Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -832,9 +1103,174 @@ const AdminPanel = () => {
                   ➕ Nuevo Pedido
                 </button>
               </div>
-              <div className="text-center py-12 text-gray-500">
-                <p className="text-lg">Funcionalidad en desarrollo</p>
-                <p className="text-sm">Próximamente: Gestión completa de pedidos</p>
+
+              {/* Filtros y búsqueda */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Buscar pedidos..."
+                    value={searchPedido}
+                    onChange={(e) => setSearchPedido(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <select
+                    value={filterEstadoPedido}
+                    onChange={(e) => setFilterEstadoPedido(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="confirmado">Confirmado</option>
+                    <option value="enviado">Enviado</option>
+                    <option value="recibido">Recibido</option>
+                    <option value="cancelado">Cancelado</option>
+                  </select>
+                </div>
+                <div>
+                  <select
+                    value={filterMayoristaPedido}
+                    onChange={(e) => setFilterMayoristaPedido(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Todos los proveedores</option>
+                    <option value="aceites">Proveedores de Aceites</option>
+                    <option value="filtros">Proveedores de Filtros</option>
+                    <option value="repuestos">Proveedores de Repuestos</option>
+                  </select>
+                </div>
+                <div>
+                  <select
+                    value={sortPedidos}
+                    onChange={(e) => setSortPedidos(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="fecha">Ordenar por fecha</option>
+                    <option value="total">Ordenar por total</option>
+                    <option value="estado">Ordenar por estado</option>
+                    <option value="mayorista">Ordenar por proveedor</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Estadísticas rápidas */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-blue-600">Total Pedidos</p>
+                      <p className="text-2xl font-bold text-blue-800">{filteredPedidos.length}</p>
+                    </div>
+                    <div className="text-3xl">📋</div>
+                  </div>
+                </div>
+                <div className="bg-yellow-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-yellow-600">Pendientes</p>
+                      <p className="text-2xl font-bold text-yellow-800">{pedidos.filter(p => p.estado === 'pendiente').length}</p>
+                    </div>
+                    <div className="text-3xl">⏳</div>
+                  </div>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-green-600">Recibidos</p>
+                      <p className="text-2xl font-bold text-green-800">{pedidos.filter(p => p.estado === 'recibido').length}</p>
+                    </div>
+                    <div className="text-3xl">✅</div>
+                  </div>
+                </div>
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-purple-600">Total Invertido</p>
+                      <p className="text-2xl font-bold text-purple-800">${totalInvertido.toLocaleString()}</p>
+                    </div>
+                    <div className="text-3xl">💰</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Lista de pedidos */}
+              <div className="space-y-4">
+                {filteredPedidos.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-gray-400 text-6xl mb-4">📋</div>
+                    <p className="text-gray-500 text-lg">No se encontraron pedidos</p>
+                    <p className="text-gray-400">Intenta ajustar los filtros de búsqueda</p>
+                  </div>
+                ) : (
+                  filteredPedidos.map((pedido) => (
+                    <div key={pedido._id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-4 mb-2">
+                            <h3 className="font-semibold text-lg text-gray-800">Pedido #{pedido.numero}</h3>
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              pedido.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-800' :
+                              pedido.estado === 'confirmado' ? 'bg-blue-100 text-blue-800' :
+                              pedido.estado === 'enviado' ? 'bg-purple-100 text-purple-800' :
+                              pedido.estado === 'recibido' ? 'bg-green-100 text-green-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {pedido.estado}
+                            </span>
+                          </div>
+                          <p className="text-gray-600 mb-2">Proveedor: {pedido.mayorista}</p>
+                          <p className="text-sm text-gray-500 mb-3">
+                            Fecha: {new Date(pedido.fecha).toLocaleDateString('es-AR')}
+                          </p>
+                          
+                          {/* Items del pedido */}
+                          <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                            <h4 className="font-medium text-gray-800 mb-2">Productos:</h4>
+                            <div className="space-y-1">
+                              {pedido.items.map((item, index) => (
+                                <div key={index} className="flex justify-between text-sm">
+                                  <span>{item.producto} x{item.cantidad}</span>
+                                  <span>${item.precio.toLocaleString()}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          {pedido.notas && (
+                            <p className="text-sm text-gray-600 italic">"{pedido.notas}"</p>
+                          )}
+                        </div>
+                        <div className="text-right ml-4">
+                          <p className="text-2xl font-bold text-green-600">${pedido.total.toLocaleString()}</p>
+                          <p className="text-sm text-gray-500">{pedido.items.length} productos</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEditPedido(pedido)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                        >
+                          ✏️ Editar
+                        </button>
+                        <button
+                          onClick={() => handleDeletePedido(pedido._id)}
+                          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                        >
+                          🗑️ Eliminar
+                        </button>
+                        <button
+                          onClick={() => handleUpdateEstadoPedido(pedido._id, getNextEstado(pedido.estado))}
+                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                        >
+                          {getNextEstadoLabel(pedido.estado)}
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -848,10 +1284,216 @@ const AdminPanel = () => {
                   <h2 className="text-2xl font-bold text-gray-900">Reportes y Estadísticas</h2>
                   <p className="text-gray-600">Análisis completo del negocio y métricas de rendimiento</p>
                 </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => setReportPeriod('mes')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      reportPeriod === 'mes' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    Este Mes
+                  </button>
+                  <button
+                    onClick={() => setReportPeriod('trimestre')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      reportPeriod === 'trimestre' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    Este Trimestre
+                  </button>
+                  <button
+                    onClick={() => setReportPeriod('año')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      reportPeriod === 'año' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    Este Año
+                  </button>
+                </div>
               </div>
-              <div className="text-center py-12 text-gray-500">
-                <p className="text-lg">Funcionalidad en desarrollo</p>
-                <p className="text-sm">Próximamente: Reportes completos y estadísticas</p>
+
+              {/* Métricas principales */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-blue-100 text-sm">Ingresos Totales</p>
+                      <p className="text-3xl font-bold">${reportData.ingresosTotales.toLocaleString()}</p>
+                      <p className="text-blue-200 text-sm">+12% vs mes anterior</p>
+                    </div>
+                    <div className="text-4xl">💰</div>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-green-100 text-sm">Turnos Completados</p>
+                      <p className="text-3xl font-bold">{reportData.turnosCompletados}</p>
+                      <p className="text-green-200 text-sm">+8% vs mes anterior</p>
+                    </div>
+                    <div className="text-4xl">✅</div>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-purple-100 text-sm">Clientes Nuevos</p>
+                      <p className="text-3xl font-bold">{reportData.clientesNuevos}</p>
+                      <p className="text-purple-200 text-sm">+15% vs mes anterior</p>
+                    </div>
+                    <div className="text-4xl">👥</div>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-orange-100 text-sm">Satisfacción</p>
+                      <p className="text-3xl font-bold">{reportData.satisfaccion}/5</p>
+                      <p className="text-orange-200 text-sm">+0.2 vs mes anterior</p>
+                    </div>
+                    <div className="text-4xl">⭐</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Gráficos y análisis */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Servicios más populares */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">Servicios Más Populares</h3>
+                  <div className="space-y-4">
+                    {reportData.serviciosPopulares.map((servicio, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span className="text-blue-600 font-bold">{index + 1}</span>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-800">{servicio.nombre}</p>
+                            <p className="text-sm text-gray-500">{servicio.porcentaje}% del total</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-gray-800">{servicio.cantidad}</p>
+                          <p className="text-sm text-gray-500">turnos</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Ingresos por sucursal */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">Ingresos por Sucursal</h3>
+                  <div className="space-y-4">
+                    {reportData.ingresosPorSucursal.map((sucursal, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-4 h-4 rounded-full ${
+                            index === 0 ? 'bg-blue-500' : 
+                            index === 1 ? 'bg-green-500' : 'bg-purple-500'
+                          }`}></div>
+                          <div>
+                            <p className="font-medium text-gray-800">{sucursal.nombre}</p>
+                            <p className="text-sm text-gray-500">{sucursal.porcentaje}% del total</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-gray-800">${sucursal.ingresos.toLocaleString()}</p>
+                          <p className="text-sm text-gray-500">{sucursal.turnos} turnos</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Tendencias de crecimiento */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">Tendencias de Crecimiento</h3>
+                  <div className="space-y-4">
+                    {reportData.tendencias.map((tendencia, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <p className="font-medium text-gray-800">{tendencia.metrica}</p>
+                          <p className="text-sm text-gray-500">Últimos 30 días</p>
+                        </div>
+                        <div className="text-right">
+                          <p className={`font-bold ${
+                            tendencia.cambio > 0 ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {tendencia.cambio > 0 ? '+' : ''}{tendencia.cambio}%
+                          </p>
+                          <p className="text-sm text-gray-500">{tendencia.valor}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Análisis de clientes */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">Análisis de Clientes</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-800">Clientes Recurrentes</p>
+                        <p className="text-sm text-gray-500">Más de 3 visitas</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-blue-600">{reportData.clientesRecurrentes}</p>
+                        <p className="text-sm text-gray-500">{reportData.porcentajeRecurrentes}%</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-800">Clientes Nuevos</p>
+                        <p className="text-sm text-gray-500">Primera visita</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-green-600">{reportData.clientesNuevos}</p>
+                        <p className="text-sm text-gray-500">{reportData.porcentajeNuevos}%</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-800">Valor Promedio</p>
+                        <p className="text-sm text-gray-500">Por cliente</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-purple-600">${reportData.valorPromedioCliente}</p>
+                        <p className="text-sm text-gray-500">por visita</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Acciones recomendadas */}
+              <div className="mt-8 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">📊 Acciones Recomendadas</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {reportData.recomendaciones.map((recomendacion, index) => (
+                    <div key={index} className="flex items-start space-x-3 p-3 bg-white rounded-lg">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        recomendacion.prioridad === 'alta' ? 'bg-red-100 text-red-600' :
+                        recomendacion.prioridad === 'media' ? 'bg-yellow-100 text-yellow-600' :
+                        'bg-green-100 text-green-600'
+                      }`}>
+                        {recomendacion.prioridad === 'alta' ? '🔥' :
+                         recomendacion.prioridad === 'media' ? '⚡' : '💡'}
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">{recomendacion.titulo}</p>
+                        <p className="text-sm text-gray-600">{recomendacion.descripcion}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -875,6 +1517,411 @@ const AdminPanel = () => {
           </div>
         )}
       </div>
+
+      {/* Modal para agregar/editar producto */}
+      {showProductForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">
+                {editingProduct ? 'Editar Producto' : 'Agregar Producto'}
+              </h2>
+              <button
+                onClick={() => {
+                  setShowProductForm(false)
+                  setEditingProduct(null)
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={(e) => {
+              e.preventDefault()
+              const formData = new FormData(e.target)
+              const productoData = {
+                nombre: formData.get('nombre'),
+                descripcion: formData.get('descripcion'),
+                precio: parseFloat(formData.get('precio')),
+                stock: parseInt(formData.get('stock')),
+                categoria: formData.get('categoria'),
+                codigo: formData.get('codigo')
+              }
+              handleSaveProducto(productoData)
+            }} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del Producto</label>
+                  <input
+                    type="text"
+                    name="nombre"
+                    defaultValue={editingProduct?.nombre || ''}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Ej: Aceite de Motor 5W-30"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Código</label>
+                  <input
+                    type="text"
+                    name="codigo"
+                    defaultValue={editingProduct?.codigo || ''}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Código interno"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                <textarea
+                  name="descripcion"
+                  defaultValue={editingProduct?.descripcion || ''}
+                  rows="3"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Descripción detallada del producto"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Precio</label>
+                  <input
+                    type="number"
+                    name="precio"
+                    defaultValue={editingProduct?.precio || ''}
+                    required
+                    min="0"
+                    step="0.01"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Stock</label>
+                  <input
+                    type="number"
+                    name="stock"
+                    defaultValue={editingProduct?.stock || ''}
+                    required
+                    min="0"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
+                  <select
+                    name="categoria"
+                    defaultValue={editingProduct?.categoria || 'aceites'}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="aceites">Aceites</option>
+                    <option value="filtros">Filtros</option>
+                    <option value="repuestos">Repuestos</option>
+                    <option value="lubricantes">Lubricantes</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-4 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowProductForm(false)
+                    setEditingProduct(null)
+                  }}
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
+                >
+                  {editingProduct ? 'Actualizar' : 'Agregar'} Producto
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para agregar/editar mayorista */}
+      {showMayoristaForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">
+                {editingMayorista ? 'Editar Mayorista' : 'Agregar Mayorista'}
+              </h2>
+              <button
+                onClick={() => {
+                  setShowMayoristaForm(false)
+                  setEditingMayorista(null)
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={(e) => {
+              e.preventDefault()
+              const formData = new FormData(e.target)
+              const mayoristaData = {
+                nombre: formData.get('nombre'),
+                empresa: formData.get('empresa'),
+                tipo: formData.get('tipo'),
+                email: formData.get('email'),
+                telefono: formData.get('telefono'),
+                contacto: formData.get('contacto'),
+                ciudad: formData.get('ciudad')
+              }
+              handleSaveMayorista(mayoristaData)
+            }} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
+                  <input
+                    type="text"
+                    name="nombre"
+                    defaultValue={editingMayorista?.nombre || ''}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Ej: Juan Pérez"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Empresa</label>
+                  <input
+                    type="text"
+                    name="empresa"
+                    defaultValue={editingMayorista?.empresa || ''}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Ej: AutoParts S.A."
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
+                <select
+                  name="tipo"
+                  defaultValue={editingMayorista?.tipo || 'general'}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="general">Proveedor General</option>
+                  <option value="aceites">Proveedor de Aceites</option>
+                  <option value="filtros">Proveedor de Filtros</option>
+                  <option value="repuestos">Proveedor de Repuestos</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    defaultValue={editingMayorista?.email || ''}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="ejemplo@ejemplo.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                  <input
+                    type="tel"
+                    name="telefono"
+                    defaultValue={editingMayorista?.telefono || ''}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="+54 9 381 512-3456"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Contacto</label>
+                <input
+                  type="text"
+                  name="contacto"
+                  defaultValue={editingMayorista?.contacto || ''}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Nombre del contacto"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Ciudad</label>
+                <input
+                  type="text"
+                  name="ciudad"
+                  defaultValue={editingMayorista?.ciudad || ''}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Ej: Concepción"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-4 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowMayoristaForm(false)
+                    setEditingMayorista(null)
+                  }}
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
+                >
+                  {editingMayorista ? 'Actualizar' : 'Agregar'} Mayorista
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para agregar/editar pedido */}
+      {showPedidoForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">
+                {editingPedido ? 'Editar Pedido' : 'Nuevo Pedido'}
+              </h2>
+              <button
+                onClick={() => {
+                  setShowPedidoForm(false)
+                  setEditingPedido(null)
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={(e) => {
+              e.preventDefault()
+              const formData = new FormData(e.target)
+              const pedidoData = {
+                mayorista: formData.get('mayorista'),
+                items: [
+                  {
+                    producto: formData.get('producto'),
+                    cantidad: parseInt(formData.get('cantidad')),
+                    precio: parseFloat(formData.get('precio'))
+                  }
+                ],
+                total: parseFloat(formData.get('precio')) * parseInt(formData.get('cantidad')),
+                estado: 'pendiente',
+                notas: formData.get('notas')
+              }
+              handleSavePedido(pedidoData)
+            }} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Proveedor</label>
+                <select
+                  name="mayorista"
+                  defaultValue={editingPedido?.mayorista || ''}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Seleccionar proveedor</option>
+                  {mayoristas.map(mayorista => (
+                    <option key={mayorista._id} value={mayorista.empresa}>
+                      {mayorista.empresa} - {mayorista.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Producto</label>
+                  <input
+                    type="text"
+                    name="producto"
+                    defaultValue={editingPedido?.items?.[0]?.producto || ''}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Ej: Aceite de Motor 5W-30"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Cantidad</label>
+                  <input
+                    type="number"
+                    name="cantidad"
+                    defaultValue={editingPedido?.items?.[0]?.cantidad || ''}
+                    required
+                    min="1"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Precio Unitario</label>
+                  <input
+                    type="number"
+                    name="precio"
+                    defaultValue={editingPedido?.items?.[0]?.precio || ''}
+                    required
+                    min="0"
+                    step="0.01"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Notas</label>
+                <textarea
+                  name="notas"
+                  defaultValue={editingPedido?.notas || ''}
+                  rows="3"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Notas adicionales del pedido"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-4 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPedidoForm(false)
+                    setEditingPedido(null)
+                  }}
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
+                >
+                  {editingPedido ? 'Actualizar' : 'Crear'} Pedido
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
