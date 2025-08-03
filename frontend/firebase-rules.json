@@ -1,0 +1,12 @@
+{
+  "rules": {
+    "turnos": {
+      ".read": true,
+      ".write": true
+    },
+    "notifications": {
+      ".read": true,
+      ".write": true
+    }
+  }
+} 
