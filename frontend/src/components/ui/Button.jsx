@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { Icon } from '@iconify/react'
 
 const Button = ({ 
@@ -10,6 +11,9 @@ const Button = ({
   icon,
   iconPosition = 'left',
   className = '',
+  as,
+  to,
+  href,
   ...props 
 }) => {
   const baseClasses = 'btn inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
@@ -37,12 +41,8 @@ const Button = ({
   
   const iconClasses = size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'
   
-  return (
-    <button 
-      className={classes}
-      disabled={disabled || loading}
-      {...props}
-    >
+  const iconElement = (
+    <>
       {loading && (
         <div className={`${iconClasses} mr-2 animate-spin`}>
           <Icon icon="mdi:loading" />
@@ -58,6 +58,43 @@ const Button = ({
       {!loading && icon && iconPosition === 'right' && (
         <Icon icon={icon} className={`${iconClasses} ml-2`} />
       )}
+    </>
+  )
+  
+  // Si es un Link de React Router
+  if (as === 'Link' || to) {
+    return (
+      <Link 
+        to={to}
+        className={classes}
+        {...props}
+      >
+        {iconElement}
+      </Link>
+    )
+  }
+  
+  // Si es un enlace externo
+  if (as === 'a' || href) {
+    return (
+      <a 
+        href={href}
+        className={classes}
+        {...props}
+      >
+        {iconElement}
+      </a>
+    )
+  }
+  
+  // Botón normal
+  return (
+    <button 
+      className={classes}
+      disabled={disabled || loading}
+      {...props}
+    >
+      {iconElement}
     </button>
   )
 }

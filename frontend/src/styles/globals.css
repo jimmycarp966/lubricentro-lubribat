@@ -91,6 +91,16 @@
     @apply px-6 py-3 text-lg;
   }
   
+  /* Estilos para enlaces dentro de botones */
+  .btn a {
+    @apply text-inherit no-underline;
+  }
+  
+  /* Asegurar que los enlaces hereden los estilos del botón */
+  a.btn {
+    @apply text-inherit no-underline;
+  }
+  
   /* Cards */
   .card {
     @apply bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100;

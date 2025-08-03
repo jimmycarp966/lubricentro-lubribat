@@ -36,8 +36,8 @@ const Home = () => {
               variant="primary"
               size="lg"
               icon="mdi:calendar-plus"
-              as="a"
-              href="/turnos"
+              as="Link"
+              to="/turnos"
               className="text-lg sm:text-xl"
             >
               Reservar Turno
@@ -47,8 +47,8 @@ const Home = () => {
               variant="secondary"
               size="lg"
               icon="mdi:store"
-              as="a"
-              href="/mayorista/login"
+              as="Link"
+              to="/mayorista/login"
               className="text-lg sm:text-xl"
             >
               Portal Mayoristas
@@ -155,27 +155,27 @@ const Home = () => {
                 Incluye aceite de motor premium, filtro de aceite y verificación completa de niveles
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  icon="mdi:calendar-plus"
-                  as="a"
-                  href="/turnos"
-                >
-                  Reservar Ahora
-                </Button>
-                
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  icon="mdi:phone"
-                  as="a"
-                  href="/contacto"
-                >
-                  Consultar
-                </Button>
-              </div>
+                             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                 <Button
+                   variant="primary"
+                   size="lg"
+                   icon="mdi:calendar-plus"
+                   as="Link"
+                   to="/turnos"
+                 >
+                   Reservar Ahora
+                 </Button>
+                 
+                 <Button
+                   variant="secondary"
+                   size="lg"
+                   icon="mdi:phone"
+                   as="Link"
+                   to="/contacto"
+                 >
+                   Consultar
+                 </Button>
+               </div>
             </Card.Body>
           </Card>
           
@@ -200,16 +200,16 @@ const Home = () => {
           <p className="text-green-100 mb-10 text-lg sm:text-xl leading-relaxed px-4 max-w-2xl mx-auto">
             Reservá tu turno ahora y disfrutá de nuestros servicios profesionales con la mejor calidad
           </p>
-          <Button
-            variant="secondary"
-            size="lg"
-            icon="mdi:calendar-plus"
-            as="a"
-            href="/turnos"
-            className="text-lg sm:text-xl"
-          >
-            Reservar Ahora
-          </Button>
+                     <Button
+             variant="secondary"
+             size="lg"
+             icon="mdi:calendar-plus"
+             as="Link"
+             to="/turnos"
+             className="text-lg sm:text-xl"
+           >
+             Reservar Ahora
+           </Button>
         </div>
       </section>
     </div>
