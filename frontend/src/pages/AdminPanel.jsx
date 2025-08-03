@@ -611,21 +611,33 @@ const AdminPanel = () => {
                 🔍 Verificar Estado
               </button>
               <button
-                onClick={() => {
-                                   // Limpiar Firebase y reinicializar
-                 localStorage.removeItem('firebase_turnos')
-                 localStorage.removeItem('firebase_notifications')
-                  localStorage.removeItem('api_turnos')
-                  localStorage.removeItem('api_notifications')
-                  localStorage.removeItem('turnos')
-                  localStorage.removeItem('notifications')
-                  localStorage.removeItem('device_id')
-                  localStorage.removeItem('last_sync_timestamp')
-
-                  // Recargar la página para reinicializar
-                  window.location.reload()
-
-                  toast.success('Datos limpiados y reinicializados')
+                onClick={async () => {
+                  try {
+                    // Limpiar todos los datos de Firebase
+                    const { turnosService, notificationsService } = await import('../services/firebaseService')
+                    
+                    // Obtener todos los turnos y notificaciones para eliminarlos
+                    const turnosActuales = await turnosService.getTurnos()
+                    const notificationsActuales = await notificationsService.getNotifications()
+                    
+                    // Eliminar todos los turnos
+                    const deleteTurnosPromises = turnosActuales.map(turno => 
+                      turnosService.deleteTurno(turno.id)
+                    )
+                    await Promise.all(deleteTurnosPromises)
+                    
+                    // Eliminar todas las notificaciones
+                    const deleteNotificationsPromises = notificationsActuales.map(notification => 
+                      notificationsService.deleteNotification(notification.id)
+                    )
+                    await Promise.all(deleteNotificationsPromises)
+                    
+                    console.log('🗑️ Firebase: Datos limpiados - Turnos:', turnosActuales.length, 'Notificaciones:', notificationsActuales.length)
+                    toast.success('Datos limpiados de Firebase')
+                  } catch (error) {
+                    console.error('🔥 Firebase: Error limpiando datos:', error)
+                    toast.error('Error limpiando datos')
+                  }
                 }}
                 className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
               >
@@ -694,37 +706,32 @@ const AdminPanel = () => {
                 🔄 Sync Manual
               </button>
               <button
-                onClick={() => {
-                  // Debug completo del sistema
-                  const turnosLocalStorage = JSON.parse(localStorage.getItem('firebase_turnos') || '[]')
-                  const notificationsLocalStorage = JSON.parse(localStorage.getItem('firebase_notifications') || '[]')
-                  
-                  console.log('🔧 DEBUG COMPLETO DEL SISTEMA:')
-                  console.log('📊 Turnos en Firebase:', turnosLocalStorage.length)
+                onClick={async () => {
+                  // Debug completo del sistema con Firebase
+                  console.log('🔥 DEBUG COMPLETO DEL SISTEMA FIREBASE:')
                   console.log('📊 Turnos en estado React:', turnos.length)
-                  console.log('📊 Notificaciones en Firebase:', notificationsLocalStorage.length)
                   console.log('📊 Notificaciones en estado React:', notifications.length)
                   
-                  console.log('📋 Últimos 3 turnos en Firebase:', turnosLocalStorage.slice(0, 3))
                   console.log('📋 Últimos 3 turnos en React:', turnos.slice(0, 3))
-                  console.log('📋 Últimas 3 notificaciones en Firebase:', notificationsLocalStorage.slice(0, 3))
                   console.log('📋 Últimas 3 notificaciones en React:', notifications.slice(0, 3))
                   
-                  // Verificar si hay diferencias
-                  const turnosDiferentes = turnosLocalStorage.length !== turnos.length
-                  const notificationsDiferentes = notificationsLocalStorage.length !== notifications.length
-                  
-                  console.log('⚠️ DIFERENCIAS DETECTADAS:')
-                  console.log('⚠️ Turnos diferentes:', turnosDiferentes)
-                  console.log('⚠️ Notificaciones diferentes:', notificationsDiferentes)
-                  
-                  if (turnosDiferentes || notificationsDiferentes) {
-                    console.log('🔄 SINCRONIZANDO...')
-                    setTurnos(turnosLocalStorage)
-                    setNotifications(notificationsLocalStorage)
-                    toast.success('Sincronización completada')
-                  } else {
-                    toast.success('Sistema sincronizado correctamente')
+                  // Verificar conexión con Firebase
+                  try {
+                    const { turnosService } = await import('../services/firebaseService')
+                    const turnosFirebase = await turnosService.getTurnos()
+                    console.log('🔥 Firebase: Turnos obtenidos:', turnosFirebase.length)
+                    console.log('🔥 Firebase: Últimos 3 turnos:', turnosFirebase.slice(0, 3))
+                    
+                    if (turnosFirebase.length !== turnos.length) {
+                      console.log('⚠️ DIFERENCIA DETECTADA: Firebase vs React')
+                      setTurnos(turnosFirebase)
+                      toast.success('Sincronización con Firebase completada')
+                    } else {
+                      toast.success('Sistema sincronizado correctamente con Firebase')
+                    }
+                  } catch (error) {
+                    console.error('🔥 Firebase: Error en debug:', error)
+                    toast.error('Error conectando con Firebase')
                   }
                 }}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
@@ -732,53 +739,45 @@ const AdminPanel = () => {
                 🔍 Debug Completo
               </button>
               <button
-                onClick={() => {
-                  // Crear turno de prueba
-                  const turnoPrueba = {
-                    _id: Date.now().toString(),
-                    fecha: '2024-01-20',
-                    horario: '10:00',
-                    servicio: 'Cambio de Aceite',
-                    sucursal: 'Sucursal Monteros',
-                    cliente: {
-                      nombre: 'Cliente Prueba',
-                      telefono: '+5493815123456',
-                      email: 'prueba@email.com'
-                    },
-                    vehiculo: {
-                      patente: 'TEST123',
-                      modelo: 'Auto Prueba 2024'
-                    },
-                    estado: 'confirmado',
-                    createdAt: new Date().toISOString()
+                onClick={async () => {
+                  try {
+                    // Crear turno de prueba con Firebase
+                    const turnoPrueba = {
+                      fecha: '2024-01-20',
+                      horario: '10:00',
+                      servicio: 'Cambio de Aceite',
+                      sucursal: 'Sucursal Monteros',
+                      cliente: {
+                        nombre: 'Cliente Prueba',
+                        telefono: '+5493815123456',
+                        email: 'prueba@email.com'
+                      },
+                      vehiculo: {
+                        patente: 'TEST123',
+                        modelo: 'Auto Prueba 2024'
+                      },
+                      estado: 'confirmado'
+                    }
+
+                    const notificacionPrueba = {
+                      tipo: 'nuevo_turno',
+                      titulo: 'Turno de Prueba',
+                      mensaje: 'Cliente Prueba reservó un turno para 2024-01-20 a las 10:00',
+                      turno: turnoPrueba,
+                      leida: false
+                    }
+
+                    // Guardar en Firebase
+                    const { turnosService, notificationsService } = await import('../services/firebaseService')
+                    const nuevoTurno = await turnosService.createTurno(turnoPrueba)
+                    const nuevaNotificacion = await notificationsService.createNotification(notificacionPrueba)
+
+                    console.log('🧪 Firebase: Datos de prueba creados:', nuevoTurno.id, nuevaNotificacion.id)
+                    toast.success('Datos de prueba creados en Firebase')
+                  } catch (error) {
+                    console.error('🔥 Firebase: Error creando datos de prueba:', error)
+                    toast.error('Error creando datos de prueba')
                   }
-
-                  const notificacionPrueba = {
-                    id: Date.now().toString(),
-                    tipo: 'nuevo_turno',
-                    titulo: 'Turno de Prueba',
-                    mensaje: 'Cliente Prueba reservó un turno para 2024-01-20 a las 10:00',
-                    turno: turnoPrueba,
-                    leida: false,
-                    timestamp: new Date().toISOString()
-                  }
-
-                                     // Guardar en Firebase
-                   const turnosActuales = JSON.parse(localStorage.getItem('firebase_turnos') || '[]')
-                   const notificationsActuales = JSON.parse(localStorage.getItem('firebase_notifications') || '[]')
-                   
-                   turnosActuales.unshift(turnoPrueba)
-                   notificationsActuales.unshift(notificacionPrueba)
-                   
-                   localStorage.setItem('firebase_turnos', JSON.stringify(turnosActuales))
-                   localStorage.setItem('firebase_notifications', JSON.stringify(notificationsActuales))
-
-                  // Actualizar estado React
-                  setTurnos(turnosActuales)
-                  setNotifications(notificationsActuales)
-
-                  console.log('🧪 Datos de prueba creados:', turnoPrueba._id, notificacionPrueba.id)
-                  toast.success('Datos de prueba creados')
                 }}
                 className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-sm"
               >
