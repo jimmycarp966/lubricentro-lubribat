@@ -11,16 +11,16 @@ export const useTurnos = () => {
   return context
 }
 
-// API real usando el servidor
-const API_REAL = {
-  baseURL: 'http://localhost:3001/api',
+// API usando Vercel Serverless Functions
+const API_VERCEL = {
+  baseURL: '/api', // Usar rutas relativas para Vercel
 
   // Obtener todos los turnos
   getTurnos: async () => {
     try {
-      const response = await fetch(`${API_REAL.baseURL}/turnos`)
+      const response = await fetch(`${API_VERCEL.baseURL}/turnos`)
       const turnos = await response.json()
-      console.log('🔧 API: Obteniendo turnos desde servidor:', turnos.length)
+      console.log('🔧 API: Obteniendo turnos desde Vercel:', turnos.length)
       return turnos
     } catch (error) {
       console.log('🔧 API: Error obteniendo turnos:', error)
@@ -31,8 +31,8 @@ const API_REAL = {
   // Agregar un turno
   addTurno: async (turnoData) => {
     try {
-      console.log('🔧 API: Agregando turno al servidor:', turnoData)
-      const response = await fetch(`${API_REAL.baseURL}/turnos`, {
+      console.log('🔧 API: Agregando turno a Vercel:', turnoData)
+      const response = await fetch(`${API_VERCEL.baseURL}/turnos`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ const API_REAL = {
         body: JSON.stringify(turnoData)
       })
       const result = await response.json()
-      console.log('🔧 API: Turno agregado al servidor:', result)
+      console.log('🔧 API: Turno agregado a Vercel:', result)
       return result.turno
     } catch (error) {
       console.log('🔧 API: Error agregando turno:', error)
@@ -51,9 +51,9 @@ const API_REAL = {
   // Obtener notificaciones
   getNotifications: async () => {
     try {
-      const response = await fetch(`${API_REAL.baseURL}/notifications`)
+      const response = await fetch(`${API_VERCEL.baseURL}/notifications`)
       const notifications = await response.json()
-      console.log('🔧 API: Obteniendo notificaciones desde servidor:', notifications.length)
+      console.log('🔧 API: Obteniendo notificaciones desde Vercel:', notifications.length)
       return notifications
     } catch (error) {
       console.log('🔧 API: Error obteniendo notificaciones:', error)
@@ -64,8 +64,8 @@ const API_REAL = {
   // Agregar notificación
   addNotification: async (notificationData) => {
     try {
-      console.log('🔧 API: Agregando notificación al servidor:', notificationData)
-      const response = await fetch(`${API_REAL.baseURL}/notifications`, {
+      console.log('🔧 API: Agregando notificación a Vercel:', notificationData)
+      const response = await fetch(`${API_VERCEL.baseURL}/notifications`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ const API_REAL = {
         body: JSON.stringify(notificationData)
       })
       const result = await response.json()
-      console.log('🔧 API: Notificación agregada al servidor:', result)
+      console.log('🔧 API: Notificación agregada a Vercel:', result)
       return result.notification
     } catch (error) {
       console.log('🔧 API: Error agregando notificación:', error)
@@ -84,10 +84,10 @@ const API_REAL = {
   // Verificar estado del servidor
   checkStatus: async () => {
     try {
-      const response = await fetch(`${API_REAL.baseURL}/status`)
-      const status = await response.json()
-      console.log('🔧 API: Estado del servidor:', status)
-      return status
+      const response = await fetch(`${API_VERCEL.baseURL}/turnos`)
+      const turnos = await response.json()
+      console.log('🔧 API: Estado de Vercel - Turnos:', turnos.length)
+      return { turnos: turnos.length, timestamp: new Date().toISOString() }
     } catch (error) {
       console.log('🔧 API: Error verificando estado:', error)
       return null
@@ -182,8 +182,8 @@ export const TurnosProvider = ({ children }) => {
       setLoading(true)
       
       try {
-        const turnosAPI = await API_REAL.getTurnos()
-        const notificationsAPI = await API_REAL.getNotifications()
+        const turnosAPI = await API_VERCEL.getTurnos()
+        const notificationsAPI = await API_VERCEL.getNotifications()
         
         if (turnosAPI.length === 0) {
           // Primera vez: usar datos simulados
@@ -210,8 +210,8 @@ export const TurnosProvider = ({ children }) => {
   useEffect(() => {
     const syncData = async () => {
       try {
-        const turnosAPI = await API_REAL.getTurnos()
-        const notificationsAPI = await API_REAL.getNotifications()
+        const turnosAPI = await API_VERCEL.getTurnos()
+        const notificationsAPI = await API_VERCEL.getNotifications()
         
         console.log('🔧 Sync: Sincronizando datos...')
         console.log('🔧 Sync: Turnos en API:', turnosAPI.length, 'Turnos en estado:', turnos.length)
@@ -246,7 +246,7 @@ export const TurnosProvider = ({ children }) => {
       console.log('🔧 Debug: Nuevo turno creado:', nuevoTurno)
 
       // Guardar en la API real
-      const turnoGuardado = await API_REAL.addTurno(nuevoTurno)
+      const turnoGuardado = await API_VERCEL.addTurno(nuevoTurno)
       console.log('🔧 Debug: Turno guardado en API real')
 
       // Crear notificación para administradores
@@ -270,7 +270,7 @@ export const TurnosProvider = ({ children }) => {
       console.log('🔔 Nueva notificación creada:', nuevaNotificacion)
 
       // Guardar notificación en la API real
-      await API_REAL.addNotification(nuevaNotificacion)
+      await API_VERCEL.addNotification(nuevaNotificacion)
       console.log('🔧 Debug: Notificación guardada en API real')
 
       console.log('🔧 Debug: Turno y notificación creados exitosamente')
@@ -286,7 +286,7 @@ export const TurnosProvider = ({ children }) => {
   const fetchTurnos = async () => {
     try {
       setLoading(true)
-      const turnosAPI = await API_REAL.getTurnos()
+      const turnosAPI = await API_VERCEL.getTurnos()
       setTurnos(turnosAPI)
       setLoading(false)
       return { success: true }
@@ -321,7 +321,7 @@ export const TurnosProvider = ({ children }) => {
               sucursal: turno.sucursal
             }
           }
-          await API_REAL.addNotification(notificacionFinalizacion)
+          await API_VERCEL.addNotification(notificacionFinalizacion)
         }
       }
 
@@ -394,7 +394,7 @@ export const TurnosProvider = ({ children }) => {
     }
 
     console.log('🔔 Nueva notificación de pedido:', nuevaNotificacion)
-    await API_REAL.addNotification(nuevaNotificacion)
+    await API_VERCEL.addNotification(nuevaNotificacion)
   }
 
   // Función para crear notificaciones de cambio de estado de pedido
@@ -408,7 +408,7 @@ export const TurnosProvider = ({ children }) => {
     }
 
     console.log('🔔 Nueva notificación de estado de pedido:', nuevaNotificacion)
-    await API_REAL.addNotification(nuevaNotificacion)
+    await API_VERCEL.addNotification(nuevaNotificacion)
   }
 
   const value = {
