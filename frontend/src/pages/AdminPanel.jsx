@@ -612,9 +612,9 @@ const AdminPanel = () => {
               </button>
               <button
                 onClick={() => {
-                  // Limpiar localStorage y reinicializar
-                  localStorage.removeItem('vercel_turnos')
-                  localStorage.removeItem('vercel_notifications')
+                                   // Limpiar Firebase y reinicializar
+                 localStorage.removeItem('firebase_turnos')
+                 localStorage.removeItem('firebase_notifications')
                   localStorage.removeItem('api_turnos')
                   localStorage.removeItem('api_notifications')
                   localStorage.removeItem('turnos')
@@ -696,18 +696,18 @@ const AdminPanel = () => {
               <button
                 onClick={() => {
                   // Debug completo del sistema
-                  const turnosLocalStorage = JSON.parse(localStorage.getItem('vercel_turnos') || '[]')
-                  const notificationsLocalStorage = JSON.parse(localStorage.getItem('vercel_notifications') || '[]')
+                  const turnosLocalStorage = JSON.parse(localStorage.getItem('firebase_turnos') || '[]')
+                  const notificationsLocalStorage = JSON.parse(localStorage.getItem('firebase_notifications') || '[]')
                   
                   console.log('🔧 DEBUG COMPLETO DEL SISTEMA:')
-                  console.log('📊 Turnos en localStorage:', turnosLocalStorage.length)
+                  console.log('📊 Turnos en Firebase:', turnosLocalStorage.length)
                   console.log('📊 Turnos en estado React:', turnos.length)
-                  console.log('📊 Notificaciones en localStorage:', notificationsLocalStorage.length)
+                  console.log('📊 Notificaciones en Firebase:', notificationsLocalStorage.length)
                   console.log('📊 Notificaciones en estado React:', notifications.length)
                   
-                  console.log('📋 Últimos 3 turnos en localStorage:', turnosLocalStorage.slice(0, 3))
+                  console.log('📋 Últimos 3 turnos en Firebase:', turnosLocalStorage.slice(0, 3))
                   console.log('📋 Últimos 3 turnos en React:', turnos.slice(0, 3))
-                  console.log('📋 Últimas 3 notificaciones en localStorage:', notificationsLocalStorage.slice(0, 3))
+                  console.log('📋 Últimas 3 notificaciones en Firebase:', notificationsLocalStorage.slice(0, 3))
                   console.log('📋 Últimas 3 notificaciones en React:', notifications.slice(0, 3))
                   
                   // Verificar si hay diferencias
@@ -728,64 +728,64 @@ const AdminPanel = () => {
                   }
                 }}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
-                             >
-                 🔍 Debug Completo
-               </button>
-               <button
-                 onClick={() => {
-                   // Crear turno de prueba
-                   const turnoPrueba = {
-                     _id: Date.now().toString(),
-                     fecha: '2024-01-20',
-                     horario: '10:00',
-                     servicio: 'Cambio de Aceite',
-                     sucursal: 'Sucursal Monteros',
-                     cliente: {
-                       nombre: 'Cliente Prueba',
-                       telefono: '+5493815123456',
-                       email: 'prueba@email.com'
-                     },
-                     vehiculo: {
-                       patente: 'TEST123',
-                       modelo: 'Auto Prueba 2024'
-                     },
-                     estado: 'confirmado',
-                     createdAt: new Date().toISOString()
-                   }
+              >
+                🔍 Debug Completo
+              </button>
+              <button
+                onClick={() => {
+                  // Crear turno de prueba
+                  const turnoPrueba = {
+                    _id: Date.now().toString(),
+                    fecha: '2024-01-20',
+                    horario: '10:00',
+                    servicio: 'Cambio de Aceite',
+                    sucursal: 'Sucursal Monteros',
+                    cliente: {
+                      nombre: 'Cliente Prueba',
+                      telefono: '+5493815123456',
+                      email: 'prueba@email.com'
+                    },
+                    vehiculo: {
+                      patente: 'TEST123',
+                      modelo: 'Auto Prueba 2024'
+                    },
+                    estado: 'confirmado',
+                    createdAt: new Date().toISOString()
+                  }
 
-                   const notificacionPrueba = {
-                     id: Date.now().toString(),
-                     tipo: 'nuevo_turno',
-                     titulo: 'Turno de Prueba',
-                     mensaje: 'Cliente Prueba reservó un turno para 2024-01-20 a las 10:00',
-                     turno: turnoPrueba,
-                     leida: false,
-                     timestamp: new Date().toISOString()
-                   }
+                  const notificacionPrueba = {
+                    id: Date.now().toString(),
+                    tipo: 'nuevo_turno',
+                    titulo: 'Turno de Prueba',
+                    mensaje: 'Cliente Prueba reservó un turno para 2024-01-20 a las 10:00',
+                    turno: turnoPrueba,
+                    leida: false,
+                    timestamp: new Date().toISOString()
+                  }
 
-                   // Guardar en localStorage
-                   const turnosActuales = JSON.parse(localStorage.getItem('vercel_turnos') || '[]')
-                   const notificationsActuales = JSON.parse(localStorage.getItem('vercel_notifications') || '[]')
+                                     // Guardar en Firebase
+                   const turnosActuales = JSON.parse(localStorage.getItem('firebase_turnos') || '[]')
+                   const notificationsActuales = JSON.parse(localStorage.getItem('firebase_notifications') || '[]')
                    
                    turnosActuales.unshift(turnoPrueba)
                    notificationsActuales.unshift(notificacionPrueba)
                    
-                   localStorage.setItem('vercel_turnos', JSON.stringify(turnosActuales))
-                   localStorage.setItem('vercel_notifications', JSON.stringify(notificationsActuales))
+                   localStorage.setItem('firebase_turnos', JSON.stringify(turnosActuales))
+                   localStorage.setItem('firebase_notifications', JSON.stringify(notificationsActuales))
 
-                   // Actualizar estado React
-                   setTurnos(turnosActuales)
-                   setNotifications(notificationsActuales)
+                  // Actualizar estado React
+                  setTurnos(turnosActuales)
+                  setNotifications(notificationsActuales)
 
-                   console.log('🧪 Datos de prueba creados:', turnoPrueba._id, notificacionPrueba.id)
-                   toast.success('Datos de prueba creados')
-                 }}
-                 className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-sm"
-               >
-                 🧪 Crear Datos Prueba
-               </button>
-             </div>
-           </div>
+                  console.log('🧪 Datos de prueba creados:', turnoPrueba._id, notificacionPrueba.id)
+                  toast.success('Datos de prueba creados')
+                }}
+                className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-sm"
+              >
+                �� Crear Datos Prueba
+              </button>
+            </div>
+          </div>
           {showDebug && (
             <div className="bg-yellow-100 border border-yellow-300 rounded p-4">
               <div className="text-xs text-yellow-800">
