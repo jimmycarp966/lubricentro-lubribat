@@ -133,9 +133,22 @@ const TurnosAdmin = () => {
         const whatsappResult = sendWhatsAppMessage(whatsappData)
         console.log('📱 Resultado WhatsApp:', whatsappResult)
         
-        // Abrir WhatsApp automáticamente INMEDIATAMENTE
+        // Crear un enlace temporal para copiar
+        const tempLink = document.createElement('a')
+        tempLink.href = whatsappResult.url
+        tempLink.target = '_blank'
+        tempLink.style.display = 'none'
+        document.body.appendChild(tempLink)
+        
+        // Hacer clic en el enlace programáticamente
         console.log('🌐 Abriendo WhatsApp con URL:', whatsappResult.url)
-        window.open(whatsappResult.url, '_blank')
+        tempLink.click()
+        
+        // Limpiar el enlace temporal
+        document.body.removeChild(tempLink)
+        
+        // Mostrar URL en consola para debugging
+        console.log('🔗 URL completa de WhatsApp:', whatsappResult.url)
         
         // Actualizar el turno DESPUÉS de abrir WhatsApp
         console.log('📝 Actualizando turno en la base de datos...')
@@ -330,22 +343,42 @@ const TurnosAdmin = () => {
                      >
                        Editar
                      </button>
-                     {activeTab === 'pendientes' && turno.estado === 'pendiente' && (
-                       <>
-                         <button
-                           onClick={() => handleConfirmarTurno(turno._id)}
-                           className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded-lg transition-colors"
-                         >
-                           Confirmar
-                         </button>
-                         <button
-                           onClick={() => handleEnviarRecordatorio(turno._id)}
-                           className="bg-yellow-600 hover:bg-yellow-700 text-white text-sm px-3 py-1 rounded-lg transition-colors"
-                         >
-                           Recordatorio
-                         </button>
-                       </>
-                     )}
+                                           {activeTab === 'pendientes' && turno.estado === 'pendiente' && (
+                        <>
+                          <button
+                            onClick={() => handleConfirmarTurno(turno._id)}
+                            className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded-lg transition-colors"
+                          >
+                            Confirmar
+                          </button>
+                          <button
+                            onClick={() => handleEnviarRecordatorio(turno._id)}
+                            className="bg-yellow-600 hover:bg-yellow-700 text-white text-sm px-3 py-1 rounded-lg transition-colors"
+                          >
+                            Recordatorio
+                          </button>
+                          <button
+                            onClick={() => {
+                              const whatsappData = {
+                                nombre: turno.cliente?.nombre?.split(' ')[0] || turno.nombre || '',
+                                apellido: turno.cliente?.nombre?.split(' ').slice(1).join(' ') || turno.apellido || '',
+                                whatsapp: turno.cliente?.telefono || turno.whatsapp || '',
+                                fecha: turno.fecha,
+                                horario: turno.horario,
+                                servicio: turno.servicio,
+                                sucursal: turno.sucursal || 'LUBRI-BAT'
+                              }
+                              const result = sendWhatsAppMessage(whatsappData)
+                              console.log('🧪 PRUEBA WhatsApp:', result)
+                              alert(`🧪 URL de prueba: ${result.url}`)
+                              window.open(result.url, '_blank')
+                            }}
+                            className="bg-purple-600 hover:bg-purple-700 text-white text-sm px-3 py-1 rounded-lg transition-colors"
+                          >
+                            Test WhatsApp
+                          </button>
+                        </>
+                      )}
                      {activeTab === 'pendientes' && turno.estado === 'confirmado' && (
                        <button
                          onClick={() => handleFinalizarTurno(turno._id)}
