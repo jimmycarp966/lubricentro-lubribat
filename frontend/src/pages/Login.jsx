@@ -7,6 +7,7 @@ import Input from '../components/ui/Input'
 import Card from '../components/ui/Card'
 import Modal from '../components/ui/Modal'
 import { testFirebaseConfig, testAuthState, testProductosAccess, testTurnosAccess } from '../utils/firebaseTest'
+import { createAdminUser, checkAdminUser } from '../utils/createAdminUser'
 
 const Login = () => {
   const [email, setEmail] = useState('')
@@ -64,6 +65,32 @@ const Login = () => {
     console.log('\n🔍 Probando acceso a datos...')
     await testProductosAccess()
     await testTurnosAccess()
+  }
+
+  // Función para crear usuario admin
+  const handleCreateAdmin = async () => {
+    console.log('🔧 Iniciando creación de usuario admin...')
+    const result = await createAdminUser()
+    
+    if (result.success) {
+      alert('✅ Usuario admin creado exitosamente!\n\n📧 Email: admin@lubribat.com\n🔑 Contraseña: admin123456')
+    } else if (result.code === 'ALREADY_EXISTS') {
+      alert('ℹ️ El usuario admin ya existe!\n\n📧 Email: admin@lubribat.com\n🔑 Contraseña: admin123456')
+    } else {
+      alert('❌ Error creando usuario admin: ' + result.error)
+    }
+  }
+
+  // Función para verificar usuario admin
+  const handleCheckAdmin = async () => {
+    console.log('🔍 Verificando usuario admin...')
+    const result = await checkAdminUser()
+    
+    if (result.exists) {
+      alert('✅ Usuario admin existe!\n\n📧 Email: admin@lubribat.com\n🔑 Contraseña: admin123456')
+    } else {
+      alert('❌ Usuario admin no existe. Usa el botón "Crear Admin" para crearlo.')
+    }
   }
 
   return (
@@ -160,8 +187,8 @@ const Login = () => {
               </p>
             </div>
 
-            {/* Botón de diagnóstico temporal */}
-            <div className="text-center mt-4">
+            {/* Botones de diagnóstico y admin temporal */}
+            <div className="text-center mt-4 space-y-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -170,6 +197,26 @@ const Login = () => {
               >
                 🔍 Diagnóstico Firebase
               </Button>
+              
+              <div className="flex gap-2 justify-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCheckAdmin}
+                  className="text-xs"
+                >
+                  👤 Verificar Admin
+                </Button>
+                
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleCreateAdmin}
+                  className="text-xs"
+                >
+                  🔧 Crear Admin
+                </Button>
+              </div>
             </div>
           </Card.Body>
         </Card>
