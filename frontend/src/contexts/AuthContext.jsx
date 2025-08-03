@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { onAuthChange, loginWithEmail, loginWithGoogle, logout as logoutService, registerWithEmail, resetPassword } from '../services/authService'
+import { ref, get } from 'firebase/database'
+import { database } from '../firebase/config'
 import toast from 'react-hot-toast'
 
 const AuthContext = createContext()
@@ -16,16 +18,35 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  // Función para obtener el rol del usuario desde la base de datos
+  const getUserRole = async (uid) => {
+    try {
+      const userRef = ref(database, `users/${uid}`)
+      const snapshot = await get(userRef)
+      
+      if (snapshot.exists()) {
+        const userData = snapshot.val()
+        return userData.role || 'client'
+      }
+      
+      return 'client' // Por defecto
+    } catch (error) {
+      console.error('Error obteniendo rol del usuario:', error)
+      return 'client' // Por defecto
+    }
+  }
+
   // Login con email y contraseña
   const login = async (email, password) => {
     try {
       const result = await loginWithEmail(email, password)
       if (result.success) {
+        const userRole = await getUserRole(result.user.uid)
         setUser({
           uid: result.user.uid,
           email: result.user.email,
           displayName: result.user.displayName,
-          role: 'client' // Por defecto es cliente
+          role: userRole
         })
         toast.success('¡Bienvenido!')
         return { success: true }
@@ -44,11 +65,12 @@ export const AuthProvider = ({ children }) => {
     try {
       const result = await loginWithGoogle()
       if (result.success) {
+        const userRole = await getUserRole(result.user.uid)
         setUser({
           uid: result.user.uid,
           email: result.user.email,
           displayName: result.user.displayName,
-          role: 'client'
+          role: userRole
         })
         toast.success('¡Bienvenido con Google!')
         return { success: true }
@@ -67,11 +89,12 @@ export const AuthProvider = ({ children }) => {
     try {
       const result = await registerWithEmail(email, password, displayName)
       if (result.success) {
+        const userRole = await getUserRole(result.user.uid)
         setUser({
           uid: result.user.uid,
           email: result.user.email,
           displayName: result.user.displayName,
-          role: 'client'
+          role: userRole
         })
         toast.success('¡Cuenta creada exitosamente!')
         return { success: true }
@@ -115,13 +138,14 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Escuchar cambios en el estado de autenticación
-    const unsubscribe = onAuthChange((user) => {
+    const unsubscribe = onAuthChange(async (user) => {
       if (user) {
+        const userRole = await getUserRole(user.uid)
         setUser({
           uid: user.uid,
           email: user.email,
           displayName: user.displayName,
-          role: 'client' // Por defecto es cliente
+          role: userRole
         })
       } else {
         setUser(null)
