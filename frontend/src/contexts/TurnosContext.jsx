@@ -206,7 +206,7 @@ export const TurnosProvider = ({ children }) => {
     loadData()
   }, [])
 
-  // Sincronizar con la API real cada 2 segundos
+  // Sincronizar con localStorage cada 2 segundos
   useEffect(() => {
     const syncData = async () => {
       try {
@@ -214,11 +214,21 @@ export const TurnosProvider = ({ children }) => {
         const notificationsAPI = await API_LOCAL.getNotifications()
         
         console.log('🔧 Sync: Sincronizando datos...')
-        console.log('🔧 Sync: Turnos en API:', turnosAPI.length, 'Turnos en estado:', turnos.length)
-        console.log('🔧 Sync: Notificaciones en API:', notificationsAPI.length, 'Notificaciones en estado:', notifications.length)
+        console.log('🔧 Sync: Turnos en localStorage:', turnosAPI.length)
+        console.log('🔧 Sync: Turnos en estado React:', turnos.length)
+        console.log('🔧 Sync: Notificaciones en localStorage:', notificationsAPI.length)
+        console.log('🔧 Sync: Notificaciones en estado React:', notifications.length)
         
-        setTurnos(turnosAPI)
-        setNotifications(notificationsAPI)
+        // Solo actualizar si hay diferencias para evitar sobrescribir
+        if (turnosAPI.length !== turnos.length) {
+          console.log('🔧 Sync: Actualizando turnos (diferencia detectada)')
+          setTurnos(turnosAPI)
+        }
+        
+        if (notificationsAPI.length !== notifications.length) {
+          console.log('🔧 Sync: Actualizando notificaciones (diferencia detectada)')
+          setNotifications(notificationsAPI)
+        }
       } catch (error) {
         console.log('🔧 Error en sincronización:', error)
       }
@@ -227,11 +237,11 @@ export const TurnosProvider = ({ children }) => {
     // Sincronización inicial
     syncData()
 
-    // Intervalo de sincronización
-    const interval = setInterval(syncData, 2000)
+    // Intervalo de sincronización (aumentado a 5 segundos para menos interferencia)
+    const interval = setInterval(syncData, 5000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [turnos.length, notifications.length]) // Dependencias para evitar loops infinitos
 
   const crearTurno = async (turnoData) => {
     try {
@@ -245,9 +255,13 @@ export const TurnosProvider = ({ children }) => {
 
       console.log('🔧 Debug: Nuevo turno creado:', nuevoTurno)
 
-      // Guardar en la API real
+      // Guardar en localStorage
       const turnoGuardado = await API_LOCAL.addTurno(nuevoTurno)
-      console.log('🔧 Debug: Turno guardado en API real')
+      console.log('🔧 Debug: Turno guardado en localStorage:', turnoGuardado._id)
+
+      // Actualizar estado React inmediatamente
+      setTurnos(prev => [turnoGuardado, ...prev])
+      console.log('🔧 Debug: Estado React actualizado con nuevo turno')
 
       // Crear notificación para administradores
       const nuevaNotificacion = {
@@ -269,11 +283,17 @@ export const TurnosProvider = ({ children }) => {
 
       console.log('🔔 Nueva notificación creada:', nuevaNotificacion)
 
-      // Guardar notificación en la API real
-      await API_LOCAL.addNotification(nuevaNotificacion)
-      console.log('🔧 Debug: Notificación guardada en API real')
+      // Guardar notificación en localStorage
+      const notificacionGuardada = await API_LOCAL.addNotification(nuevaNotificacion)
+      console.log('🔧 Debug: Notificación guardada en localStorage:', notificacionGuardada.id)
+
+      // Actualizar estado React inmediatamente
+      setNotifications(prev => [notificacionGuardada, ...prev])
+      console.log('🔧 Debug: Estado React actualizado con nueva notificación')
 
       console.log('🔧 Debug: Turno y notificación creados exitosamente')
+      console.log('🔧 Debug: Estado final - Turnos:', turnos.length + 1, 'Notificaciones:', notifications.length + 1)
+      
       toast.success('Turno creado correctamente')
       return { success: true, turno: turnoGuardado }
     } catch (error) {
