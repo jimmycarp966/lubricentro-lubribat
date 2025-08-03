@@ -613,14 +613,18 @@ const AdminPanel = () => {
               <button
                 onClick={() => {
                   // Limpiar localStorage y reinicializar
+                  localStorage.removeItem('vercel_turnos')
+                  localStorage.removeItem('vercel_notifications')
                   localStorage.removeItem('api_turnos')
                   localStorage.removeItem('api_notifications')
                   localStorage.removeItem('turnos')
                   localStorage.removeItem('notifications')
-                  
+                  localStorage.removeItem('device_id')
+                  localStorage.removeItem('last_sync_timestamp')
+
                   // Recargar la página para reinicializar
                   window.location.reload()
-                  
+
                   toast.success('Datos limpiados y reinicializados')
                 }}
                 className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
@@ -654,8 +658,8 @@ const AdminPanel = () => {
                   window.dispatchEvent(new CustomEvent('forceSync', { detail: { type: 'all' } }))
                   
                   // También verificar localStorage
-                  const turnosAPI = JSON.parse(localStorage.getItem('api_turnos') || '[]')
-                  const notificationsAPI = JSON.parse(localStorage.getItem('api_notifications') || '[]')
+                  const turnosAPI = JSON.parse(localStorage.getItem('vercel_turnos') || '[]')
+                  const notificationsAPI = JSON.parse(localStorage.getItem('vercel_notifications') || '[]')
                   
                   console.log('🔧 Force Sync: Disparando evento forceSync')
                   console.log('🔧 Force Sync: Turnos disponibles:', turnosAPI.length)
@@ -669,6 +673,25 @@ const AdminPanel = () => {
                 className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm"
               >
                 ⚡ Forzar Sync
+              </button>
+              <button
+                onClick={() => {
+                  // Sincronización manual desde localStorage
+                  const turnosAPI = JSON.parse(localStorage.getItem('vercel_turnos') || '[]')
+                  const notificationsAPI = JSON.parse(localStorage.getItem('vercel_notifications') || '[]')
+
+                  console.log('🔧 Manual Sync: Sincronizando desde localStorage')
+                  console.log('🔧 Manual Sync: Turnos en localStorage:', turnosAPI.length)
+                  console.log('🔧 Manual Sync: Notificaciones en localStorage:', notificationsAPI.length)
+
+                  setTurnos(turnosAPI)
+                  setNotifications(notificationsAPI)
+
+                  toast.success('Datos sincronizados manualmente')
+                }}
+                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
+              >
+                🔄 Sync Manual
               </button>
             </div>
           </div>
