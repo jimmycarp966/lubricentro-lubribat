@@ -115,42 +115,46 @@ const TurnosAdmin = () => {
     if (window.confirm('¿Confirmar este turno? Se enviará un mensaje de WhatsApp automáticamente.')) {
       console.log('✅ Usuario confirmó la acción')
       
-      // Preparar datos de WhatsApp ANTES de actualizar
-      const whatsappData = {
-        nombre: turnoOriginal.cliente?.nombre?.split(' ')[0] || turnoOriginal.nombre || '',
-        apellido: turnoOriginal.cliente?.nombre?.split(' ').slice(1).join(' ') || turnoOriginal.apellido || '',
-        whatsapp: turnoOriginal.cliente?.telefono || turnoOriginal.whatsapp || '',
-        fecha: turnoOriginal.fecha,
-        horario: turnoOriginal.horario,
-        servicio: turnoOriginal.servicio,
-        sucursal: turnoOriginal.sucursal || 'LUBRI-BAT'
-      }
-      
-      console.log('📱 Datos para WhatsApp preparados:', whatsappData)
-      
-      // Actualizar el turno
-      const result = await actualizarTurno(turnoId, { estado: 'confirmado' })
-      console.log('📝 Resultado de actualización:', result)
-      
-      if (result.success) {
-        console.log('✅ Turno actualizado exitosamente')
+      try {
+        // Preparar datos de WhatsApp ANTES de actualizar
+        const whatsappData = {
+          nombre: turnoOriginal.cliente?.nombre?.split(' ')[0] || turnoOriginal.nombre || '',
+          apellido: turnoOriginal.cliente?.nombre?.split(' ').slice(1).join(' ') || turnoOriginal.apellido || '',
+          whatsapp: turnoOriginal.cliente?.telefono || turnoOriginal.whatsapp || '',
+          fecha: turnoOriginal.fecha,
+          horario: turnoOriginal.horario,
+          servicio: turnoOriginal.servicio,
+          sucursal: turnoOriginal.sucursal || 'LUBRI-BAT'
+        }
         
-        // Generar y enviar WhatsApp
+        console.log('📱 Datos para WhatsApp preparados:', whatsappData)
+        
+        // Generar WhatsApp ANTES de actualizar el turno
         const whatsappResult = sendWhatsAppMessage(whatsappData)
         console.log('📱 Resultado WhatsApp:', whatsappResult)
         
-        // Abrir WhatsApp automáticamente
+        // Abrir WhatsApp automáticamente INMEDIATAMENTE
         console.log('🌐 Abriendo WhatsApp con URL:', whatsappResult.url)
         window.open(whatsappResult.url, '_blank')
         
-        // Mostrar mensaje de éxito
-        alert('✅ Turno confirmado y WhatsApp abierto automáticamente')
+        // Actualizar el turno DESPUÉS de abrir WhatsApp
+        console.log('📝 Actualizando turno en la base de datos...')
+        const result = await actualizarTurno(turnoId, { estado: 'confirmado' })
+        console.log('📝 Resultado de actualización:', result)
         
-        // Recargar los turnos para actualizar la vista
-        await fetchTurnos()
-      } else {
-        console.error('❌ Error al actualizar turno:', result)
-        alert('❌ Error al confirmar el turno')
+        if (result.success) {
+          console.log('✅ Turno actualizado exitosamente')
+          alert('✅ Turno confirmado y WhatsApp abierto automáticamente')
+          
+          // Recargar los turnos para actualizar la vista
+          await fetchTurnos()
+        } else {
+          console.error('❌ Error al actualizar turno:', result)
+          alert('❌ Error al confirmar el turno en la base de datos')
+        }
+      } catch (error) {
+        console.error('❌ Error en el proceso de confirmación:', error)
+        alert('❌ Error en el proceso de confirmación')
       }
     } else {
       console.log('❌ Usuario canceló la confirmación')
