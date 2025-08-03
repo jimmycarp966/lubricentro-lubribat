@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getDatabase } from 'firebase/database'
+import { getAuth } from 'firebase/auth'
 
 // 🔥 Configuración real de Firebase para Lubricentro
 const firebaseConfig = {
@@ -16,7 +17,8 @@ const firebaseConfig = {
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig)
 
-// Obtener la instancia de Realtime Database
+// Obtener las instancias de servicios
 export const database = getDatabase(app)
+export const auth = getAuth(app)
 
 export default app 

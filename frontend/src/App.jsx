@@ -9,6 +9,8 @@ import StatusBar from './components/StatusBar'
 import SidePanel from './components/SidePanel'
 import Home from './pages/Home'
 import TurnosPublic from './pages/TurnosPublic'
+import Login from './pages/Login'
+import Register from './pages/Register'
 import LoginMayorista from './pages/LoginMayorista'
 import PortalMayorista from './pages/PortalMayorista'
 import AdminPanel from './pages/AdminPanel'
@@ -34,6 +36,8 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/turnos" element={<TurnosPublic />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
                 <Route path="/sobre-nosotros" element={<SobreNosotros />} />
                 <Route path="/resenas" element={<Resenas />} />
                 <Route path="/contacto" element={<Contacto />} />

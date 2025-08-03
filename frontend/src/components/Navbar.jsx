@@ -82,49 +82,60 @@ const Navbar = () => {
 
           {/* Login/Logout */}
           <div className="flex items-center space-x-4">
-            {user ? (
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-3 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <Icon icon="mdi:account" className="w-5 h-5 text-green-600" />
+                            {user ? (
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-3 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
+                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                        <Icon icon="mdi:account" className="w-5 h-5 text-green-600" />
+                      </div>
+                      <span className="text-sm text-gray-700 font-medium">
+                        Hola, {user.displayName || user.email}
+                      </span>
+                    </div>
+                    
+                    {user.role === 'admin' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        icon="mdi:view-dashboard"
+                        as={Link}
+                        to="/admin"
+                      >
+                        Panel Admin
+                      </Button>
+                    )}
+                    
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      icon="mdi:logout"
+                      onClick={logout}
+                    >
+                      Cerrar Sesión
+                    </Button>
                   </div>
-                  <span className="text-sm text-gray-700 font-medium">
-                    Hola, {user.nombre}
-                  </span>
-                </div>
-                
-                {user.role === 'admin' && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    icon="mdi:view-dashboard"
-                    as={Link}
-                    to="/admin"
-                  >
-                    Panel Admin
-                  </Button>
+                ) : (
+                  <div className="flex items-center space-x-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      icon="mdi:login"
+                      as={Link}
+                      to="/login"
+                    >
+                      Iniciar Sesión
+                    </Button>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      icon="mdi:account-plus"
+                      as={Link}
+                      to="/register"
+                    >
+                      Registrarse
+                    </Button>
+                  </div>
                 )}
-                
-                <Button
-                  variant="danger"
-                  size="sm"
-                  icon="mdi:logout"
-                  onClick={logout}
-                >
-                  Cerrar Sesión
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="primary"
-                size="lg"
-                icon="mdi:login"
-                as={Link}
-                to="/mayorista/login"
-              >
-                Iniciar Sesión
-              </Button>
-            )}
           </div>
         </div>
 
