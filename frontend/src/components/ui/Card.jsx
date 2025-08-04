@@ -2,25 +2,32 @@ import React from 'react'
 
 const Card = ({ 
   children, 
-  className = '', 
-  hover = true,
-  shadow = 'lg',
+  variant = 'default',
+  padding = 'md',
+  className = '',
   ...props 
 }) => {
-  const baseClasses = 'card'
-  const shadowClasses = {
+  const baseClasses = 'rounded-lg shadow-sm border'
+  
+  const variants = {
+    default: 'bg-white border-gray-200',
+    elevated: 'bg-white border-gray-200 shadow-lg',
+    outlined: 'bg-transparent border-gray-300',
+    filled: 'bg-gray-50 border-gray-200'
+  }
+  
+  const paddings = {
     none: '',
-    sm: 'shadow-sm',
-    md: 'shadow-md',
-    lg: 'shadow-lg',
-    xl: 'shadow-xl',
-    '2xl': 'shadow-2xl'
+    sm: 'p-3',
+    md: 'p-6',
+    lg: 'p-8',
+    xl: 'p-10'
   }
   
   const classes = [
     baseClasses,
-    shadowClasses[shadow],
-    hover && 'hover:shadow-xl',
+    variants[variant],
+    paddings[padding],
     className
   ].filter(Boolean).join(' ')
   
@@ -31,32 +38,23 @@ const Card = ({
   )
 }
 
-const CardHeader = ({ children, className = '', ...props }) => {
-  return (
-    <div className={`card-header ${className}`} {...props}>
-      {children}
-    </div>
-  )
-}
+// Componentes especializados
+Card.Header = ({ children, className = '', ...props }) => (
+  <div className={`border-b border-gray-200 pb-4 mb-4 ${className}`} {...props}>
+    {children}
+  </div>
+)
 
-const CardBody = ({ children, className = '', ...props }) => {
-  return (
-    <div className={`card-body ${className}`} {...props}>
-      {children}
-    </div>
-  )
-}
+Card.Body = ({ children, className = '', ...props }) => (
+  <div className={className} {...props}>
+    {children}
+  </div>
+)
 
-const CardFooter = ({ children, className = '', ...props }) => {
-  return (
-    <div className={`card-footer ${className}`} {...props}>
-      {children}
-    </div>
-  )
-}
-
-Card.Header = CardHeader
-Card.Body = CardBody
-Card.Footer = CardFooter
+Card.Footer = ({ children, className = '', ...props }) => (
+  <div className={`border-t border-gray-200 pt-4 mt-4 ${className}`} {...props}>
+    {children}
+  </div>
+)
 
 export default Card 
