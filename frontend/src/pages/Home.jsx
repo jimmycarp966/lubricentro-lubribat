@@ -136,49 +136,26 @@ const Home = () => {
             Trabajamos con las mejores marcas del mercado para garantizar la calidad y durabilidad de tu vehículo
           </p>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 sm:gap-8 lg:gap-10">
             {[
-              'ALFA ROMEO',
-              'AUDI',
-              'BMW',
+              'FERCOL',
+              'YPF',
+              'SHELL',
+              'WEGA',
+              'FRAM',
+              'FIAT',
+              'TOYOTA',
               'CASTROL',
               'CHEVROLET',
-              'CHRYSLER',
-              'CITROËN',
-              'DODGE',
-              'ELAION',
-              'ELF',
-              'FERCOL',
-              'FIAT',
+              'AUDI',
               'FORD',
-              'FRAM',
-              'HONDA',
-              'HYUNDAI',
-              'ISUZU',
-              'JEEP',
-              'KIA',
-              'LAND ROVER',
-              'MAZDA',
-              'MERCEDES',
-              'MINI',
-              'MITSUBISHI',
-              'NISSAN',
-              'PEUGEOT',
-              'RENAULT',
-              'SEAT',
-              'SHELL',
-              'SUZUKI',
-              'TOYOTA',
-              'TOTAL',
-              'VOLKSWAGEN',
-              'VOLVO',
-              'WEGA'
+              'VOLKSWAGEN'
             ].map((brandName) => (
-              <div key={brandName} className="group relative flex flex-col items-center bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 p-3 sm:p-4 border border-gray-100 hover:border-green-200">
-                <div className="mb-2 sm:mb-3 w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center">
+              <div key={brandName} className="group relative flex flex-col items-center bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 border border-gray-100 hover:border-green-200">
+                <div className="mb-3 sm:mb-4 w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
                   <BrandLogo brand={brandName} className="w-full h-full object-contain" />
                 </div>
-                <span className="font-medium text-gray-700 text-[10px] sm:text-xs text-center group-hover:text-green-700 transition-colors leading-tight">{brandName}</span>
+                <span className="font-semibold text-gray-800 text-xs sm:text-sm text-center group-hover:text-green-700 transition-colors leading-tight">{brandName}</span>
               </div>
             ))}
           </div>
