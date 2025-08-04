@@ -166,7 +166,6 @@ const TurnosPublic = () => {
     e.preventDefault()
     console.log('🔧 Debug: Iniciando creación de turno...')
     setDebugInfo('🔧 Iniciando creación de turno...')
-    setStep(5)
 
     const turnoData = {
       sucursal: selectedSucursal.nombre,
