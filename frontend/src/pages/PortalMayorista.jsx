@@ -62,10 +62,25 @@ const PortalMayorista = () => {
   }, [pedidos])
 
   useEffect(() => {
-    if (user?.role !== 'mayorista') {
+    console.log('🔍 PortalMayorista - Debug info:')
+    console.log('👤 User:', user)
+    console.log('🎭 User role:', user?.role)
+    console.log('📦 Productos:', productos?.length || 0)
+    
+    if (!user) {
+      console.log('❌ No hay usuario, redirigiendo a login')
       navigate('/mayorista/login')
       return
     }
+    
+    if (user.role !== 'mayorista') {
+      console.log('❌ Usuario no es mayorista, redirigiendo a login')
+      toast.error('Acceso denegado. Solo para mayoristas.')
+      navigate('/mayorista/login')
+      return
+    }
+    
+    console.log('✅ Usuario mayorista autenticado correctamente')
   }, [user, navigate])
 
   const agregarAlCarrito = (producto) => {
@@ -179,18 +194,29 @@ const PortalMayorista = () => {
     }
   }
 
-  if (user?.role !== 'mayorista') {
-    return null
+  // Si no hay usuario o no es mayorista, no mostrar nada
+  if (!user || user.role !== 'mayorista') {
+    console.log('🚫 No mostrando portal - Usuario:', user?.email, 'Rol:', user?.role)
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Verificando acceso...</p>
+        </div>
+      </div>
+    )
   }
 
+  console.log('✅ Mostrando portal mayorista para:', user.email)
+
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Portal Mayorista
         </h1>
         <p className="text-gray-600">
-          Bienvenido, {user.nombre}. Aquí podés realizar tus pedidos y ver el historial.
+          Bienvenido, {user.displayName || user.email}. Aquí podés realizar tus pedidos y ver el historial.
         </p>
       </div>
 
@@ -239,7 +265,7 @@ const PortalMayorista = () => {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
                 <p className="mt-2 text-gray-600">Cargando productos...</p>
               </div>
-            ) : (
+            ) : productos && productos.length > 0 ? (
               productos.map((producto) => (
                 <div key={producto._id} className="bg-white rounded-lg shadow-md p-6">
                   <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200 mb-4">
@@ -270,6 +296,12 @@ const PortalMayorista = () => {
                   </button>
                 </div>
               ))
+            ) : (
+              <div className="col-span-full text-center py-8">
+                <div className="text-6xl mb-4">📦</div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Sin productos</h3>
+                <p className="text-gray-600">No hay productos disponibles en el catálogo</p>
+              </div>
             )}
           </div>
         </div>
