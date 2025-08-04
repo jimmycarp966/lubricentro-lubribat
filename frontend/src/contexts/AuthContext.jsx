@@ -67,23 +67,27 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const result = await loginWithEmail(email, password)
-      if (result.success) {
+      if (result.success && result.user) {
         const userRole = await getUserRole(result.user.uid)
-        setUser({
+        const userData = {
           uid: result.user.uid,
           email: result.user.email,
           displayName: result.user.displayName,
           role: userRole
-        })
+        }
+        setUser(userData)
         toast.success('¡Bienvenido!')
-        return { success: true }
+        return { success: true, user: userData }
       } else {
-        toast.error(result.error)
-        return { success: false, error: result.error }
+        const errorMessage = result.error || 'Error al iniciar sesión'
+        toast.error(errorMessage)
+        return { success: false, error: errorMessage }
       }
     } catch (error) {
-      toast.error('Error al iniciar sesión')
-      return { success: false, error: error.message }
+      console.error('❌ Error en login:', error)
+      const errorMessage = error.message || 'Error al iniciar sesión'
+      toast.error(errorMessage)
+      return { success: false, error: errorMessage }
     }
   }
 
@@ -91,23 +95,27 @@ export const AuthProvider = ({ children }) => {
   const loginWithGoogleService = async () => {
     try {
       const result = await loginWithGoogle()
-      if (result.success) {
+      if (result.success && result.user) {
         const userRole = await getUserRole(result.user.uid)
-        setUser({
+        const userData = {
           uid: result.user.uid,
           email: result.user.email,
           displayName: result.user.displayName,
           role: userRole
-        })
+        }
+        setUser(userData)
         toast.success('¡Bienvenido con Google!')
-        return { success: true }
+        return { success: true, user: userData }
       } else {
-        toast.error(result.error)
-        return { success: false, error: result.error }
+        const errorMessage = result.error || 'Error al iniciar sesión con Google'
+        toast.error(errorMessage)
+        return { success: false, error: errorMessage }
       }
     } catch (error) {
-      toast.error('Error al iniciar sesión con Google')
-      return { success: false, error: error.message }
+      console.error('❌ Error en login con Google:', error)
+      const errorMessage = error.message || 'Error al iniciar sesión con Google'
+      toast.error(errorMessage)
+      return { success: false, error: errorMessage }
     }
   }
 
@@ -115,23 +123,27 @@ export const AuthProvider = ({ children }) => {
   const register = async (email, password, displayName) => {
     try {
       const result = await registerWithEmail(email, password, displayName)
-      if (result.success) {
+      if (result.success && result.user) {
         const userRole = await getUserRole(result.user.uid)
-        setUser({
+        const userData = {
           uid: result.user.uid,
           email: result.user.email,
           displayName: result.user.displayName,
           role: userRole
-        })
+        }
+        setUser(userData)
         toast.success('¡Cuenta creada exitosamente!')
-        return { success: true }
+        return { success: true, user: userData }
       } else {
-        toast.error(result.error)
-        return { success: false, error: result.error }
+        const errorMessage = result.error || 'Error al crear cuenta'
+        toast.error(errorMessage)
+        return { success: false, error: errorMessage }
       }
     } catch (error) {
-      toast.error('Error al crear cuenta')
-      return { success: false, error: error.message }
+      console.error('❌ Error en registro:', error)
+      const errorMessage = error.message || 'Error al crear cuenta'
+      toast.error(errorMessage)
+      return { success: false, error: errorMessage }
     }
   }
 
