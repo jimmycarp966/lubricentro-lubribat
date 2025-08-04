@@ -46,7 +46,7 @@ const SidePanel = () => {
       {/* Botón flotante */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed right-4 top-20 z-40 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110"
+        className="fixed right-4 top-32 z-40 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110"
       >
         <div className="relative">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

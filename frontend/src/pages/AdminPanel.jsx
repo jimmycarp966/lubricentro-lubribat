@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useProductos } from '../contexts/ProductosContext'
 import { useTurnos } from '../contexts/TurnosContext'
@@ -42,6 +42,8 @@ const AdminPanel = () => {
   } = useTurnos()
   const navigate = useNavigate()
   const location = useLocation()
+  const navRef = useRef(null)
+  const [showScrollArrow, setShowScrollArrow] = useState(false)
 
   const [activeTab, setActiveTab] = useState('dashboard')
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -95,6 +97,27 @@ const AdminPanel = () => {
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [showDebug])
+
+  // Efecto para manejar el scroll de las pestañas
+  useEffect(() => {
+    const handleScroll = () => {
+      if (navRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = navRef.current
+        setShowScrollArrow(scrollLeft < scrollWidth - clientWidth)
+      }
+    }
+
+    const navElement = navRef.current
+    if (navElement) {
+      navElement.addEventListener('scroll', handleScroll)
+      // Verificar estado inicial
+      handleScroll()
+      
+      return () => {
+        navElement.removeEventListener('scroll', handleScroll)
+      }
+    }
+  }, [])
 
   // Datos simulados para mayoristas y pedidos
   const [mayoristas, setMayoristas] = useState([
@@ -803,7 +826,10 @@ const AdminPanel = () => {
         {/* Tabs */}
         <div className="border-b-2 border-green-200 mb-8 relative">
           <div className="flex items-center">
-            <nav className="-mb-px flex space-x-8 overflow-x-auto scrollbar-hide flex-1">
+            <nav 
+              ref={navRef}
+              className="-mb-px flex space-x-8 overflow-x-auto scrollbar-hide flex-1"
+            >
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
@@ -819,11 +845,20 @@ const AdminPanel = () => {
               ))}
             </nav>
             {/* Scroll indicator arrow */}
-            <div className="absolute right-0 top-0 bottom-0 flex items-center bg-gradient-to-l from-white via-white to-transparent w-8 pointer-events-none">
-              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                <span className="text-green-600 text-xs font-bold">→</span>
+            {showScrollArrow && (
+              <div 
+                onClick={() => {
+                  if (navRef.current) {
+                    navRef.current.scrollBy({ left: 200, behavior: 'smooth' })
+                  }
+                }}
+                className="absolute right-0 top-0 bottom-0 flex items-center bg-gradient-to-l from-white via-white to-transparent w-8 cursor-pointer hover:bg-green-50 transition-colors"
+              >
+                <div className="w-6 h-6 bg-green-100 hover:bg-green-200 rounded-full flex items-center justify-center transition-colors">
+                  <span className="text-green-600 text-xs font-bold">→</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
