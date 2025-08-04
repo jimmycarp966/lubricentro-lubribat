@@ -55,6 +55,14 @@
         ".read": "auth != null && auth.uid == $userId",
         ".write": "auth != null && auth.uid == $userId"
       }
+    },
+    "reseñas": {
+      ".read": true,
+      ".write": true,
+      "$reseñaId": {
+        ".read": true,
+        ".write": true
+      }
     }
   }
 }
