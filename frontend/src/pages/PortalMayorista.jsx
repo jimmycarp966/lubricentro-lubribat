@@ -3,17 +3,20 @@ import { useAuth } from '../contexts/AuthContext'
 import { useProductos } from '../contexts/ProductosContext'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
+import { ref, push, set, get, update } from 'firebase/database'
+import { database } from '../firebase/config'
 
 const PortalMayorista = () => {
   const { user, forceUpdateUserRole } = useAuth()
   const navigate = useNavigate()
-  const { productos, loading } = useProductos()
+  const { productos, loading, actualizarProducto } = useProductos()
   
   const [carrito, setCarrito] = useState([])
   const [pedidos, setPedidos] = useState([])
   const [activeTab, setActiveTab] = useState('catalogo')
   const [showCheckout, setShowCheckout] = useState(false)
   const [debugMode, setDebugMode] = useState(false)
+  const [procesandoPedido, setProcesandoPedido] = useState(false)
 
   // Datos simulados de pedidos
   const pedidosSimulados = [
@@ -90,10 +93,39 @@ const PortalMayorista = () => {
     console.log('✅ Rol verificado:', user.role)
   }, [user, navigate])
 
+  const handleForceUpdateRole = async () => {
+    try {
+      console.log('🔄 Forzando actualización del rol...')
+      const newRole = await forceUpdateUserRole()
+      console.log('🔄 Nuevo rol:', newRole)
+      
+      if (newRole === 'mayorista') {
+        toast.success('✅ Rol actualizado correctamente')
+        window.location.reload() // Recargar para aplicar cambios
+      } else {
+        toast.error(`❌ Rol no es mayorista: ${newRole}`)
+      }
+    } catch (error) {
+      console.error('❌ Error actualizando rol:', error)
+      toast.error('❌ Error actualizando rol')
+    }
+  }
+
   const agregarAlCarrito = (producto) => {
+    // Verificar stock disponible
+    if (producto.stock <= 0) {
+      toast.error('Producto sin stock disponible')
+      return
+    }
+    
     setCarrito(prev => {
       const itemExistente = prev.find(item => item._id === producto._id)
       if (itemExistente) {
+        // Verificar que no exceda el stock
+        if (itemExistente.cantidad + 1 > producto.stock) {
+          toast.error(`Solo quedan ${producto.stock} unidades disponibles`)
+          return prev
+        }
         return prev.map(item =>
           item._id === producto._id
             ? { ...item, cantidad: item.cantidad + 1 }
@@ -116,6 +148,14 @@ const PortalMayorista = () => {
       removerDelCarrito(productoId)
       return
     }
+    
+    // Verificar stock disponible
+    const producto = productos.find(p => p._id === productoId)
+    if (producto && cantidad > producto.stock) {
+      toast.error(`Solo quedan ${producto.stock} unidades disponibles`)
+      return
+    }
+    
     setCarrito(prev =>
       prev.map(item =>
         item._id === productoId ? { ...item, cantidad } : item
@@ -143,31 +183,132 @@ const PortalMayorista = () => {
     setShowCheckout(true)
   }
 
+  // Función para actualizar stock en Firebase
+  const actualizarStockProductos = async (items) => {
+    try {
+      console.log('📦 Actualizando stock de productos...')
+      
+      for (const item of items) {
+        const producto = productos.find(p => p._id === item._id)
+        if (producto) {
+          const nuevoStock = producto.stock - item.cantidad
+          if (nuevoStock < 0) {
+            throw new Error(`Stock insuficiente para ${producto.nombre}`)
+          }
+          
+          // Actualizar en Firebase
+          await update(ref(database, `productos/${producto._id}`), {
+            stock: nuevoStock
+          })
+          
+          console.log(`✅ Stock actualizado para ${producto.nombre}: ${producto.stock} → ${nuevoStock}`)
+        }
+      }
+      
+      return true
+    } catch (error) {
+      console.error('❌ Error actualizando stock:', error)
+      throw error
+    }
+  }
+
+  // Función para crear pedido en Firebase
+  const crearPedidoEnFirebase = async (pedidoData) => {
+    try {
+      console.log('📋 Creando pedido en Firebase...')
+      
+      // Crear referencia para el nuevo pedido
+      const pedidosRef = ref(database, 'pedidos')
+      const nuevoPedidoRef = push(pedidosRef)
+      
+      // Agregar ID del pedido y datos del mayorista
+      const pedidoCompleto = {
+        ...pedidoData,
+        _id: nuevoPedidoRef.key,
+        mayorista: {
+          uid: user.uid,
+          email: user.email,
+          nombre: user.displayName || 'Mayorista'
+        },
+        createdAt: new Date().toISOString()
+      }
+      
+      // Guardar en Firebase
+      await set(nuevoPedidoRef, pedidoCompleto)
+      
+      console.log('✅ Pedido creado en Firebase:', nuevoPedidoRef.key)
+      return nuevoPedidoRef.key
+    } catch (error) {
+      console.error('❌ Error creando pedido en Firebase:', error)
+      throw error
+    }
+  }
+
   const handleConfirmarPedido = async (e) => {
     e.preventDefault()
-    const formData = new FormData(e.target)
+    setProcesandoPedido(true)
     
-    const nuevoPedido = {
-      _id: Date.now().toString(),
-      numero: `PED-${String(Date.now()).slice(-6)}`,
-      fecha: new Date().toISOString(),
-      items: carrito.map(item => ({
-        producto: { nombre: item.nombre },
-        cantidad: item.cantidad,
-        precio: item.precio
-      })),
-      total: getTotalCarrito(),
-      notas: formData.get('notas') || '',
-      estado: 'pendiente'
-    }
-
     try {
+      const formData = new FormData(e.target)
+      
+      console.log('🔄 Procesando pedido...')
+      
+      // 1. Verificar stock disponible
+      for (const item of carrito) {
+        const producto = productos.find(p => p._id === item._id)
+        if (!producto) {
+          throw new Error(`Producto ${item.nombre} no encontrado`)
+        }
+        if (producto.stock < item.cantidad) {
+          throw new Error(`Stock insuficiente para ${producto.nombre}. Disponible: ${producto.stock}`)
+        }
+      }
+      
+      // 2. Crear datos del pedido
+      const pedidoData = {
+        numero: `PED-${String(Date.now()).slice(-6)}`,
+        fecha: new Date().toISOString(),
+        items: carrito.map(item => ({
+          producto: { 
+            _id: item._id,
+            nombre: item.nombre,
+            codigo: item.codigo || ''
+          },
+          cantidad: item.cantidad,
+          precio: item.precio,
+          subtotal: item.precio * item.cantidad
+        })),
+        total: getTotalCarrito(),
+        notas: formData.get('notas') || '',
+        estado: 'pendiente'
+      }
+      
+      // 3. Crear pedido en Firebase
+      const pedidoId = await crearPedidoEnFirebase(pedidoData)
+      
+      // 4. Actualizar stock de productos
+      await actualizarStockProductos(carrito)
+      
+      // 5. Actualizar estado local
+      const nuevoPedido = {
+        ...pedidoData,
+        _id: pedidoId
+      }
+      
       setPedidos(prev => [nuevoPedido, ...prev])
-      toast.success('¡Pedido realizado con éxito!')
+      
+      // 6. Limpiar carrito y cerrar modal
       limpiarCarrito()
       setShowCheckout(false)
+      
+      toast.success('¡Pedido realizado con éxito!')
+      console.log('✅ Pedido procesado completamente')
+      
     } catch (error) {
-      toast.error('Error al realizar el pedido')
+      console.error('❌ Error procesando pedido:', error)
+      toast.error(`Error al realizar el pedido: ${error.message}`)
+    } finally {
+      setProcesandoPedido(false)
     }
   }
 
@@ -198,24 +339,6 @@ const PortalMayorista = () => {
         return 'Entregado'
       default:
         return estado
-    }
-  }
-
-  const handleForceUpdateRole = async () => {
-    try {
-      console.log('🔄 Forzando actualización del rol...')
-      const newRole = await forceUpdateUserRole()
-      console.log('🔄 Nuevo rol:', newRole)
-      
-      if (newRole === 'mayorista') {
-        toast.success('✅ Rol actualizado correctamente')
-        window.location.reload() // Recargar para aplicar cambios
-      } else {
-        toast.error(`❌ Rol no es mayorista: ${newRole}`)
-      }
-    } catch (error) {
-      console.error('❌ Error actualizando rol:', error)
-      toast.error('❌ Error actualizando rol')
     }
   }
 
@@ -549,8 +672,8 @@ const PortalMayorista = () => {
                 >
                   Cancelar
                 </button>
-                <button type="submit" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
-                  Confirmar Pedido
+                <button type="submit" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors" disabled={procesandoPedido}>
+                  {procesandoPedido ? 'Procesando...' : 'Confirmar Pedido'}
                 </button>
               </div>
             </form>

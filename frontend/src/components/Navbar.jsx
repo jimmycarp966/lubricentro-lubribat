@@ -105,6 +105,18 @@ const Navbar = () => {
                   </Link>
                 )}
                 
+                {user.role === 'mayorista' && (
+                  <Link to="/mayorista/portal">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="hidden sm:block bg-yellow-600 hover:bg-yellow-700"
+                    >
+                      Panel Mayorista
+                    </Button>
+                  </Link>
+                )}
+                
                 <Button
                   variant="outline"
                   size="sm"
@@ -211,6 +223,19 @@ const Navbar = () => {
                         fullWidth
                       >
                         Panel Admin
+                      </Button>
+                    </Link>
+                  )}
+                  
+                  {user.role === 'mayorista' && (
+                    <Link to="/mayorista/portal" onClick={() => setIsMenuOpen(false)}>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        fullWidth
+                        className="bg-yellow-600 hover:bg-yellow-700"
+                      >
+                        Panel Mayorista
                       </Button>
                     </Link>
                   )}

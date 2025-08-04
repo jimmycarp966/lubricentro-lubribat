@@ -44,6 +44,8 @@ const AdminPanel = () => {
   const location = useLocation()
   const navRef = useRef(null)
   const [showScrollArrow, setShowScrollArrow] = useState(false)
+  const [showLeftArrow, setShowLeftArrow] = useState(false)
+  const [showRightArrow, setShowRightArrow] = useState(false)
 
   const [activeTab, setActiveTab] = useState('dashboard')
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -103,7 +105,8 @@ const AdminPanel = () => {
     const handleScroll = () => {
       if (navRef.current) {
         const { scrollLeft, scrollWidth, clientWidth } = navRef.current
-        setShowScrollArrow(scrollLeft < scrollWidth - clientWidth)
+        setShowLeftArrow(scrollLeft > 0)
+        setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 1)
       }
     }
 
@@ -825,18 +828,19 @@ const AdminPanel = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tabs */}
         <div className="border-b-2 border-green-200 mb-8 relative">
-          <div className="flex items-center">
-            <nav 
+          <div className="relative">
+            <nav
               ref={navRef}
-              className="-mb-px flex space-x-8 overflow-x-auto scrollbar-hide flex-1"
+              className="flex space-x-1 overflow-x-auto scrollbar-hide pb-2"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-4 sm:px-6 border-b-2 font-semibold text-sm sm:text-base transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap ${
                     activeTab === tab.id
-                      ? 'border-green-500 text-green-600 bg-green-50'
+                      ? 'bg-green-600 text-white shadow-md'
                       : 'border-transparent text-gray-600 hover:text-green-600 hover:border-green-300 hover:bg-green-50'
                   }`}
                 >
@@ -844,15 +848,32 @@ const AdminPanel = () => {
                 </button>
               ))}
             </nav>
-            {/* Scroll indicator arrow */}
-            {showScrollArrow && (
+            
+            {/* Flecha izquierda */}
+            {showLeftArrow && (
+              <div 
+                onClick={() => {
+                  if (navRef.current) {
+                    navRef.current.scrollBy({ left: -200, behavior: 'smooth' })
+                  }
+                }}
+                className="absolute left-0 top-0 bottom-0 flex items-center bg-gradient-to-r from-white via-white to-transparent w-8 cursor-pointer hover:bg-green-50 transition-colors z-10"
+              >
+                <div className="w-6 h-6 bg-green-100 hover:bg-green-200 rounded-full flex items-center justify-center transition-colors">
+                  <span className="text-green-600 text-xs font-bold">←</span>
+                </div>
+              </div>
+            )}
+            
+            {/* Flecha derecha */}
+            {showRightArrow && (
               <div 
                 onClick={() => {
                   if (navRef.current) {
                     navRef.current.scrollBy({ left: 200, behavior: 'smooth' })
                   }
                 }}
-                className="absolute right-0 top-0 bottom-0 flex items-center bg-gradient-to-l from-white via-white to-transparent w-8 cursor-pointer hover:bg-green-50 transition-colors"
+                className="absolute right-0 top-0 bottom-0 flex items-center bg-gradient-to-l from-white via-white to-transparent w-8 cursor-pointer hover:bg-green-50 transition-colors z-10"
               >
                 <div className="w-6 h-6 bg-green-100 hover:bg-green-200 rounded-full flex items-center justify-center transition-colors">
                   <span className="text-green-600 text-xs font-bold">→</span>
