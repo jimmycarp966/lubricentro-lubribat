@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { FaSearch, FaPhone, FaCar, FaHistory, FaStar, FaCrown } from 'react-icons/fa'
+import { buscarClientePorWhatsApp, buscarClientePorPatente } from '../services/clientesService'
 
 const ClienteBusqueda = () => {
   const [telefono, setTelefono] = useState('')
@@ -7,6 +8,7 @@ const ClienteBusqueda = () => {
   const [busquedaPor, setBusquedaPor] = useState('telefono') // 'telefono' o 'patente'
   const [clienteEncontrado, setClienteEncontrado] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
 
   // Simulación de base de datos de clientes
   const clientesDB = [
@@ -47,24 +49,42 @@ const ClienteBusqueda = () => {
     }
   ]
 
-  const buscarCliente = () => {
+  const buscarCliente = async () => {
     setIsLoading(true)
+    setError('')
+    setClienteEncontrado(null)
     
-    // Simular búsqueda
-    setTimeout(() => {
+    try {
       let cliente = null
       
       if (busquedaPor === 'telefono') {
-        cliente = clientesDB.find(c => c.telefono === telefono)
+        if (!telefono || telefono.trim() === '') {
+          setError('Por favor ingresa un número de WhatsApp')
+          return
+        }
+        console.log('🔍 Buscando por WhatsApp:', telefono)
+        cliente = await buscarClientePorWhatsApp(telefono)
       } else if (busquedaPor === 'patente') {
-        cliente = clientesDB.find(c => 
-          c.vehiculos.some(v => v.patente.toUpperCase() === patente.toUpperCase())
-        )
+        if (!patente || patente.trim() === '') {
+          setError('Por favor ingresa una patente')
+          return
+        }
+        console.log('🔍 Buscando por patente:', patente)
+        cliente = await buscarClientePorPatente(patente)
       }
       
-      setClienteEncontrado(cliente)
+      if (cliente) {
+        console.log('✅ Cliente encontrado:', cliente)
+        setClienteEncontrado(cliente)
+      } else {
+        setError('No se encontró ningún cliente con esos datos')
+      }
+    } catch (error) {
+      console.error('❌ Error buscando cliente:', error)
+      setError('Error al buscar cliente. Por favor intenta nuevamente.')
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   const formatearTelefono = (value) => {
@@ -169,7 +189,7 @@ const ClienteBusqueda = () => {
           )}
           <button
             onClick={buscarCliente}
-            disabled={!telefono || isLoading}
+            disabled={isLoading || (busquedaPor === 'telefono' ? !telefono : !patente)}
             className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 disabled:opacity-50 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2"
           >
             {isLoading ? (
@@ -181,6 +201,18 @@ const ClienteBusqueda = () => {
           </button>
         </div>
       </div>
+
+      {/* Mensaje de error */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center">
+            <svg className="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="text-red-800">{error}</span>
+          </div>
+        </div>
+      )}
 
       {/* Resultado */}
       {clienteEncontrado && (
@@ -195,8 +227,8 @@ const ClienteBusqueda = () => {
                   <p className="font-medium">{clienteEncontrado.nombre}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Teléfono</p>
-                  <p className="font-medium">{clienteEncontrado.telefono}</p>
+                  <p className="text-sm text-gray-600">WhatsApp</p>
+                  <p className="font-medium">{clienteEncontrado.whatsapp}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Primera visita</p>
@@ -216,18 +248,16 @@ const ClienteBusqueda = () => {
               </h3>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-gray-600">Puntos acumulados</p>
-                  <p className="font-bold text-2xl text-green-600">{clienteEncontrado.puntosAcumulados}</p>
+                  <p className="text-sm text-gray-600">Total turnos</p>
+                  <p className="font-bold text-2xl text-green-600">{clienteEncontrado.totalTurnos}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Nivel actual</p>
-                  <p className="font-medium">{clienteEncontrado.nivel}</p>
+                  <p className="text-sm text-gray-600">Primera visita</p>
+                  <p className="font-medium">{new Date(clienteEncontrado.primeraVisita).toLocaleDateString()}</p>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full"
-                    style={{ width: `${Math.min((clienteEncontrado.puntosAcumulados / 500) * 100, 100)}%` }}
-                  ></div>
+                <div>
+                  <p className="text-sm text-gray-600">Última visita</p>
+                  <p className="font-medium">{new Date(clienteEncontrado.ultimaVisita).toLocaleDateString()}</p>
                 </div>
               </div>
             </div>
@@ -277,12 +307,17 @@ const ClienteBusqueda = () => {
                     </div>
                     <div className="md:col-span-4 flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
                       <div className="flex items-center gap-2">
-                        <FaStar className="text-yellow-500" />
-                        <span className="text-sm text-gray-600">+{servicio.puntos} puntos</span>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          servicio.estado === 'confirmado' ? 'bg-green-100 text-green-800' :
+                          servicio.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {servicio.estado}
+                        </span>
+                        {servicio.total > 0 && (
+                          <span className="text-sm text-gray-600">${servicio.total.toLocaleString()}</span>
+                        )}
                       </div>
-                      <button className="text-green-600 hover:text-green-700 font-medium text-sm">
-                        Ver detalles
-                      </button>
                     </div>
                   </div>
                 </div>
