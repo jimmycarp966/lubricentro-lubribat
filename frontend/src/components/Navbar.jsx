@@ -11,9 +11,9 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
-    <nav className="bg-white shadow-brand border-b-2 border-green-500 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex justify-between items-center h-20">
+    <nav className="bg-white shadow-lg border-b-2 border-green-500 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-8">
+        <div className="flex justify-between items-center h-24">
           {/* Botón menú móvil */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -33,7 +33,7 @@ const Navbar = () => {
           </Link>
 
           {/* Enlaces de navegación */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-10">
             <Link
               to="/"
               className="text-gray-700 hover:text-green-600 font-medium transition-colors relative group"
@@ -81,17 +81,17 @@ const Navbar = () => {
           </div>
 
           {/* Login/Logout */}
-          <div className="flex items-center space-x-4">
-                            {user ? (
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-3 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
-                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                        <Icon icon="mdi:account" className="w-5 h-5 text-green-600" />
-                      </div>
-                      <span className="text-sm text-gray-700 font-medium">
-                        Hola, {user.displayName || user.email}
-                      </span>
-                    </div>
+          <div className="flex items-center space-x-6">
+            {user ? (
+              <div className="flex items-center space-x-6">
+                <div className="flex items-center space-x-3 bg-green-50 px-6 py-3 rounded-xl border border-green-200 shadow-sm">
+                  <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                    <Icon icon="mdi:account" className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-sm text-gray-800 font-semibold">
+                    Hola, {user.displayName || user.email}
+                  </span>
+                </div>
                     
                     {user.role === 'admin' && (
                       <Link to="/admin">

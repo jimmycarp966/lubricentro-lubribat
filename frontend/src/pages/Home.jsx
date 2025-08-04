@@ -33,7 +33,7 @@ const Home = () => {
           
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center px-4">
             <Button
-              variant="primary"
+              variant="success"
               size="lg"
               icon="mdi:calendar-plus"
               as="Link"
