@@ -1,17 +1,54 @@
 import React, { useState } from 'react'
 import { FaStar, FaThumbsUp, FaSmile, FaFrown, FaComment } from 'react-icons/fa'
+import { createReview } from '../services/reviewsService'
+import { useAuth } from '../contexts/AuthContext'
 
 const Resenas = () => {
   const [rating, setRating] = useState(0)
   const [feedback, setFeedback] = useState('')
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const { user } = useAuth()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (rating > 0) {
-      setIsSubmitted(true)
-      // Aquí se enviaría el feedback al backend
-      console.log('Feedback enviado:', { rating, feedback })
+    
+    if (rating === 0) {
+      alert('Por favor selecciona una calificación')
+      return
+    }
+
+    setIsLoading(true)
+    
+    try {
+      const reviewData = {
+        rating,
+        feedback,
+        clientName: user?.displayName || 'Cliente anónimo',
+        clientEmail: user?.email || 'sin-email@ejemplo.com',
+        clientId: user?.uid || 'anonymous',
+        service: 'Servicio de lubricentro',
+        date: new Date().toISOString()
+      }
+
+      console.log('📝 Enviando reseña:', reviewData)
+      
+      const result = await createReview(reviewData)
+      
+      if (result.success) {
+        console.log('✅ Reseña enviada exitosamente')
+        setIsSubmitted(true)
+        setRating(0)
+        setFeedback('')
+      } else {
+        console.error('❌ Error enviando reseña:', result.error)
+        alert('Error al enviar la reseña. Por favor intenta nuevamente.')
+      }
+    } catch (error) {
+      console.error('❌ Error enviando reseña:', error)
+      alert('Error al enviar la reseña. Por favor intenta nuevamente.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -19,6 +56,7 @@ const Resenas = () => {
     return [...Array(5)].map((_, index) => (
       <button
         key={index}
+        type="button"
         onClick={() => setRating(index + 1)}
         className={`text-3xl transition-colors ${
           index < rating ? 'text-yellow-400' : 'text-gray-300'
@@ -40,12 +78,11 @@ const Resenas = () => {
             ¡Gracias por tu opinión!
           </h2>
           <p className="text-gray-600 text-lg mb-8">
-            Tu feedback nos ayuda a mejorar nuestros servicios.
+            Tu feedback nos ayuda a mejorar nuestros servicios. 
+            Tu reseña será revisada y publicada pronto.
           </p>
           <button
             onClick={() => {
-              setRating(0)
-              setFeedback('')
               setIsSubmitted(false)
             }}
             className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-semibold transition-colors"
@@ -136,10 +173,20 @@ const Resenas = () => {
           <div className="text-center pt-6">
             <button
               type="submit"
-              disabled={rating === 0}
-              className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-400 text-white px-12 py-4 rounded-xl text-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
+              disabled={rating === 0 || isLoading}
+              className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-400 text-white px-12 py-4 rounded-xl text-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center mx-auto"
             >
-              Enviar Reseña
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Enviando...
+                </>
+              ) : (
+                'Enviar Reseña'
+              )}
             </button>
           </div>
         </form>

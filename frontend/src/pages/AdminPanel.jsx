@@ -1432,6 +1432,162 @@ const AdminPanel = () => {
           <PaymentManager />
         )}
 
+        {activeTab === 'reseñas' && (
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Gestión de Reseñas</h2>
+                  <p className="text-gray-600">Administra las reseñas de los clientes</p>
+                </div>
+              </div>
+
+              {/* Filtros */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Buscar reseñas..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente">Pendientes</option>
+                    <option value="aprobada">Aprobadas</option>
+                    <option value="rechazada">Rechazadas</option>
+                  </select>
+                </div>
+                <div>
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Ordenar por fecha</option>
+                    <option value="rating">Ordenar por rating</option>
+                    <option value="cliente">Ordenar por cliente</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Estadísticas */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-blue-600">Total Reseñas</p>
+                      <p className="text-2xl font-bold text-blue-800">{reseñas.length}</p>
+                    </div>
+                    <div className="text-3xl">⭐</div>
+                  </div>
+                </div>
+                <div className="bg-yellow-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-yellow-600">Pendientes</p>
+                      <p className="text-2xl font-bold text-yellow-800">{reseñas.filter(r => r.status === 'pendiente').length}</p>
+                    </div>
+                    <div className="text-3xl">⏳</div>
+                  </div>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-green-600">Aprobadas</p>
+                      <p className="text-2xl font-bold text-green-800">{reseñas.filter(r => r.status === 'aprobada').length}</p>
+                    </div>
+                    <div className="text-3xl">✅</div>
+                  </div>
+                </div>
+                <div className="bg-red-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-red-600">Rechazadas</p>
+                      <p className="text-2xl font-bold text-red-800">{reseñas.filter(r => r.status === 'rechazada').length}</p>
+                    </div>
+                    <div className="text-3xl">❌</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Lista de reseñas */}
+              <div className="space-y-4">
+                {loadingReseñas ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Cargando reseñas...</p>
+                  </div>
+                ) : reseñas.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="text-6xl mb-4">⭐</div>
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">No hay reseñas</h3>
+                    <p className="text-gray-600">Aún no se han recibido reseñas de clientes.</p>
+                  </div>
+                ) : (
+                  reseñas.map((reseña) => (
+                    <div key={reseña.id} className="bg-gray-50 rounded-lg p-6 border">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-3">
+                            <div className="flex space-x-1">
+                              {[...Array(5)].map((_, i) => (
+                                <span key={i} className={`text-lg ${i < reseña.rating ? 'text-yellow-400' : 'text-gray-300'}`}>
+                                  ⭐
+                                </span>
+                              ))}
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              reseña.status === 'aprobada' ? 'bg-green-100 text-green-800' :
+                              reseña.status === 'rechazada' ? 'bg-red-100 text-red-800' :
+                              'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {reseña.status === 'aprobada' ? 'Aprobada' :
+                               reseña.status === 'rechazada' ? 'Rechazada' : 'Pendiente'}
+                            </span>
+                          </div>
+                          
+                          <div className="mb-3">
+                            <p className="text-gray-800 font-medium">{reseña.clientName}</p>
+                            <p className="text-sm text-gray-600">{reseña.clientEmail}</p>
+                            <p className="text-xs text-gray-500">{new Date(reseña.createdAt).toLocaleDateString()}</p>
+                          </div>
+                          
+                          {reseña.feedback && (
+                            <p className="text-gray-700 mb-3">{reseña.feedback}</p>
+                          )}
+                        </div>
+                        
+                        <div className="flex space-x-2 ml-4">
+                          {reseña.status === 'pendiente' && (
+                            <>
+                              <button
+                                onClick={() => handleUpdateEstadoReseña(reseña.id, 'aprobada')}
+                                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                              >
+                                ✅ Aprobar
+                              </button>
+                              <button
+                                onClick={() => handleUpdateEstadoReseña(reseña.id, 'rechazada')}
+                                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                              >
+                                ❌ Rechazar
+                              </button>
+                            </>
+                          )}
+                          <button
+                            onClick={() => handleDeleteReseña(reseña.id)}
+                            className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                          >
+                            🗑️ Eliminar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'reportes' && (
           <ReportsManager />
         )}
