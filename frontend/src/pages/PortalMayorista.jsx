@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 const PortalMayorista = () => {
-  const { user } = useAuth()
+  const { user, forceUpdateUserRole } = useAuth()
   const navigate = useNavigate()
   const { productos, loading } = useProductos()
   
@@ -13,6 +13,7 @@ const PortalMayorista = () => {
   const [pedidos, setPedidos] = useState([])
   const [activeTab, setActiveTab] = useState('catalogo')
   const [showCheckout, setShowCheckout] = useState(false)
+  const [debugMode, setDebugMode] = useState(false)
 
   // Datos simulados de pedidos
   const pedidosSimulados = [
@@ -65,7 +66,10 @@ const PortalMayorista = () => {
     console.log('🔍 PortalMayorista - Debug info:')
     console.log('👤 User:', user)
     console.log('🎭 User role:', user?.role)
+    console.log('📧 User email:', user?.email)
+    console.log('🆔 User UID:', user?.uid)
     console.log('📦 Productos:', productos?.length || 0)
+    console.log('🔗 Current URL:', window.location.href)
     
     if (!user) {
       console.log('❌ No hay usuario, redirigiendo a login')
@@ -75,12 +79,15 @@ const PortalMayorista = () => {
     
     if (user.role !== 'mayorista') {
       console.log('❌ Usuario no es mayorista, redirigiendo a login')
-      toast.error('Acceso denegado. Solo para mayoristas.')
+      console.log('❌ Rol actual:', user.role)
+      console.log('❌ Email del usuario:', user.email)
+      toast.error(`Acceso denegado. Rol actual: ${user.role}. Solo para mayoristas.`)
       navigate('/mayorista/login')
       return
     }
     
     console.log('✅ Usuario mayorista autenticado correctamente')
+    console.log('✅ Rol verificado:', user.role)
   }, [user, navigate])
 
   const agregarAlCarrito = (producto) => {
@@ -194,6 +201,24 @@ const PortalMayorista = () => {
     }
   }
 
+  const handleForceUpdateRole = async () => {
+    try {
+      console.log('🔄 Forzando actualización del rol...')
+      const newRole = await forceUpdateUserRole()
+      console.log('🔄 Nuevo rol:', newRole)
+      
+      if (newRole === 'mayorista') {
+        toast.success('✅ Rol actualizado correctamente')
+        window.location.reload() // Recargar para aplicar cambios
+      } else {
+        toast.error(`❌ Rol no es mayorista: ${newRole}`)
+      }
+    } catch (error) {
+      console.error('❌ Error actualizando rol:', error)
+      toast.error('❌ Error actualizando rol')
+    }
+  }
+
   // Si no hay usuario o no es mayorista, no mostrar nada
   if (!user || user.role !== 'mayorista') {
     console.log('🚫 No mostrando portal - Usuario:', user?.email, 'Rol:', user?.role)
@@ -201,7 +226,20 @@ const PortalMayorista = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Verificando acceso...</p>
+          <p className="text-gray-600 mb-4">Verificando acceso...</p>
+          
+          {/* Botón de debug */}
+          <div className="bg-yellow-50 p-4 rounded-lg max-w-md mx-auto">
+            <p className="text-sm text-yellow-800 mb-2">
+              <strong>Debug:</strong> Usuario: {user?.email} | Rol: {user?.role}
+            </p>
+            <button
+              onClick={handleForceUpdateRole}
+              className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm"
+            >
+              🔄 Forzar actualización de rol
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -218,6 +256,32 @@ const PortalMayorista = () => {
         <p className="text-gray-600">
           Bienvenido, {user.displayName || user.email}. Aquí podés realizar tus pedidos y ver el historial.
         </p>
+        
+        {/* Botón de debug */}
+        <button
+          onClick={() => setDebugMode(!debugMode)}
+          className="mt-2 text-xs text-gray-500 hover:text-gray-700"
+        >
+          {debugMode ? '🔽 Ocultar debug' : '🔼 Mostrar debug'}
+        </button>
+        
+        {debugMode && (
+          <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+            <h3 className="font-semibold text-sm mb-2">Debug Info:</h3>
+            <div className="text-xs space-y-1">
+              <p><strong>Email:</strong> {user.email}</p>
+              <p><strong>UID:</strong> {user.uid}</p>
+              <p><strong>Rol:</strong> {user.role}</p>
+              <p><strong>Productos:</strong> {productos?.length || 0}</p>
+            </div>
+            <button
+              onClick={handleForceUpdateRole}
+              className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs"
+            >
+              🔄 Actualizar rol
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Tabs */}
