@@ -125,6 +125,61 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Marcas */}
+      <section className="py-8 sm:py-12 lg:py-16">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900 px-4">
+          Marcas con las que Trabajamos
+        </h2>
+        <div className="container mx-auto px-4 sm:px-6">
+          <p className="text-center text-gray-600 text-sm sm:text-base lg:text-lg mb-8 sm:mb-12 max-w-3xl mx-auto">
+            Trabajamos con las mejores marcas del mercado para garantizar la calidad y durabilidad de tu vehículo
+          </p>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8">
+            {[
+              { name: 'ELF', color: 'from-blue-500 to-blue-600' },
+              { name: 'MANN FILTER', color: 'from-red-500 to-red-600' },
+              { name: 'CASTROL', color: 'from-green-500 to-green-600' },
+              { name: 'MOTUL', color: 'from-purple-500 to-purple-600' },
+              { name: 'MOURA', color: 'from-yellow-500 to-yellow-600' },
+              { name: 'PETRONAS', color: 'from-green-600 to-green-700' },
+              { name: 'SHELL', color: 'from-red-600 to-red-700' },
+              { name: 'YPF', color: 'from-blue-600 to-blue-700' },
+              { name: 'WEGA', color: 'from-gray-500 to-gray-600' },
+              { name: 'TOTAL', color: 'from-red-500 to-red-600' },
+              { name: 'VALVOLINE', color: 'from-orange-500 to-orange-600' },
+              { name: 'BARDAHL', color: 'from-green-500 to-green-600' }
+            ].map((brand, index) => (
+              <div
+                key={brand.name}
+                className="group relative"
+              >
+                <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 p-4 sm:p-6 text-center border border-gray-100 hover:border-gray-200">
+                  <div className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br ${brand.color} rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform`}>
+                    <span className="text-white font-bold text-xs sm:text-sm">
+                      {brand.name.split(' ')[0].charAt(0)}
+                      {brand.name.split(' ')[1]?.charAt(0) || ''}
+                    </span>
+                  </div>
+                  <h3 className="font-semibold text-gray-800 text-sm sm:text-base group-hover:text-gray-900 transition-colors">
+                    {brand.name}
+                  </h3>
+                </div>
+                
+                {/* Efecto de brillo al hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl pointer-events-none"></div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="text-center mt-8 sm:mt-12">
+            <p className="text-gray-500 text-sm sm:text-base">
+              Productos originales y garantizados
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Ventajas */}
       <section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-br from-green-50 to-yellow-50 rounded-2xl mx-2 sm:mx-0">
         <div className="container mx-auto px-4 sm:px-6">
