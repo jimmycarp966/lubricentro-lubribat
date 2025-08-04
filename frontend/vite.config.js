@@ -13,4 +13,17 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          firebase: ['firebase/app', 'firebase/database', 'firebase/auth'],
+          ui: ['react-hot-toast', 'react-icons', '@iconify/react'],
+          utils: ['date-fns', 'axios']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  }
 }) 

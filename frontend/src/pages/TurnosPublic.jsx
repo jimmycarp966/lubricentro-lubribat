@@ -117,7 +117,7 @@ const TurnosPublic = () => {
     const handleKeyPress = (event) => {
       if (event.ctrlKey && event.shiftKey && event.key === 'D') {
         setShowDebug(prev => !prev)
-        console.log('🔧 Debug mode:', !showDebug ? 'ON' : 'OFF')
+        // Debug mode removido para producción
       }
     }
 
@@ -172,8 +172,6 @@ const TurnosPublic = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('🔧 Debug: Iniciando creación de turno...')
-    setDebugInfo('🔧 Iniciando creación de turno...')
 
     const turnoData = {
       sucursal: selectedSucursal.nombre,
@@ -195,19 +193,10 @@ const TurnosPublic = () => {
       estado: 'pendiente'
     }
 
-    console.log('🔧 Debug: Datos del turno a crear:', turnoData)
-    setDebugInfo(prev => prev + '\n📋 Datos del turno: ' + JSON.stringify(turnoData, null, 2))
-
     try {
-      console.log('🔧 Debug: Llamando a crearTurno...')
-      setDebugInfo(prev => prev + '\n🔄 Llamando a crearTurno...')
       const result = await crearTurno(turnoData)
-      console.log('🔧 Debug: Resultado de crearTurno:', result)
-      setDebugInfo(prev => prev + '\n✅ Resultado: ' + JSON.stringify(result, null, 2))
       
       if (result.success) {
-        console.log('🔧 Debug: Turno creado exitosamente')
-        setDebugInfo(prev => prev + '\n🎉 Turno creado exitosamente')
         // Generar mensaje de WhatsApp
         const whatsappData = {
           nombre: formData.nombre,
@@ -245,13 +234,9 @@ const TurnosPublic = () => {
         setSelectedTime('')
         setSelectedService('')
       } else {
-        console.log('🔧 Debug: Error en crearTurno:', result.error)
-        setDebugInfo(prev => prev + '\n❌ Error: ' + result.error)
         toast.error('Error al crear el turno')
       }
     } catch (error) {
-      console.log('🔧 Debug: Excepción en handleSubmit:', error)
-      setDebugInfo(prev => prev + '\n💥 Excepción: ' + error.message)
       toast.error('Error al crear el turno')
     }
   }

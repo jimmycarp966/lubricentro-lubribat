@@ -18,27 +18,22 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  console.log('🔄 AuthProvider - Estado actual:', { user, loading })
+  // Debug removido para producción
 
   // Función para obtener el rol del usuario desde la base de datos
   const getUserRole = async (uid) => {
     try {
-      console.log('🔍 Obteniendo rol para UID:', uid)
       const userRef = ref(database, `users/${uid}`)
       const snapshot = await get(userRef)
       
       if (snapshot.exists()) {
         const userData = snapshot.val()
-        console.log('📋 Datos del usuario en DB:', userData)
         const role = userData.role || 'client'
-        console.log('🎭 Rol obtenido:', role)
         return role
       }
       
-      console.log('⚠️ Usuario no encontrado en DB, usando rol por defecto')
       return 'client' // Por defecto
     } catch (error) {
-      console.error('❌ Error obteniendo rol del usuario:', error)
       return 'client' // Por defecto
     }
   }
@@ -48,19 +43,15 @@ export const AuthProvider = ({ children }) => {
     if (!user) return
     
     try {
-      console.log('🔄 Forzando actualización del rol...')
       const newRole = await getUserRole(user.uid)
-      console.log('🔄 Nuevo rol obtenido:', newRole)
       
       setUser(prev => ({
         ...prev,
         role: newRole
       }))
       
-      console.log('✅ Rol actualizado en el contexto')
       return newRole
     } catch (error) {
-      console.error('❌ Error actualizando rol:', error)
       return null
     }
   }

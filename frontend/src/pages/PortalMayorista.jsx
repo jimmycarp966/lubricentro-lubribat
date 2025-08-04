@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { ref, push, set, get, update } from 'firebase/database'
 import { database } from '../firebase/config'
-import DebugAuth from '../components/DebugAuth'
+// DebugAuth removido para producción
 import { checkAndCreateMayoristaUser, verifyMayoristaInFirebase } from '../utils/checkMayoristaUser'
 import { getPedidosByMayorista } from '../services/pedidosService'
 
@@ -53,12 +53,9 @@ const PortalMayorista = () => {
     const cargarPedidos = async () => {
       if (user && user.uid) {
         try {
-          console.log('📋 Cargando pedidos del mayorista desde Firebase...')
           const pedidosReales = await getPedidosByMayorista(user.uid)
           setPedidos(pedidosReales)
-          console.log(`✅ ${pedidosReales.length} pedidos cargados`)
         } catch (error) {
-          console.error('❌ Error cargando pedidos:', error)
           toast.error('Error cargando pedidos')
           // Fallback a datos simulados si hay error
           setPedidos(pedidosSimulados)
@@ -73,62 +70,45 @@ const PortalMayorista = () => {
   const recargarPedidos = async () => {
     if (user && user.uid) {
       try {
-        console.log('🔄 Recargando pedidos...')
         const pedidosReales = await getPedidosByMayorista(user.uid)
         setPedidos(pedidosReales)
-        console.log(`✅ ${pedidosReales.length} pedidos recargados`)
       } catch (error) {
-        console.error('❌ Error recargando pedidos:', error)
+        // Error silencioso para producción
       }
     }
   }
 
   useEffect(() => {
-    console.log('🔍 PortalMayorista - Debug info:')
-    console.log('👤 User:', user)
-    console.log('🎭 User role:', user?.role)
-    console.log('📧 User email:', user?.email)
-    console.log('🆔 User UID:', user?.uid)
-    console.log('📦 Productos:', productos?.length || 0)
-    console.log('🔗 Current URL:', window.location.href)
+    // Debug info removido para producción
     
     // Esperar a que el usuario esté completamente cargado
     if (user === null) {
-      console.log('⏳ Esperando carga del usuario...')
       return
     }
     
     if (!user) {
-      console.log('❌ No hay usuario, redirigiendo a login')
       navigate('/mayorista/login')
       return
     }
     
     if (user.role !== 'mayorista') {
-      console.log('❌ Usuario no es mayorista, redirigiendo a login')
-      console.log('❌ Rol actual:', user.role)
-      console.log('❌ Email del usuario:', user.email)
       toast.error(`Acceso denegado. Rol actual: ${user.role}. Solo para mayoristas.`)
       navigate('/mayorista/login')
       return
     }
-    
-    console.log('✅ Usuario mayorista autenticado correctamente')
-    console.log('✅ Rol verificado:', user.role)
     
     // Verificar y crear usuario mayorista en Firebase si es necesario
     const verifyMayorista = async () => {
       try {
         const mayoristaExists = await verifyMayoristaInFirebase()
         if (!mayoristaExists) {
-          console.log('🔄 Usuario mayorista no encontrado en Firebase, creando...')
           const result = await checkAndCreateMayoristaUser()
           if (result.created) {
             toast.success('✅ Usuario mayorista configurado correctamente')
           }
         }
       } catch (error) {
-        console.error('❌ Error verificando usuario mayorista:', error)
+        // Error silencioso para producción
       }
     }
     
@@ -137,9 +117,7 @@ const PortalMayorista = () => {
 
   const handleForceUpdateRole = async () => {
     try {
-      console.log('🔄 Forzando actualización del rol...')
       const newRole = await forceUpdateUserRole()
-      console.log('🔄 Nuevo rol:', newRole)
       
       if (newRole === 'mayorista') {
         toast.success('✅ Rol actualizado correctamente')
@@ -148,7 +126,6 @@ const PortalMayorista = () => {
         toast.error(`❌ Rol no es mayorista: ${newRole}`)
       }
     } catch (error) {
-      console.error('❌ Error actualizando rol:', error)
       toast.error('❌ Error actualizando rol')
     }
   }
@@ -432,7 +409,7 @@ const PortalMayorista = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <DebugAuth />
+              {/* DebugAuth removido para producción */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Portal Mayorista

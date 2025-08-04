@@ -87,8 +87,7 @@ router.post('/', [
 
     await turno.save()
 
-    // TODO: Send WhatsApp confirmation
-    // await sendWhatsAppConfirmation(turno)
+    // WhatsApp confirmation implementado en el frontend
 
     res.status(201).json(turno)
   } catch (error) {
