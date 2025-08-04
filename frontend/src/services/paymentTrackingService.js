@@ -1,5 +1,5 @@
 import { ref, push, set, get, query, orderByChild, equalTo } from 'firebase/database'
-import { db } from '../firebase/config'
+import { database } from '../firebase/config'
 import toast from 'react-hot-toast'
 
 // Estructura de datos para tracking de pagos
@@ -22,7 +22,7 @@ const PAYMENT_METHODS = {
 // Función para registrar un pago en Firebase
 export const registerPayment = async (paymentData) => {
   try {
-    const paymentRef = ref(db, 'payments')
+    const paymentRef = ref(database, 'payments')
     const newPaymentRef = push(paymentRef)
     
     const paymentRecord = {
@@ -68,7 +68,7 @@ export const registerPayment = async (paymentData) => {
 // Función para actualizar estado de pago
 export const updatePaymentStatus = async (paymentId, newStatus, additionalData = {}) => {
   try {
-    const paymentRef = ref(db, `payments/${paymentId}`)
+    const paymentRef = ref(database, `payments/${paymentId}`)
     const paymentSnapshot = await get(paymentRef)
     
     if (!paymentSnapshot.exists()) {
@@ -109,7 +109,7 @@ export const updatePaymentStatus = async (paymentId, newStatus, additionalData =
 // Función para obtener todos los pagos
 export const getAllPayments = async () => {
   try {
-    const paymentsRef = ref(db, 'payments')
+    const paymentsRef = ref(database, 'payments')
     const paymentsQuery = query(paymentsRef, orderByChild('fechaCreacion'))
     const snapshot = await get(paymentsQuery)
     
@@ -135,7 +135,7 @@ export const getAllPayments = async () => {
 // Función para obtener pagos por estado
 export const getPaymentsByStatus = async (status) => {
   try {
-    const paymentsRef = ref(db, 'payments')
+    const paymentsRef = ref(database, 'payments')
     const paymentsQuery = query(paymentsRef, orderByChild('estado'), equalTo(status))
     const snapshot = await get(paymentsQuery)
     
@@ -161,7 +161,7 @@ export const getPaymentsByStatus = async (status) => {
 // Función para obtener pagos por método
 export const getPaymentsByMethod = async (method) => {
   try {
-    const paymentsRef = ref(db, 'payments')
+    const paymentsRef = ref(database, 'payments')
     const paymentsQuery = query(paymentsRef, orderByChild('metodoPago'), equalTo(method))
     const snapshot = await get(paymentsQuery)
     
@@ -259,7 +259,7 @@ export const getPaymentStats = async () => {
 // Función para actualizar estado del turno
 const updateTurnoStatus = async (turnoId, newStatus) => {
   try {
-    const turnoRef = ref(db, `turnos/${turnoId}`)
+    const turnoRef = ref(database, `turnos/${turnoId}`)
     const turnoSnapshot = await get(turnoRef)
     
     if (turnoSnapshot.exists()) {
