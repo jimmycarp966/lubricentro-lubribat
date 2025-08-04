@@ -675,19 +675,76 @@ const TurnosPublic = () => {
 
         {/* Información específica para transferencia */}
         {selectedPaymentMethod === PAYMENT_METHODS.TRANSFERENCIA && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 sm:mb-8">
-            <div className="flex items-center space-x-2 mb-2">
-              <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="font-medium text-yellow-800">Información para transferencia</span>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6 sm:mb-8">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold text-blue-800 text-lg">Pago por Transferencia</h3>
+                <p className="text-blue-600 text-sm">Sin comisiones adicionales</p>
+              </div>
             </div>
-            <div className="text-sm text-yellow-700 space-y-1">
-              <p><strong>Banco:</strong> Banco Tucumán</p>
-              <p><strong>Cuenta:</strong> 123-456789/0</p>
-              <p><strong>CBU:</strong> 1234567890123456789012</p>
-              <p><strong>Titular:</strong> Lubri-Bat S.R.L.</p>
-              <p className="mt-2 text-xs">* Envía el comprobante por WhatsApp para confirmar el pago</p>
+            
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg p-4 border border-blue-100">
+                <h4 className="font-medium text-gray-800 mb-3">📋 Datos bancarios:</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="font-medium text-gray-600">Banco:</span>
+                    <p className="text-gray-800">Banco Tucumán</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-600">Cuenta:</span>
+                    <p className="text-gray-800">123-456789/0</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-600">CBU:</span>
+                    <p className="text-gray-800 font-mono text-xs">1234567890123456789012</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-600">Titular:</span>
+                    <p className="text-gray-800">Lubri-Bat S.R.L.</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-green-800 mb-2">📱 Pasos a seguir:</h4>
+                    <ol className="text-sm text-green-700 space-y-1">
+                      <li>1. Realiza la transferencia con los datos bancarios</li>
+                      <li>2. Toma una foto del comprobante de pago</li>
+                      <li>3. Envía el comprobante por WhatsApp al: <strong>+54 9 381 123-4567</strong></li>
+                      <li>4. Incluye tu nombre y datos del turno en el mensaje</li>
+                      <li>5. Una vez confirmado, se te acreditará el turno automáticamente</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-sm">⏰</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-yellow-800 mb-2">⏱️ Tiempo de confirmación:</h4>
+                    <p className="text-sm text-yellow-700">
+                      La confirmación se realiza en un plazo máximo de 2 horas durante días hábiles. 
+                      Te notificaremos por WhatsApp cuando el pago sea confirmado.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
