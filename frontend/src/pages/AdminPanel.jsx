@@ -801,22 +801,30 @@ const AdminPanel = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tabs */}
-        <div className="border-b-2 border-green-200 mb-8">
-          <nav className="-mb-px flex space-x-8 overflow-x-auto">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-4 sm:px-6 border-b-2 font-semibold text-sm sm:text-base transition-all duration-200 whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'border-green-500 text-green-600 bg-green-50'
-                    : 'border-transparent text-gray-600 hover:text-green-600 hover:border-green-300 hover:bg-green-50'
-                }`}
-              >
-                {tab.name}
-              </button>
-            ))}
-          </nav>
+        <div className="border-b-2 border-green-200 mb-8 relative">
+          <div className="flex items-center">
+            <nav className="-mb-px flex space-x-8 overflow-x-auto scrollbar-hide flex-1">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`py-4 px-4 sm:px-6 border-b-2 font-semibold text-sm sm:text-base transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
+                    activeTab === tab.id
+                      ? 'border-green-500 text-green-600 bg-green-50'
+                      : 'border-transparent text-gray-600 hover:text-green-600 hover:border-green-300 hover:bg-green-50'
+                  }`}
+                >
+                  {tab.name}
+                </button>
+              ))}
+            </nav>
+            {/* Scroll indicator arrow */}
+            <div className="absolute right-0 top-0 bottom-0 flex items-center bg-gradient-to-l from-white via-white to-transparent w-8 pointer-events-none">
+              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                <span className="text-green-600 text-xs font-bold">→</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Tab Content */}

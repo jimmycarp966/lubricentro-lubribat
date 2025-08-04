@@ -58,7 +58,7 @@ const ReminderSystem = () => {
   }
 
   return (
-    <div className="fixed top-24 right-6 z-40">
+    <div className="fixed top-32 right-6 z-40">
       {/* Botón flotante */}
       <button
         onClick={() => setIsVisible(!isVisible)}

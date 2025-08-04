@@ -37,7 +37,7 @@ const LoyaltySystem = () => {
   }
 
   return (
-    <div className="fixed top-24 left-6 z-40">
+    <div className="fixed top-32 left-6 z-40">
       {/* Botón flotante */}
       <button
         onClick={() => setIsVisible(!isVisible)}

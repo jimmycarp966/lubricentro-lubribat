@@ -55,7 +55,7 @@ const ServiceStatus = () => {
   }, [])
 
   return (
-    <div className="fixed top-20 right-6 z-40">
+    <div className="fixed top-28 right-6 z-40">
       <div className="bg-white rounded-xl shadow-lg p-4 border border-gray-200">
         <div className="flex items-center space-x-3">
           <div className={`p-2 rounded-full ${config.bgColor}`}>

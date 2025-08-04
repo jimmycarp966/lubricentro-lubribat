@@ -77,7 +77,7 @@ const PushNotifications = () => {
   const unreadCount = notifications.filter(n => !n.read).length
 
   return (
-    <div className="fixed top-24 right-20 z-40">
+    <div className="fixed top-32 right-20 z-40">
       {/* Botón flotante */}
       <button
         onClick={() => setIsVisible(!isVisible)}

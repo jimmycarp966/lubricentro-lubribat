@@ -85,7 +85,7 @@ const StaffNotification = () => {
   const unreadCount = notifications.filter(n => !n.read).length
 
   return (
-    <div className="fixed top-24 right-34 z-40">
+    <div className="fixed top-32 right-34 z-40">
       {/* Botón flotante */}
       <button
         onClick={() => setIsVisible(!isVisible)}
