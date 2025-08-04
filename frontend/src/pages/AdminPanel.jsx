@@ -25,6 +25,7 @@ import ReportsManager from '../components/admin/ReportsManager'
 import { sendReminderMessage, sendCompletionMessage } from '../utils/whatsappService'
 import { sendTurnoConfirmationNotification, sendWhatsAppNotification, notificationManager } from '../services/notificationService'
 import { getPedidos, actualizarEstadoPedido, eliminarPedido, getPedidosStats } from '../services/pedidosService'
+import { getPayments, getPaymentStats, updatePaymentStatus, confirmPayment } from '../services/paymentService'
 
 const AdminPanel = () => {
   const { user } = useAuth()
@@ -78,6 +79,8 @@ const AdminPanel = () => {
   const [sortPedidos, setSortPedidos] = useState('fecha')
   const [pedidos, setPedidos] = useState([])
   const [loadingPedidos, setLoadingPedidos] = useState(false)
+  const [pagos, setPagos] = useState([])
+  const [loadingPagos, setLoadingPagos] = useState(false)
 
   // Estados para reportes
   const [reportPeriod, setReportPeriod] = useState('mes')
@@ -611,6 +614,32 @@ const AdminPanel = () => {
     }
   }
 
+  const handleConfirmarPago = async (pagoId) => {
+    try {
+      await confirmPayment(pagoId)
+      setPagos(prev => prev.map(p => 
+        p.id === pagoId ? { ...p, status: 'pagado' } : p
+      ))
+      toast.success('Pago confirmado e inventario actualizado')
+    } catch (error) {
+      console.error('Error confirmando pago:', error)
+      toast.error('Error al confirmar pago')
+    }
+  }
+
+  const handleUpdateEstadoPago = async (pagoId, nuevoEstado) => {
+    try {
+      await updatePaymentStatus(pagoId, nuevoEstado)
+      setPagos(prev => prev.map(p => 
+        p.id === pagoId ? { ...p, status: nuevoEstado } : p
+      ))
+      toast.success('Estado del pago actualizado')
+    } catch (error) {
+      console.error('Error actualizando estado del pago:', error)
+      toast.error('Error al actualizar estado')
+    }
+  }
+
   // Cargar pedidos desde Firebase
   const cargarPedidos = async () => {
     try {
@@ -630,10 +659,30 @@ const AdminPanel = () => {
     }
   }
 
-  // Cargar pedidos cuando se active la pestaña
+  // Cargar pagos desde Firebase
+  const cargarPagos = async () => {
+    try {
+      setLoadingPagos(true)
+      console.log('💰 Cargando pagos desde Firebase...')
+      const pagosReales = await getPayments()
+      console.log('💰 Pagos obtenidos:', pagosReales)
+      setPagos(pagosReales)
+      console.log(`✅ ${pagosReales.length} pagos cargados`)
+    } catch (error) {
+      console.error('❌ Error cargando pagos:', error)
+      toast.error('Error cargando pagos')
+    } finally {
+      setLoadingPagos(false)
+    }
+  }
+
+  // Cargar datos cuando se active la pestaña
   useEffect(() => {
     if (activeTab === 'pedidos') {
       cargarPedidos()
+    }
+    if (activeTab === 'pagos') {
+      cargarPagos()
     }
   }, [activeTab])
 

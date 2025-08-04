@@ -5,8 +5,15 @@ import { useTurnos } from '../contexts/TurnosContext'
 import toast from 'react-hot-toast'
 import SimpleCalendar from '../components/SimpleCalendar'
 import BookingProgress from '../components/BookingProgress'
-import { createPaymentPreference, getPaymentMethods } from '../services/mercadopagoService'
+import { 
+  processMercadoPagoPayment, 
+  processCashPayment, 
+  processTransferPayment, 
+  processCardPayment,
+  PAYMENT_METHODS 
+} from '../services/paymentService'
 import { sendWhatsAppMessage } from '../utils/whatsappService'
+import PaymentMethodSelector from '../components/PaymentMethodSelector'
 
 
 const TurnosPublic = () => {
@@ -27,8 +34,8 @@ const TurnosPublic = () => {
   const [debugInfo, setDebugInfo] = useState('')
   const [showDebug, setShowDebug] = useState(false)
   const [paymentLoading, setPaymentLoading] = useState(false)
-  const [paymentUrl, setPaymentUrl] = useState('')
-  const [paymentMethods] = useState(getPaymentMethods())
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('')
+  const [paymentResult, setPaymentResult] = useState(null)
 
   const { crearTurno } = useTurnos()
 
@@ -255,34 +262,63 @@ const TurnosPublic = () => {
       return
     }
 
+    if (!selectedPaymentMethod) {
+      toast.error('Por favor selecciona un método de pago')
+      return
+    }
+
     setPaymentLoading(true)
     
     try {
       const paymentData = {
-        id: confirmedTurno.id || `turno_${Date.now()}`,
+        turnoId: confirmedTurno.id || `turno_${Date.now()}`,
         servicio: confirmedTurno.servicio,
         sucursal: confirmedTurno.sucursal,
         fecha: confirmedTurno.fecha,
         horario: confirmedTurno.horario,
-        precio: confirmedTurno.precio || 5000,
-        nombreCliente: confirmedTurno.cliente,
-        emailCliente: `${confirmedTurno.cliente.toLowerCase().replace(' ', '.')}@example.com`,
-        vehiculo: confirmedTurno.vehiculo
+        amount: confirmedTurno.precio || 5000,
+        clientName: confirmedTurno.cliente,
+        clientEmail: `${confirmedTurno.cliente.toLowerCase().replace(' ', '.')}@example.com`,
+        vehiculo: confirmedTurno.vehiculo,
+        clientPhone: confirmedTurno.contacto
       }
 
-      const result = await createPaymentPreference(paymentData)
+      let result
+
+      switch (selectedPaymentMethod) {
+        case PAYMENT_METHODS.MERCADOPAGO:
+          result = await processMercadoPagoPayment(paymentData)
+          break
+        case PAYMENT_METHODS.EFECTIVO:
+          result = await processCashPayment(paymentData)
+          break
+        case PAYMENT_METHODS.TRANSFERENCIA:
+          result = await processTransferPayment(paymentData)
+          break
+        case PAYMENT_METHODS.TARJETA_PRESENCIAL:
+          result = await processCardPayment(paymentData)
+          break
+        default:
+          toast.error('Método de pago no válido')
+          return
+      }
       
       if (result.success) {
-        setPaymentUrl(result.sandbox_init_point)
-        toast.success('Redirigiendo a MercadoPago...')
+        setPaymentResult(result)
+        
+        if (result.paymentUrl) {
+          toast.success('Redirigiendo al pago...')
+          window.open(result.paymentUrl, '_blank')
+        } else if (result.status === 'pagado') {
+          toast.success('¡Pago procesado exitosamente!')
+        } else {
+          toast.success('Pago registrado correctamente')
+        }
         
         // Guardar el ID del pago para tracking
         localStorage.setItem('currentPaymentId', result.paymentId)
-        
-        // Abrir ventana de pago
-        window.open(result.sandbox_init_point, '_blank')
       } else {
-        toast.error('Error al crear preferencia de pago')
+        toast.error(result.error || 'Error al procesar el pago')
       }
     } catch (error) {
       console.error('Error al procesar pago:', error)
@@ -628,33 +664,38 @@ const TurnosPublic = () => {
           </div>
         </div>
 
-        {/* Información de métodos de pago */}
-        <div className="bg-blue-50 p-4 sm:p-6 rounded-xl border border-blue-200 mb-6 sm:mb-8">
-          <h3 className="font-semibold mb-3 sm:mb-4 text-blue-800 text-sm sm:text-base">Métodos de pago disponibles:</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-            {paymentMethods.slice(0, 6).map((method) => (
-              <div key={method.id} className="flex items-center space-x-2 text-xs sm:text-sm">
-                <img 
-                  src={method.logo} 
-                  alt={method.name} 
-                  className="w-4 h-4 sm:w-6 sm:h-6 object-contain"
-                  onError={(e) => {
-                    e.target.style.display = 'none'
-                  }}
-                />
-                <span className="text-blue-700">{method.name}</span>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-blue-600 mt-3">
-            * El pago se procesa de forma segura a través de MercadoPago
-          </p>
+        {/* Selector de métodos de pago */}
+        <div className="mb-6 sm:mb-8">
+          <PaymentMethodSelector
+            onMethodSelect={setSelectedPaymentMethod}
+            selectedMethod={selectedPaymentMethod}
+            disabled={paymentLoading}
+          />
         </div>
+
+        {/* Información específica para transferencia */}
+        {selectedPaymentMethod === PAYMENT_METHODS.TRANSFERENCIA && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 sm:mb-8">
+            <div className="flex items-center space-x-2 mb-2">
+              <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="font-medium text-yellow-800">Información para transferencia</span>
+            </div>
+            <div className="text-sm text-yellow-700 space-y-1">
+              <p><strong>Banco:</strong> Banco Tucumán</p>
+              <p><strong>Cuenta:</strong> 123-456789/0</p>
+              <p><strong>CBU:</strong> 1234567890123456789012</p>
+              <p><strong>Titular:</strong> Lubri-Bat S.R.L.</p>
+              <p className="mt-2 text-xs">* Envía el comprobante por WhatsApp para confirmar el pago</p>
+            </div>
+          </div>
+        )}
         
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
           <button
             onClick={handlePayment}
-            disabled={paymentLoading}
+            disabled={paymentLoading || !selectedPaymentMethod}
             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
           >
             {paymentLoading ? (
@@ -667,7 +708,13 @@ const TurnosPublic = () => {
               </>
             ) : (
               <>
-                💳 Pagar con MercadoPago
+                {selectedPaymentMethod === PAYMENT_METHODS.EFECTIVO && '💵 Pagar en Efectivo'}
+                {selectedPaymentMethod === PAYMENT_METHODS.TRANSFERENCIA && '🏦 Pagar por Transferencia'}
+                {selectedPaymentMethod === PAYMENT_METHODS.TARJETA_PRESENCIAL && '💳 Pagar con Tarjeta'}
+                {selectedPaymentMethod === PAYMENT_METHODS.MERCADOPAGO && '🟡 Pagar con MercadoPago'}
+                {selectedPaymentMethod === PAYMENT_METHODS.PAGO_FACIL && '🏪 Pagar con Pago Fácil'}
+                {selectedPaymentMethod === PAYMENT_METHODS.RAPIPAGO && '🏪 Pagar con Rapipago'}
+                {!selectedPaymentMethod && 'Selecciona método de pago'}
               </>
             )}
           </button>

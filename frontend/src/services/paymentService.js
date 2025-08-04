@@ -1,284 +1,407 @@
-import { ref, get, set, push, query, orderByChild } from 'firebase/database'
+import { ref, push, set, get, update } from 'firebase/database'
 import { database } from '../firebase/config'
-import toast from 'react-hot-toast'
+import { createPaymentPreference } from './mercadopagoService'
+
+// Tipos de pago disponibles
+export const PAYMENT_METHODS = {
+  EFECTIVO: 'efectivo',
+  TRANSFERENCIA: 'transferencia',
+  MERCADOPAGO: 'mercadopago',
+  TARJETA_PRESENCIAL: 'tarjeta_presencial',
+  PAGO_FACIL: 'pago_facil',
+  RAPIPAGO: 'rapipago'
+}
 
 // Estados de pago
 export const PAYMENT_STATUS = {
-  PENDING: 'pending',
-  APPROVED: 'approved',
-  REJECTED: 'rejected',
-  CANCELLED: 'cancelled',
-  REFUNDED: 'refunded'
+  PENDIENTE: 'pendiente',
+  PAGADO: 'pagado',
+  RECHAZADO: 'rechazado',
+  CANCELADO: 'cancelado',
+  REEMBOLSADO: 'reembolsado'
 }
 
-// Tipos de pago
-export const PAYMENT_TYPES = {
-  CASH: 'cash',
-  CARD: 'card',
-  TRANSFER: 'transfer',
-  MERCADOPAGO: 'mercadopago'
-}
-
-// Función para crear una factura
-export const createInvoice = async (invoiceData) => {
-  try {
-    const invoicesRef = ref(database, 'invoices')
-    const newInvoiceRef = push(invoicesRef)
-    
-    const invoice = {
-      id: newInvoiceRef.key,
-      ...invoiceData,
-      status: 'pending',
-      createdAt: Date.now(),
-      updatedAt: Date.now()
-    }
-
-    await set(newInvoiceRef, invoice)
-    
-    return {
-      success: true,
-      invoice: invoice
-    }
-  } catch (error) {
-    console.error('Error creando factura:', error)
-    throw error
-  }
-}
-
-// Función para crear un pago
+// Crear un nuevo pago
 export const createPayment = async (paymentData) => {
   try {
-    const paymentsRef = ref(database, 'payments')
-    const newPaymentRef = push(paymentsRef)
+    const paymentRef = ref(database, 'pagos')
+    const newPaymentRef = push(paymentRef)
     
     const payment = {
       id: newPaymentRef.key,
       ...paymentData,
-      status: PAYMENT_STATUS.PENDING,
-      createdAt: Date.now(),
-      updatedAt: Date.now()
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      status: PAYMENT_STATUS.PENDIENTE
     }
-
-    await set(newPaymentRef, payment)
     
-    // Si es pago en efectivo, aprobar automáticamente
-    if (paymentData.type === PAYMENT_TYPES.CASH) {
-      await updatePaymentStatus(newPaymentRef.key, PAYMENT_STATUS.APPROVED)
+    await set(newPaymentRef, payment)
+    console.log('✅ Pago creado:', payment)
+    return { success: true, paymentId: newPaymentRef.key, payment }
+  } catch (error) {
+    console.error('❌ Error creando pago:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+// Procesar pago con MercadoPago
+export const processMercadoPagoPayment = async (paymentData) => {
+  try {
+    // Crear preferencia en MercadoPago
+    const mpResult = await createPaymentPreference(paymentData)
+    
+    if (mpResult.success) {
+      // Guardar pago en Firebase
+      const payment = await createPayment({
+        ...paymentData,
+        method: PAYMENT_METHODS.MERCADOPAGO,
+        mercadopagoId: mpResult.paymentId,
+        paymentUrl: mpResult.sandbox_init_point
+      })
+      
+      return {
+        success: true,
+        paymentId: payment.paymentId,
+        paymentUrl: mpResult.sandbox_init_point,
+        mercadopagoId: mpResult.paymentId
+      }
+    } else {
+      return { success: false, error: 'Error creando preferencia de pago' }
     }
+  } catch (error) {
+    console.error('❌ Error procesando pago MercadoPago:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+// Procesar pago en efectivo
+export const processCashPayment = async (paymentData) => {
+  try {
+    const payment = await createPayment({
+      ...paymentData,
+      method: PAYMENT_METHODS.EFECTIVO,
+      status: PAYMENT_STATUS.PAGADO, // Efectivo se marca como pagado inmediatamente
+      paidAt: new Date().toISOString()
+    })
     
     return {
       success: true,
-      payment: payment
+      paymentId: payment.paymentId,
+      status: PAYMENT_STATUS.PAGADO
     }
   } catch (error) {
-    console.error('Error creando pago:', error)
-    throw error
+    console.error('❌ Error procesando pago en efectivo:', error)
+    return { success: false, error: error.message }
   }
 }
 
-// Función para actualizar estado de pago
-export const updatePaymentStatus = async (paymentId, status) => {
+// Procesar pago por transferencia
+export const processTransferPayment = async (paymentData) => {
   try {
-    const paymentRef = ref(database, `payments/${paymentId}`)
-    const paymentSnapshot = await get(paymentRef)
+    const payment = await createPayment({
+      ...paymentData,
+      method: PAYMENT_METHODS.TRANSFERENCIA,
+      status: PAYMENT_STATUS.PENDIENTE,
+      transferInfo: {
+        accountNumber: '123-456789/0',
+        bank: 'Banco Tucumán',
+        cbu: '1234567890123456789012'
+      }
+    })
     
-    if (paymentSnapshot.exists()) {
-      const payment = paymentSnapshot.val()
-      
-      await set(paymentRef, {
-        ...payment,
-        status: status,
-        updatedAt: Date.now()
+    return {
+      success: true,
+      paymentId: payment.paymentId,
+      status: PAYMENT_STATUS.PENDIENTE,
+      transferInfo: payment.payment.transferInfo
+    }
+  } catch (error) {
+    console.error('❌ Error procesando pago por transferencia:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+// Procesar pago con tarjeta presencial
+export const processCardPayment = async (paymentData) => {
+  try {
+    const payment = await createPayment({
+      ...paymentData,
+      method: PAYMENT_METHODS.TARJETA_PRESENCIAL,
+      status: PAYMENT_STATUS.PAGADO,
+      paidAt: new Date().toISOString()
+    })
+    
+    return {
+      success: true,
+      paymentId: payment.paymentId,
+      status: PAYMENT_STATUS.PAGADO
+    }
+  } catch (error) {
+    console.error('❌ Error procesando pago con tarjeta:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+// Obtener todos los pagos
+export const getPayments = async () => {
+  try {
+    const paymentsRef = ref(database, 'pagos')
+    const snapshot = await get(paymentsRef)
+    
+    if (snapshot.exists()) {
+      const payments = []
+      snapshot.forEach((childSnapshot) => {
+        payments.push({
+          id: childSnapshot.key,
+          ...childSnapshot.val()
+        })
       })
+      return payments
+    }
+    return []
+  } catch (error) {
+    console.error('❌ Error obteniendo pagos:', error)
+    return []
+  }
+}
+
+// Obtener pagos por cliente
+export const getPaymentsByClient = async (clientId) => {
+  try {
+    const paymentsRef = ref(database, 'pagos')
+    const snapshot = await get(paymentsRef)
+    
+    if (snapshot.exists()) {
+      const payments = []
+      snapshot.forEach((childSnapshot) => {
+        const payment = childSnapshot.val()
+        if (payment.clientId === clientId) {
+          payments.push({
+            id: childSnapshot.key,
+            ...payment
+          })
+        }
+      })
+      return payments
+    }
+    return []
+  } catch (error) {
+    console.error('❌ Error obteniendo pagos del cliente:', error)
+    return []
+  }
+}
+
+// Actualizar estado de pago
+export const updatePaymentStatus = async (paymentId, status, additionalData = {}) => {
+  try {
+    const paymentRef = ref(database, `pagos/${paymentId}`)
+    await update(paymentRef, {
+      status,
+      updatedAt: new Date().toISOString(),
+      ...additionalData
+    })
+    
+    console.log(`✅ Estado de pago actualizado: ${paymentId} -> ${status}`)
+    return { success: true }
+  } catch (error) {
+    console.error('❌ Error actualizando estado de pago:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+// Confirmar pago y actualizar inventario
+export const confirmPayment = async (paymentId) => {
+  try {
+    // Actualizar estado del pago
+    await updatePaymentStatus(paymentId, PAYMENT_STATUS.PAGADO, {
+      paidAt: new Date().toISOString()
+    })
+    
+    // Obtener datos del pago
+    const paymentRef = ref(database, `pagos/${paymentId}`)
+    const snapshot = await get(paymentRef)
+    
+    if (snapshot.exists()) {
+      const payment = snapshot.val()
       
-      // Si el pago es aprobado, actualizar factura
-      if (status === PAYMENT_STATUS.APPROVED && payment.invoiceId) {
-        await updateInvoiceStatus(payment.invoiceId, 'paid')
+      // Si es un turno, actualizar inventario
+      if (payment.turnoId) {
+        await updateInventoryForTurno(payment)
       }
       
-      return { success: true }
+      // Si es un pedido mayorista, actualizar inventario
+      if (payment.pedidoId) {
+        await updateInventoryForPedido(payment)
+      }
     }
     
-    return { success: false, error: 'Pago no encontrado' }
+    return { success: true }
   } catch (error) {
-    console.error('Error actualizando estado de pago:', error)
-    throw error
+    console.error('❌ Error confirmando pago:', error)
+    return { success: false, error: error.message }
   }
 }
 
-// Función para actualizar estado de factura
-export const updateInvoiceStatus = async (invoiceId, status) => {
+// Actualizar inventario para turno
+const updateInventoryForTurno = async (payment) => {
   try {
-    const invoiceRef = ref(database, `invoices/${invoiceId}`)
-    const invoiceSnapshot = await get(invoiceRef)
+    const { turnoId, servicio, sucursal } = payment
     
-    if (invoiceSnapshot.exists()) {
-      const invoice = invoiceSnapshot.val()
+    // Obtener productos necesarios para el servicio
+    const productosNecesarios = getProductosForService(servicio)
+    
+    // Actualizar inventario
+    for (const producto of productosNecesarios) {
+      const inventarioRef = ref(database, `inventario/${producto.id}`)
+      const snapshot = await get(inventarioRef)
       
-      await set(invoiceRef, {
-        ...invoice,
-        status: status,
-        updatedAt: Date.now()
-      })
-      
-      return { success: true }
+      if (snapshot.exists()) {
+        const inventario = snapshot.val()
+        const nuevaCantidad = Math.max(0, inventario.cantidad - producto.cantidad)
+        
+        await update(inventarioRef, {
+          cantidad: nuevaCantidad,
+          updatedAt: new Date().toISOString()
+        })
+        
+        // Registrar movimiento
+        await registrarMovimientoInventario({
+          tipo: 'venta',
+          productoId: producto.id,
+          cantidad: -producto.cantidad,
+          sucursal,
+          turnoId,
+          paymentId: payment.id,
+          motivo: `Venta por servicio: ${servicio}`
+        })
+      }
     }
     
-    return { success: false, error: 'Factura no encontrada' }
+    console.log('✅ Inventario actualizado para turno:', turnoId)
   } catch (error) {
-    console.error('Error actualizando estado de factura:', error)
-    throw error
+    console.error('❌ Error actualizando inventario para turno:', error)
   }
 }
 
-// Función para obtener pagos
-export const getPayments = async (filters = {}) => {
+// Actualizar inventario para pedido mayorista
+const updateInventoryForPedido = async (payment) => {
   try {
-    const paymentsRef = ref(database, 'payments')
-    let paymentsQuery = query(paymentsRef, orderByChild('createdAt'))
-
-    const snapshot = await get(paymentsQuery)
-    const payments = []
-
-    if (snapshot.exists()) {
-      snapshot.forEach((childSnapshot) => {
-        const payment = {
-          id: childSnapshot.key,
-          ...childSnapshot.val()
-        }
+    const { pedidoId, items } = payment
+    
+    // Actualizar inventario para cada item
+    for (const item of items) {
+      const inventarioRef = ref(database, `inventario/${item.producto.id}`)
+      const snapshot = await get(inventarioRef)
+      
+      if (snapshot.exists()) {
+        const inventario = snapshot.val()
+        const nuevaCantidad = inventario.cantidad + item.cantidad
         
-        // Aplicar filtros
-        if (filters.status && payment.status !== filters.status) return
-        if (filters.type && payment.type !== filters.type) return
-        if (filters.fechaDesde && payment.createdAt < filters.fechaDesde) return
-        if (filters.fechaHasta && payment.createdAt > filters.fechaHasta) return
+        await update(inventarioRef, {
+          cantidad: nuevaCantidad,
+          updatedAt: new Date().toISOString()
+        })
         
-        payments.push(payment)
-      })
+        // Registrar movimiento
+        await registrarMovimientoInventario({
+          tipo: 'compra',
+          productoId: item.producto.id,
+          cantidad: item.cantidad,
+          pedidoId,
+          paymentId: payment.id,
+          motivo: `Compra mayorista: ${item.producto.nombre}`
+        })
+      }
     }
-
-    return payments.reverse() // Más recientes primero
+    
+    console.log('✅ Inventario actualizado para pedido:', pedidoId)
   } catch (error) {
-    console.error('Error obteniendo pagos:', error)
-    return []
+    console.error('❌ Error actualizando inventario para pedido:', error)
   }
 }
 
-// Función para obtener facturas
-export const getInvoices = async (filters = {}) => {
+// Registrar movimiento de inventario
+const registrarMovimientoInventario = async (movimiento) => {
   try {
-    const invoicesRef = ref(database, 'invoices')
-    let invoicesQuery = query(invoicesRef, orderByChild('createdAt'))
-
-    const snapshot = await get(invoicesQuery)
-    const invoices = []
-
-    if (snapshot.exists()) {
-      snapshot.forEach((childSnapshot) => {
-        const invoice = {
-          id: childSnapshot.key,
-          ...childSnapshot.val()
-        }
-        
-        // Aplicar filtros
-        if (filters.status && invoice.status !== filters.status) return
-        if (filters.fechaDesde && invoice.createdAt < filters.fechaDesde) return
-        if (filters.fechaHasta && invoice.createdAt > filters.fechaHasta) return
-        
-        invoices.push(invoice)
-      })
-    }
-
-    return invoices.reverse() // Más recientes primero
+    const movimientosRef = ref(database, 'inventario_movimientos')
+    const newMovimientoRef = push(movimientosRef)
+    
+    await set(newMovimientoRef, {
+      id: newMovimientoRef.key,
+      ...movimiento,
+      createdAt: new Date().toISOString()
+    })
+    
+    console.log('✅ Movimiento de inventario registrado:', movimiento)
   } catch (error) {
-    console.error('Error obteniendo facturas:', error)
-    return []
+    console.error('❌ Error registrando movimiento de inventario:', error)
   }
 }
 
-// Función para obtener estadísticas de pagos
+// Obtener productos necesarios para un servicio
+const getProductosForService = (servicio) => {
+  const productosPorServicio = {
+    'cambio-aceite': [
+      { id: 'aceite-motor', cantidad: 1, nombre: 'Aceite de Motor' },
+      { id: 'filtro-aceite', cantidad: 1, nombre: 'Filtro de Aceite' }
+    ],
+    'revision-general': [
+      { id: 'aceite-motor', cantidad: 1, nombre: 'Aceite de Motor' },
+      { id: 'filtro-aceite', cantidad: 1, nombre: 'Filtro de Aceite' },
+      { id: 'filtro-aire', cantidad: 1, nombre: 'Filtro de Aire' }
+    ],
+    'cambio-filtros': [
+      { id: 'filtro-aceite', cantidad: 1, nombre: 'Filtro de Aceite' },
+      { id: 'filtro-aire', cantidad: 1, nombre: 'Filtro de Aire' },
+      { id: 'filtro-combustible', cantidad: 1, nombre: 'Filtro de Combustible' }
+    ],
+    'lubricacion': [
+      { id: 'aceite-motor', cantidad: 1, nombre: 'Aceite de Motor' },
+      { id: 'filtro-aceite', cantidad: 1, nombre: 'Filtro de Aceite' },
+      { id: 'grasa', cantidad: 1, nombre: 'Grasa Multipropósito' }
+    ]
+  }
+  
+  return productosPorServicio[servicio] || []
+}
+
+// Obtener estadísticas de pagos
 export const getPaymentStats = async () => {
   try {
     const payments = await getPayments()
     
     const stats = {
-      totalPayments: payments.length,
-      totalAmount: payments.reduce((sum, p) => sum + (p.amount || 0), 0),
-      approvedPayments: payments.filter(p => p.status === PAYMENT_STATUS.APPROVED).length,
-      pendingPayments: payments.filter(p => p.status === PAYMENT_STATUS.PENDING).length,
-      rejectedPayments: payments.filter(p => p.status === PAYMENT_STATUS.REJECTED).length,
-      byType: {},
-      byStatus: {}
+      total: payments.length,
+      pagados: payments.filter(p => p.status === PAYMENT_STATUS.PAGADO).length,
+      pendientes: payments.filter(p => p.status === PAYMENT_STATUS.PENDIENTE).length,
+      totalAmount: payments
+        .filter(p => p.status === PAYMENT_STATUS.PAGADO)
+        .reduce((sum, p) => sum + (p.amount || 0), 0),
+      byMethod: {}
     }
-
-    // Estadísticas por tipo de pago
-    Object.values(PAYMENT_TYPES).forEach(type => {
-      const paymentsByType = payments.filter(p => p.type === type)
-      stats.byType[type] = {
-        count: paymentsByType.length,
-        amount: paymentsByType.reduce((sum, p) => sum + (p.amount || 0), 0)
+    
+    // Agrupar por método de pago
+    payments.forEach(payment => {
+      const method = payment.method || 'desconocido'
+      if (!stats.byMethod[method]) {
+        stats.byMethod[method] = {
+          count: 0,
+          amount: 0
+        }
       }
+      stats.byMethod[method].count++
+      stats.byMethod[method].amount += payment.amount || 0
     })
-
-    // Estadísticas por estado
-    Object.values(PAYMENT_STATUS).forEach(status => {
-      const paymentsByStatus = payments.filter(p => p.status === status)
-      stats.byStatus[status] = {
-        count: paymentsByStatus.length,
-        amount: paymentsByStatus.reduce((sum, p) => sum + (p.amount || 0), 0)
-      }
-    })
-
+    
     return stats
   } catch (error) {
-    console.error('Error obteniendo estadísticas de pagos:', error)
-    return {}
-  }
-}
-
-// Función para generar número de factura
-export const generateInvoiceNumber = async () => {
-  try {
-    const invoices = await getInvoices()
-    const lastInvoice = invoices[0] // Más reciente
-    
-    if (lastInvoice && lastInvoice.invoiceNumber) {
-      const lastNumber = parseInt(lastInvoice.invoiceNumber.replace('FAC-', ''))
-      return `FAC-${String(lastNumber + 1).padStart(6, '0')}`
-    }
-    
-    return 'FAC-000001'
-  } catch (error) {
-    console.error('Error generando número de factura:', error)
-    return 'FAC-000001'
-  }
-}
-
-// Función para simular integración con MercadoPago
-export const createMercadoPagoPayment = async (paymentData) => {
-  try {
-    // Simulación de creación de preferencia en MercadoPago
-    const preference = {
-      id: `mp_${Date.now()}`,
-      init_point: `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=mp_${Date.now()}`,
-      sandbox_init_point: `https://sandbox.mercadopago.com.ar/checkout/v1/redirect?pref_id=mp_${Date.now()}`
-    }
-    
-    // Crear pago en Firebase
-    const payment = await createPayment({
-      ...paymentData,
-      type: PAYMENT_TYPES.MERCADOPAGO,
-      mercadopagoPreferenceId: preference.id,
-      mercadopagoInitPoint: preference.init_point
-    })
-    
+    console.error('❌ Error obteniendo estadísticas de pagos:', error)
     return {
-      success: true,
-      payment: payment.payment,
-      preference: preference
+      total: 0,
+      pagados: 0,
+      pendientes: 0,
+      totalAmount: 0,
+      byMethod: {}
     }
-  } catch (error) {
-    console.error('Error creando pago MercadoPago:', error)
-    throw error
   }
 } 
