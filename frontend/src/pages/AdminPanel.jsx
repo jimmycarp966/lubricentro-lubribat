@@ -643,22 +643,20 @@ const AdminPanel = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {/* Admin Panel Header */}
       <div className="bg-white shadow-lg border-b-2 border-green-500">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <img src={logo} alt="LUBRI-BAT" className="h-12 w-12" />
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900">Panel de Administración</h1>
-                  <p className="text-sm text-gray-600">LUBRI-BAT - Gestión Integral</p>
-                </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6">
+            <div className="flex items-center space-x-3 mb-4 sm:mb-0">
+              <img src={logo} alt="LUBRI-BAT" className="h-10 w-10 sm:h-12 sm:w-12" />
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Panel de Administración</h1>
+                <p className="text-xs sm:text-sm text-gray-600">LUBRI-BAT - Gestión Integral</p>
               </div>
             </div>
-            <div className="flex items-center space-x-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-6">
               <div className="text-right">
-                <span className="text-sm text-gray-500">
+                <span className="text-xs sm:text-sm text-gray-500">
                   {new Date().toLocaleDateString('es-AR', { 
                     weekday: 'long', 
                     year: 'numeric', 
@@ -671,7 +669,7 @@ const AdminPanel = () => {
                 </div>
               </div>
               {showDebug && (
-                <span className="text-xs bg-yellow-100 text-yellow-800 px-3 py-2 rounded-lg border border-yellow-200">
+                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 sm:px-3 py-1 sm:py-2 rounded-lg border border-yellow-200">
                   🔧 DEBUG MODE
                 </span>
               )}
@@ -804,12 +802,12 @@ const AdminPanel = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tabs */}
         <div className="border-b-2 border-green-200 mb-8">
-          <nav className="-mb-px flex space-x-12">
+          <nav className="-mb-px flex space-x-8 overflow-x-auto">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-6 border-b-2 font-semibold text-base transition-all duration-200 ${
+                className={`py-4 px-4 sm:px-6 border-b-2 font-semibold text-sm sm:text-base transition-all duration-200 whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'border-green-500 text-green-600 bg-green-50'
                     : 'border-transparent text-gray-600 hover:text-green-600 hover:border-green-300 hover:bg-green-50'

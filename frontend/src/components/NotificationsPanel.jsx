@@ -73,9 +73,9 @@ const NotificationsPanel = () => {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Notificaciones</h2>
+    <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-0">Notificaciones</h2>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-500">
             {notificacionesNoLeidas.length} no leídas
@@ -84,12 +84,12 @@ const NotificationsPanel = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex space-x-4 mb-6">
+      <div className="flex space-x-2 sm:space-x-4 mb-6 overflow-x-auto">
         <button
           onClick={() => setActiveTab('todas')}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+          className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-sm whitespace-nowrap ${
             activeTab === 'todas'
-              ? 'bg-blue-600 text-white'
+              ? 'bg-green-600 text-white'
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
@@ -97,23 +97,13 @@ const NotificationsPanel = () => {
         </button>
         <button
           onClick={() => setActiveTab('no-leidas')}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+          className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-sm whitespace-nowrap ${
             activeTab === 'no-leidas'
-              ? 'bg-blue-600 text-white'
+              ? 'bg-green-600 text-white'
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
           No leídas ({notificacionesNoLeidas.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('configuracion')}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            activeTab === 'configuracion'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          }`}
-        >
-          Configuración
         </button>
       </div>
 
@@ -124,8 +114,8 @@ const NotificationsPanel = () => {
         <div className="space-y-4">
           {notificacionesFiltradas.length === 0 ? (
             <div className="text-center py-8">
-              <div className="text-gray-400 text-6xl mb-4">🔔</div>
-              <p className="text-gray-500">
+              <div className="text-gray-400 text-4xl sm:text-6xl mb-4">🔔</div>
+              <p className="text-gray-500 text-sm sm:text-base">
                 {activeTab === 'no-leidas' 
                   ? 'No hay notificaciones no leídas'
                   : 'No hay notificaciones'
@@ -136,18 +126,18 @@ const NotificationsPanel = () => {
           notificacionesFiltradas.map((notificacion) => (
             <div
               key={notificacion.id}
-              className={`border rounded-xl p-4 transition-all duration-200 ${
+              className={`border rounded-xl p-3 sm:p-4 transition-all duration-200 ${
                 getColorByType(notificacion.tipo)
               } ${notificacion.leida ? 'opacity-75' : ''}`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-3 flex-1">
-                  <div className="text-2xl">
+                  <div className="text-xl sm:text-2xl">
                     {getIconByType(notificacion.tipo)}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-1">
-                      <h3 className="font-semibold text-gray-800">
+                      <h3 className="font-semibold text-gray-800 text-sm sm:text-base">
                         {notificacion.titulo}
                       </h3>
                       {!notificacion.leida && (
@@ -156,17 +146,17 @@ const NotificationsPanel = () => {
                         </span>
                       )}
                     </div>
-                    <p className="text-gray-600 mb-2">
+                    <p className="text-gray-600 mb-2 text-sm sm:text-base">
                       {notificacion.mensaje}
                     </p>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-xs sm:text-sm text-gray-500">
                       {format(new Date(notificacion.timestamp), 'dd/MM/yyyy HH:mm', { locale: es })}
                     </div>
                     
                     {/* Detalles del turno */}
                     {notificacion.turno && (
-                      <div className="mt-3 p-3 bg-white rounded-lg border">
-                        <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="mt-3 p-2 sm:p-3 bg-white rounded-lg border">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm">
                           <div>
                             <span className="font-medium">Cliente:</span> {notificacion.turno.cliente?.nombre}
                           </div>
@@ -191,28 +181,28 @@ const NotificationsPanel = () => {
                   </div>
                 </div>
                 
-                <div className="flex flex-col space-y-2 ml-4">
+                <div className="flex flex-col space-y-2 ml-2 sm:ml-4">
                   {notificacion.whatsappData && (
                     <button
                       onClick={() => handleEnviarWhatsApp(notificacion)}
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors text-sm flex items-center space-x-2"
+                      className="bg-green-600 hover:bg-green-700 text-white px-2 sm:px-4 py-1 sm:py-2 rounded-lg transition-colors text-xs sm:text-sm flex items-center space-x-1 sm:space-x-2"
                       title="Enviar WhatsApp automáticamente"
                     >
                       <span>📱</span>
-                      <span>Enviar WhatsApp</span>
+                      <span className="hidden sm:inline">Enviar WhatsApp</span>
                     </button>
                   )}
                   
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-1 sm:space-x-2">
                     <button
                       onClick={() => marcarNotificacionComoLeida(notificacion.id)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition-colors"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-2 sm:px-3 py-1 rounded text-xs transition-colors"
                     >
                       {notificacion.leida ? 'Marcar no leída' : 'Marcar leída'}
                     </button>
                     <button
                       onClick={() => eliminarNotificacion(notificacion.id)}
-                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs transition-colors"
+                      className="bg-red-600 hover:bg-red-700 text-white px-2 sm:px-3 py-1 rounded text-xs transition-colors"
                     >
                       Eliminar
                     </button>
@@ -221,7 +211,7 @@ const NotificationsPanel = () => {
               </div>
             </div>
           ))
-        )}
+          )}
         </div>
       )}
     </div>
