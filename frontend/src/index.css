@@ -10,6 +10,23 @@
   body {
     @apply bg-gray-50 text-gray-900;
   }
+
+  /* Mejoras para móviles */
+  @media (max-width: 640px) {
+    html {
+      font-size: 14px;
+    }
+    
+    /* Mejorar scrolling en móviles */
+    * {
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Optimizar inputs en móviles */
+    input, textarea, select {
+      font-size: 16px !important;
+    }
+  }
 }
 
 @layer components {
@@ -54,5 +71,144 @@
       #000000 10px,
       #000000 20px
     );
+  }
+
+  /* Animaciones optimizadas para móviles */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  .animate-slide-in-left {
+    animation: slideInLeft 0.6s ease-out;
+  }
+  
+  .animate-slide-in-right {
+    animation: slideInRight 0.6s ease-out;
+  }
+  
+  .animate-zoom-in {
+    animation: zoomIn 0.5s ease-out;
+  }
+  
+  .animate-bounce-gentle {
+    animation: bounceGentle 2s ease-in-out infinite;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulseSlow 3s ease-in-out infinite;
+  }
+
+  /* Mejoras para botones en móviles */
+  .button-hover {
+    @apply transform transition-all duration-200;
+  }
+  
+  .button-hover:hover {
+    @apply scale-105 shadow-lg;
+  }
+  
+  .hover-glow {
+    @apply hover:shadow-lg hover:shadow-green-500/25;
+  }
+
+  /* Mejoras para cards en móviles */
+  .card-hover {
+    @apply transform transition-all duration-200;
+  }
+  
+  .card-hover:hover {
+    @apply scale-105 shadow-xl;
+  }
+
+  /* Gradientes personalizados */
+  .gradient-hero {
+    background: linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #fbbf24 100%);
+  }
+  
+  .gradient-primary {
+    background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+  }
+  
+  .text-gradient {
+    background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Efectos de glass */
+  .glass {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Sombras personalizadas */
+  .shadow-brand {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+}
+
+@layer utilities {
+  /* Animaciones personalizadas */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes zoomIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes bounceGentle {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+  
+  @keyframes pulseSlow {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
   }
 } 

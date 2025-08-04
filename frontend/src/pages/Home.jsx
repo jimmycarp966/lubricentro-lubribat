@@ -6,39 +6,39 @@ import logo from '../assets/logo.png'
 
 const Home = () => {
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6 sm:space-y-8 animate-fade-in">
       {/* Hero Section */}
-      <div className="text-center py-16 gradient-hero rounded-2xl shadow-brand relative overflow-hidden glass">
+      <div className="text-center py-12 sm:py-16 gradient-hero rounded-2xl shadow-brand relative overflow-hidden glass">
         {/* Background decoration */}
         <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 to-yellow-50/50"></div>
-        <div className="absolute top-0 left-0 w-32 h-32 bg-green-200 rounded-full -translate-x-16 -translate-y-16 opacity-20"></div>
-        <div className="absolute bottom-0 right-0 w-40 h-40 bg-yellow-200 rounded-full translate-x-20 translate-y-20 opacity-20"></div>
+        <div className="absolute top-0 left-0 w-24 h-24 sm:w-32 sm:h-32 bg-green-200 rounded-full -translate-x-12 -translate-y-12 sm:-translate-x-16 sm:-translate-y-16 opacity-20"></div>
+        <div className="absolute bottom-0 right-0 w-32 h-32 sm:w-40 sm:h-40 bg-yellow-200 rounded-full translate-x-16 translate-y-16 sm:translate-x-20 sm:translate-y-20 opacity-20"></div>
         
-        <div className="relative z-10">
-          <div className="flex justify-center mb-8">
+        <div className="relative z-10 px-4 sm:px-6">
+          <div className="flex justify-center mb-6 sm:mb-8">
             <div className="relative">
-              <img src={logo} alt="LUBRI-BAT" className="h-28 w-28 animate-bounce-gentle" />
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full animate-pulse-slow"></div>
+              <img src={logo} alt="LUBRI-BAT" className="h-20 w-20 sm:h-28 sm:w-28 animate-bounce-gentle" />
+              <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-4 h-4 sm:w-6 sm:h-6 bg-green-500 rounded-full animate-pulse-slow"></div>
             </div>
           </div>
           
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-gradient mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gradient mb-4 sm:mb-6">
             LUBRI-BAT
           </h1>
           
-          <p className="text-lg sm:text-xl md:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed px-4">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed px-2 sm:px-4">
             Tu lubricentro de confianza en <span className="font-semibold text-green-600">Monteros</span> y <span className="font-semibold text-yellow-600">Concepción</span>. 
             Servicios profesionales de lubricación y mantenimiento automotriz.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center px-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 justify-center px-2 sm:px-4">
             <Button
               variant="success"
               size="lg"
               icon="mdi:calendar-plus"
               as="Link"
               to="/turnos"
-              className="text-lg sm:text-xl button-hover hover-glow"
+              className="text-base sm:text-lg md:text-xl button-hover hover-glow w-full sm:w-auto"
             >
               Reservar Turno
             </Button>
@@ -49,7 +49,7 @@ const Home = () => {
               icon="mdi:store"
               as="Link"
               to="/mayorista/login"
-              className="text-lg sm:text-xl button-hover hover-glow"
+              className="text-base sm:text-lg md:text-xl button-hover hover-glow w-full sm:w-auto"
             >
               Portal Mayoristas
             </Button>
@@ -58,11 +58,11 @@ const Home = () => {
       </div>
 
       {/* Warning Stripes */}
-      <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 py-4 rounded-xl shadow-lg">
-        <div className="container mx-auto text-center">
-          <div className="flex items-center justify-center space-x-3">
-            <Icon icon="mdi:alert-circle" className="w-6 h-6 text-yellow-900 animate-pulse" />
-            <p className="text-yellow-900 font-bold text-lg">
+      <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 py-3 sm:py-4 rounded-xl shadow-lg mx-2 sm:mx-0">
+        <div className="container mx-auto text-center px-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-3">
+            <Icon icon="mdi:alert-circle" className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-900 animate-pulse" />
+            <p className="text-yellow-900 font-bold text-sm sm:text-base lg:text-lg">
               ATENCIÓN: Horarios de atención Lunes a Viernes 08:00-13:00 y 16:00-20:00, Sábados 08:30-13:00
             </p>
           </div>
@@ -70,146 +70,122 @@ const Home = () => {
       </div>
 
       {/* Servicios */}
-      <section className="py-12 sm:py-16">
-        <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12 sm:mb-16 text-gray-900 px-4">
+      <section className="py-8 sm:py-12 lg:py-16">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900 px-4">
           Nuestros Servicios
         </h2>
-        <div className="grid md:grid-cols-3 gap-6 sm:gap-10 px-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-10 px-4 sm:px-6">
           <Card className="text-center group card-hover animate-slide-in-left">
-            <Card.Body className="p-8">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-green-200 transition-colors">
-                <Icon icon="mdi:oil" className="w-10 h-10 text-green-600 animate-bounce-gentle" />
+            <Card.Body className="p-6 sm:p-8">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:bg-green-200 transition-colors">
+                <Icon icon="mdi:oil" className="w-8 h-8 sm:w-10 sm:h-10 text-green-600 animate-bounce-gentle" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-green-600">Cambio de Aceite</h3>
-              <p className="text-gray-600 text-lg leading-relaxed">
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-green-600">Cambio de Aceite</h3>
+              <p className="text-gray-600 text-sm sm:text-base lg:text-lg leading-relaxed">
                 Cambio de aceite de motor con productos de primera calidad. 
                 Incluye filtro de aceite y verificación de niveles.
               </p>
-              <div className="mt-6">
+              <div className="mt-4 sm:mt-6">
                 <Badge variant="success" size="lg">Desde $12.000</Badge>
               </div>
             </Card.Body>
           </Card>
           
           <Card className="text-center group card-hover animate-zoom-in">
-            <Card.Body className="p-8">
-              <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-yellow-200 transition-colors">
-                <Icon icon="mdi:wrench" className="w-10 h-10 text-yellow-600 animate-pulse-slow" />
+            <Card.Body className="p-6 sm:p-8">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:bg-yellow-200 transition-colors">
+                <Icon icon="mdi:wrench" className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-600 animate-pulse-slow" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-yellow-600">Mantenimiento</h3>
-              <p className="text-gray-600 text-lg leading-relaxed">
-                Servicios de mantenimiento preventivo y correctivo. 
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-yellow-600">Mantenimiento</h3>
+              <p className="text-gray-600 text-sm sm:text-base lg:text-lg leading-relaxed">
+                Mantenimiento preventivo y correctivo de tu vehículo. 
                 Revisión completa de sistemas y componentes.
               </p>
-              <div className="mt-6">
-                <Badge variant="warning" size="lg">Servicio Completo</Badge>
+              <div className="mt-4 sm:mt-6">
+                <Badge variant="secondary" size="lg">Desde $15.000</Badge>
               </div>
             </Card.Body>
           </Card>
           
           <Card className="text-center group card-hover animate-slide-in-right">
-            <Card.Body className="p-8">
-              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-200 transition-colors">
-                <Icon icon="mdi:store" className="w-10 h-10 text-blue-600 animate-bounce-gentle" />
+            <Card.Body className="p-6 sm:p-8">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:bg-green-200 transition-colors">
+                <Icon icon="mdi:car" className="w-8 h-8 sm:w-10 sm:h-10 text-green-600 animate-bounce-gentle" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-blue-600">Venta Mayorista</h3>
-              <p className="text-gray-600 text-lg leading-relaxed">
-                Productos automotrices al por mayor. 
-                Aceites, filtros, lubricantes y repuestos.
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-green-600">Diagnóstico</h3>
+              <p className="text-gray-600 text-sm sm:text-base lg:text-lg leading-relaxed">
+                Diagnóstico computarizado y revisión técnica especializada. 
+                Identificación precisa de problemas y soluciones.
               </p>
-              <div className="mt-6">
-                <Badge variant="info" size="lg">Precios Mayoristas</Badge>
+              <div className="mt-4 sm:mt-6">
+                <Badge variant="success" size="lg">Desde $8.000</Badge>
               </div>
             </Card.Body>
           </Card>
         </div>
       </section>
 
-      {/* Oferta Especial */}
-      <section className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl p-6 sm:p-12 shadow-brand mx-4 relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
-        
-        <div className="text-center relative z-10">
-          <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse-slow">
-            <Icon icon="mdi:gift" className="w-12 h-12 text-white" />
-          </div>
-          
-          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-6 text-white">
-            ¡OFERTA ESPECIAL!
+      {/* Ventajas */}
+      <section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-br from-green-50 to-yellow-50 rounded-2xl mx-2 sm:mx-0">
+        <div className="container mx-auto px-4 sm:px-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12 text-gray-900">
+            ¿Por qué elegirnos?
           </h2>
-          
-          <Card className="max-w-2xl mx-auto">
-            <Card.Body className="p-6 sm:p-8">
-              <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-                Cambio de Aceite + Filtro
-              </h3>
-              
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4 mb-6">
-                <span className="text-3xl sm:text-4xl font-bold text-red-600 line-through">$15.000</span>
-                <span className="text-4xl sm:text-5xl font-bold text-green-600">$12.000</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="text-center group">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Icon icon="mdi:clock-fast" className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
               </div>
-              
-              <p className="text-gray-600 text-base sm:text-lg mb-6">
-                Incluye aceite de motor premium, filtro de aceite y verificación completa de niveles
-              </p>
-              
-                             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-                 <Button
-                   variant="primary"
-                   size="lg"
-                   icon="mdi:calendar-plus"
-                   as="Link"
-                   to="/turnos"
-                 >
-                   Reservar Ahora
-                 </Button>
-                 
-                 <Button
-                   variant="secondary"
-                   size="lg"
-                   icon="mdi:phone"
-                   as="Link"
-                   to="/contacto"
-                 >
-                   Consultar
-                 </Button>
-               </div>
-            </Card.Body>
-          </Card>
-          
-          <p className="text-white text-lg font-semibold mt-6 flex items-center justify-center">
-            <Icon icon="mdi:clock" className="w-5 h-5 mr-2" />
-            Oferta válida hasta el 31 de diciembre de 2024
-          </p>
+              <h3 className="text-lg sm:text-xl font-bold mb-2 text-green-600">Servicio Rápido</h3>
+              <p className="text-sm sm:text-base text-gray-600">Atención eficiente en menos de 1 hora</p>
+            </div>
+            
+            <div className="text-center group">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Icon icon="mdi:star" className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold mb-2 text-yellow-600">Calidad Garantizada</h3>
+              <p className="text-sm sm:text-base text-gray-600">Productos de primera marca y garantía</p>
+            </div>
+            
+            <div className="text-center group">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Icon icon="mdi:calendar-check" className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold mb-2 text-green-600">Reserva Online</h3>
+              <p className="text-sm sm:text-base text-gray-600">Reserva tu turno fácilmente desde tu celular</p>
+            </div>
+            
+            <div className="text-center group">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Icon icon="mdi:map-marker" className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold mb-2 text-yellow-600">Dos Sucursales</h3>
+              <p className="text-sm sm:text-base text-gray-600">Monteros y Concepción para tu comodidad</p>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* CTA Final */}
-      <section className="text-center py-12 sm:py-16 gradient-primary rounded-2xl shadow-brand mx-4 relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 bg-gradient-to-br from-green-600/20 to-green-700/20"></div>
-        <div className="absolute top-0 left-0 w-40 h-40 bg-white/10 rounded-full -translate-x-20 -translate-y-20"></div>
-        <div className="absolute bottom-0 right-0 w-32 h-32 bg-white/10 rounded-full translate-x-16 translate-y-16"></div>
-        
-        <div className="relative z-10">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6 px-4">
-            ¿Necesitás un servicio?
+      <section className="text-center py-8 sm:py-12 bg-gradient-to-r from-green-600 to-green-700 rounded-2xl mx-2 sm:mx-0">
+        <div className="container mx-auto px-4 sm:px-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6">
+            ¿Listo para tu próximo servicio?
           </h2>
-          <p className="text-green-100 mb-10 text-lg sm:text-xl leading-relaxed px-4 max-w-2xl mx-auto">
-            Reservá tu turno ahora y disfrutá de nuestros servicios profesionales con la mejor calidad
+          <p className="text-white text-sm sm:text-base lg:text-lg mb-6 sm:mb-8 opacity-90">
+            Reserva tu turno ahora y obtén un servicio profesional y confiable
           </p>
-                     <Button
-             variant="secondary"
-             size="lg"
-             icon="mdi:calendar-plus"
-             as="Link"
-             to="/turnos"
-             className="text-lg sm:text-xl"
-           >
-             Reservar Ahora
-           </Button>
+          <Button
+            variant="secondary"
+            size="lg"
+            icon="mdi:calendar-plus"
+            as="Link"
+            to="/turnos"
+            className="text-base sm:text-lg md:text-xl button-hover hover-glow w-full sm:w-auto"
+          >
+            Reservar Ahora
+          </Button>
         </div>
       </section>
     </div>

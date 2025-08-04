@@ -293,35 +293,35 @@ const TurnosPublic = () => {
   }
 
     const renderStep1 = () => (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6">
       <BookingProgress currentStep={1} />
       
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">Selecciona una sucursal</h2>
-        <p className="text-gray-600">Elige la sucursal donde quieres realizar tu servicio</p>
+      <div className="text-center mb-6 sm:mb-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3 sm:mb-4">Selecciona una sucursal</h2>
+        <p className="text-sm sm:text-base text-gray-600">Elige la sucursal donde quieres realizar tu servicio</p>
       </div>
       
-      <div className="grid md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
         {sucursales.map((sucursal) => (
           <button
             key={sucursal.id}
             onClick={() => handleSucursalSelect(sucursal)}
-            className="p-8 border-2 border-gray-200 rounded-2xl hover:border-green-500 hover:bg-green-50 transition-all duration-200 text-left group"
+            className="p-4 sm:p-6 lg:p-8 border-2 border-gray-200 rounded-2xl hover:border-green-500 hover:bg-green-50 transition-all duration-200 text-left group"
           >
             <div className="flex items-start justify-between">
-              <div>
-                <h3 className="font-semibold text-xl text-gray-800 group-hover:text-green-700 transition-colors">
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg sm:text-xl text-gray-800 group-hover:text-green-700 transition-colors">
                   {sucursal.nombre}
                 </h3>
-                <p className="text-gray-600 mt-2">{sucursal.direccion}</p>
-                <div className="mt-4 space-y-2 text-sm text-gray-600">
+                <p className="text-sm sm:text-base text-gray-600 mt-2">{sucursal.direccion}</p>
+                <div className="mt-3 sm:mt-4 space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-600">
                   <p>• Horarios: Lunes a Viernes 08:00-13:00 y 16:00-20:00, Sábados 08:30-13:00</p>
                   <p>• Sábados: 8:00-12:00</p>
                   <p>• Servicio rápido y profesional</p>
                 </div>
               </div>
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                <span className="text-green-600 font-bold">→</span>
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-colors ml-3 flex-shrink-0">
+                <span className="text-green-600 font-bold text-sm sm:text-base">→</span>
               </div>
             </div>
           </button>
@@ -331,51 +331,51 @@ const TurnosPublic = () => {
   )
 
   const renderStep2 = () => (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6">
       <BookingProgress currentStep={2} />
       
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">Selecciona una fecha</h2>
-        <p className="text-gray-600">Elige el día que mejor te convenga para tu servicio en {selectedSucursal.nombre}</p>
+      <div className="text-center mb-6 sm:mb-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3 sm:mb-4">Selecciona una fecha</h2>
+        <p className="text-sm sm:text-base text-gray-600">Elige el día que mejor te convenga para tu servicio en {selectedSucursal.nombre}</p>
       </div>
       
-      <div className="grid lg:grid-cols-2 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-start">
         <SimpleCalendar 
           selectedDate={selectedDate}
           onDateSelect={handleDateChange}
         />
         
-        <div className="bg-white p-6 rounded-2xl shadow-lg">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800">Información importante</h3>
-          <div className="space-y-4">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-lg">
+          <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-gray-800">Información importante</h3>
+          <div className="space-y-3 sm:space-y-4">
             <div className="flex items-start space-x-3">
-              <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                <span className="text-white text-sm">✓</span>
+              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-1">
+                <span className="text-white text-xs sm:text-sm">✓</span>
               </div>
               <div>
-                <p className="font-medium text-gray-800">Horarios disponibles</p>
-                <p className="text-sm text-gray-600">Lunes a Viernes: 08:00-13:00 y 16:00-20:00</p>
-                <p className="text-sm text-gray-600">Sábados: 08:30-13:00</p>
+                <p className="font-medium text-sm sm:text-base text-gray-800">Horarios disponibles</p>
+                <p className="text-xs sm:text-sm text-gray-600">Lunes a Viernes: 08:00-13:00 y 16:00-20:00</p>
+                <p className="text-xs sm:text-sm text-gray-600">Sábados: 08:30-13:00</p>
               </div>
             </div>
             
             <div className="flex items-start space-x-3">
-              <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                <span className="text-white text-sm">⏰</span>
+              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-1">
+                <span className="text-white text-xs sm:text-sm">⏰</span>
               </div>
               <div>
-                <p className="font-medium text-gray-800">Duración del servicio</p>
-                <p className="text-sm text-gray-600">Entre 30 y 60 minutos según el servicio</p>
+                <p className="font-medium text-sm sm:text-base text-gray-800">Duración del servicio</p>
+                <p className="text-xs sm:text-sm text-gray-600">Entre 30 y 60 minutos según el servicio</p>
               </div>
             </div>
             
             <div className="flex items-start space-x-3">
-              <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                <span className="text-white text-sm">📱</span>
+              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-1">
+                <span className="text-white text-xs sm:text-sm">📱</span>
               </div>
               <div>
-                <p className="font-medium text-gray-800">Confirmación</p>
-                <p className="text-sm text-gray-600">Te enviaremos un recordatorio por WhatsApp</p>
+                <p className="font-medium text-sm sm:text-base text-gray-800">Confirmación</p>
+                <p className="text-xs sm:text-sm text-gray-600">Te enviaremos un recordatorio por WhatsApp</p>
               </div>
             </div>
           </div>
@@ -385,39 +385,40 @@ const TurnosPublic = () => {
   )
 
   const renderStep3 = () => (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6">
       <BookingProgress currentStep={3} />
       
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">Elige un horario</h2>
-        <p className="text-gray-600">
+      <div className="text-center mb-6 sm:mb-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3 sm:mb-4">Elige un horario</h2>
+        <p className="text-sm sm:text-base text-gray-600">
           Para el {format(selectedDate, 'dd/MM/yyyy', { locale: es })}
         </p>
       </div>
       
-      <div className="bg-white rounded-2xl shadow-xl p-8">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
           {availableTimes.map((time) => (
             <button
               key={time}
               onClick={() => handleTimeSelect(time)}
-              className="p-4 rounded-xl border-2 border-green-200 hover:border-green-500 hover:bg-green-50 text-green-700 transition-all duration-200 font-medium hover:scale-105"
+              className={`p-3 sm:p-4 rounded-xl text-sm sm:text-base font-medium transition-all duration-200 ${
+                selectedTime === time
+                  ? 'bg-green-500 text-white shadow-lg transform scale-105'
+                  : 'bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-700 hover:shadow-md'
+              }`}
             >
               {time}
             </button>
           ))}
         </div>
+        
         {availableTimes.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-gray-500 mb-4">
-              No hay horarios disponibles para esta fecha.
-            </p>
-            <button
-              onClick={() => setStep(1)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
-            >
-              Elegir otra fecha
-            </button>
+          <div className="text-center py-8 sm:py-12">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl sm:text-3xl">📅</span>
+            </div>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">No hay horarios disponibles</h3>
+            <p className="text-sm sm:text-base text-gray-600">Para esta fecha no hay horarios disponibles. Por favor, selecciona otra fecha.</p>
           </div>
         )}
       </div>
@@ -425,30 +426,30 @@ const TurnosPublic = () => {
   )
 
   const renderStep4 = () => (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6">
       <BookingProgress currentStep={4} />
       
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">Selecciona el servicio</h2>
-        <p className="text-gray-600">¿Qué necesitas para tu vehículo?</p>
+      <div className="text-center mb-6 sm:mb-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3 sm:mb-4">Selecciona el servicio</h2>
+        <p className="text-sm sm:text-base text-gray-600">¿Qué necesitas para tu vehículo?</p>
       </div>
       
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {servicios.map((servicio) => (
           <button
             key={servicio.id}
             onClick={() => handleServiceSelect(servicio)}
-            className="p-6 border-2 border-gray-200 rounded-2xl hover:border-green-500 hover:bg-green-50 transition-all duration-200 text-left group"
+            className="p-4 sm:p-6 border-2 border-gray-200 rounded-2xl hover:border-green-500 hover:bg-green-50 transition-all duration-200 text-left group"
           >
             <div className="flex items-start justify-between">
-              <div>
-                <h3 className="font-semibold text-xl text-gray-800 group-hover:text-green-700 transition-colors">
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg sm:text-xl text-gray-800 group-hover:text-green-700 transition-colors">
                   {servicio.nombre}
                 </h3>
-                <p className="text-gray-600 mt-2">Duración: {servicio.duracion} minutos</p>
+                <p className="text-sm sm:text-base text-gray-600 mt-2">Duración: {servicio.duracion} minutos</p>
               </div>
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                <span className="text-green-600 font-bold">→</span>
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-colors ml-3 flex-shrink-0">
+                <span className="text-green-600 font-bold text-sm sm:text-base">→</span>
               </div>
             </div>
           </button>
@@ -458,17 +459,17 @@ const TurnosPublic = () => {
   )
 
   const renderStep5 = () => (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6">
       <BookingProgress currentStep={5} />
       
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">Completa tus datos</h2>
-        <p className="text-gray-600">Necesitamos algunos datos para confirmar tu turno</p>
+      <div className="text-center mb-6 sm:mb-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3 sm:mb-4">Completa tus datos</h2>
+        <p className="text-sm sm:text-base text-gray-600">Necesitamos algunos datos para confirmar tu turno</p>
       </div>
       
-      <div className="bg-white rounded-2xl shadow-xl p-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
+      <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Nombre
@@ -479,7 +480,7 @@ const TurnosPublic = () => {
                 value={formData.nombre}
                 onChange={handleInputChange}
                 required
-                className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                className="w-full border-2 border-gray-300 rounded-xl px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm sm:text-base"
                 placeholder="Tu nombre"
               />
             </div>
@@ -493,7 +494,7 @@ const TurnosPublic = () => {
                 value={formData.apellido}
                 onChange={handleInputChange}
                 required
-                className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                className="w-full border-2 border-gray-300 rounded-xl px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm sm:text-base"
                 placeholder="Tu apellido"
               />
             </div>
@@ -509,12 +510,12 @@ const TurnosPublic = () => {
               value={formData.whatsapp}
               onChange={handleInputChange}
               required
-              className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              className="w-full border-2 border-gray-300 rounded-xl px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm sm:text-base"
               placeholder="+54 9 11 1234-5678"
             />
           </div>
           
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Patente del vehículo
@@ -525,7 +526,7 @@ const TurnosPublic = () => {
                 value={formData.patente}
                 onChange={handleInputChange}
                 required
-                className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                className="w-full border-2 border-gray-300 rounded-xl px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm sm:text-base"
                 placeholder="ABC123"
               />
             </div>
@@ -539,37 +540,37 @@ const TurnosPublic = () => {
                 value={formData.modelo}
                 onChange={handleInputChange}
                 required
-                className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                className="w-full border-2 border-gray-300 rounded-xl px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm sm:text-base"
                 placeholder="Toyota Corolla 2020"
               />
             </div>
           </div>
 
-                     <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border border-green-200">
-             <h3 className="font-semibold mb-4 text-gray-800">Resumen del turno:</h3>
-             <div className="grid md:grid-cols-2 gap-4 text-sm">
-               <div>
-                 <p className="font-medium text-gray-600">Sucursal</p>
-                 <p className="text-gray-800">{selectedSucursal.nombre}</p>
-               </div>
-               <div>
-                 <p className="font-medium text-gray-600">Fecha</p>
-                 <p className="text-gray-800">{format(selectedDate, 'dd/MM/yyyy', { locale: es })}</p>
-               </div>
-               <div>
-                 <p className="font-medium text-gray-600">Horario</p>
-                 <p className="text-gray-800">{selectedTime}</p>
-               </div>
-               <div>
-                 <p className="font-medium text-gray-600">Servicio</p>
-                 <p className="text-gray-800">{selectedService.nombre}</p>
-               </div>
-             </div>
-           </div>
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 sm:p-6 rounded-xl border border-green-200">
+            <h3 className="font-semibold mb-3 sm:mb-4 text-gray-800 text-sm sm:text-base">Resumen del turno:</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
+              <div>
+                <p className="font-medium text-gray-600">Sucursal</p>
+                <p className="text-gray-800">{selectedSucursal.nombre}</p>
+              </div>
+              <div>
+                <p className="font-medium text-gray-600">Fecha</p>
+                <p className="text-gray-800">{format(selectedDate, 'dd/MM/yyyy', { locale: es })}</p>
+              </div>
+              <div>
+                <p className="font-medium text-gray-600">Horario</p>
+                <p className="text-gray-800">{selectedTime}</p>
+              </div>
+              <div>
+                <p className="font-medium text-gray-600">Servicio</p>
+                <p className="text-gray-800">{selectedService.nombre}</p>
+              </div>
+            </div>
+          </div>
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+            className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
           >
             Confirmar Turno
           </button>
@@ -579,86 +580,86 @@ const TurnosPublic = () => {
   )
 
   const renderStep6 = () => (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6">
       <BookingProgress currentStep={6} />
       
-      <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-        <div className="w-20 h-20 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 text-center">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+          <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-3xl font-bold mb-4 text-yellow-600">¡Turno reservado!</h2>
-        <p className="text-gray-600 mb-8 text-lg">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-yellow-600">¡Turno reservado!</h2>
+        <p className="text-sm sm:text-base lg:text-lg text-gray-600 mb-6 sm:mb-8">
           Tu turno ha sido reservado exitosamente. Te notificaremos cuando sea confirmado por nuestro equipo.
         </p>
         
-                   <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border border-green-200 mb-8">
-             <h3 className="font-semibold mb-4 text-gray-800">Detalles del turno:</h3>
-             <div className="grid md:grid-cols-2 gap-4 text-sm">
-               <div>
-                 <p className="font-medium text-gray-600">Sucursal</p>
-                 <p className="text-gray-800">{confirmedTurno?.sucursal || 'No disponible'}</p>
-               </div>
-               <div>
-                 <p className="font-medium text-gray-600">Fecha</p>
-                 <p className="text-gray-800">{confirmedTurno?.fecha || 'No disponible'}</p>
-               </div>
-               <div>
-                 <p className="font-medium text-gray-600">Horario</p>
-                 <p className="text-gray-800">{confirmedTurno?.horario || 'No disponible'}</p>
-               </div>
-               <div>
-                 <p className="font-medium text-gray-600">Servicio</p>
-                 <p className="text-gray-800">{confirmedTurno?.servicio || 'No disponible'}</p>
-               </div>
-               <div>
-                 <p className="font-medium text-gray-600">Cliente</p>
-                 <p className="text-gray-800">{confirmedTurno?.cliente || 'No disponible'}</p>
-               </div>
-               <div>
-                 <p className="font-medium text-gray-600">Vehículo</p>
-                 <p className="text-gray-800">{confirmedTurno?.vehiculo || 'No disponible'}</p>
-               </div>
-               <div>
-                 <p className="font-medium text-gray-600">Contacto</p>
-                 <p className="text-gray-800">{confirmedTurno?.contacto || 'No disponible'}</p>
-               </div>
-             </div>
-           </div>
+        <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 sm:p-6 rounded-xl border border-green-200 mb-6 sm:mb-8">
+          <h3 className="font-semibold mb-3 sm:mb-4 text-gray-800 text-sm sm:text-base">Detalles del turno:</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
+            <div>
+              <p className="font-medium text-gray-600">Sucursal</p>
+              <p className="text-gray-800">{confirmedTurno?.sucursal || 'No disponible'}</p>
+            </div>
+            <div>
+              <p className="font-medium text-gray-600">Fecha</p>
+              <p className="text-gray-800">{confirmedTurno?.fecha || 'No disponible'}</p>
+            </div>
+            <div>
+              <p className="font-medium text-gray-600">Horario</p>
+              <p className="text-gray-800">{confirmedTurno?.horario || 'No disponible'}</p>
+            </div>
+            <div>
+              <p className="font-medium text-gray-600">Servicio</p>
+              <p className="text-gray-800">{confirmedTurno?.servicio || 'No disponible'}</p>
+            </div>
+            <div>
+              <p className="font-medium text-gray-600">Cliente</p>
+              <p className="text-gray-800">{confirmedTurno?.cliente || 'No disponible'}</p>
+            </div>
+            <div>
+              <p className="font-medium text-gray-600">Vehículo</p>
+              <p className="text-gray-800">{confirmedTurno?.vehiculo || 'No disponible'}</p>
+            </div>
+            <div>
+              <p className="font-medium text-gray-600">Contacto</p>
+              <p className="text-gray-800">{confirmedTurno?.contacto || 'No disponible'}</p>
+            </div>
+          </div>
+        </div>
 
-           {/* Información de métodos de pago */}
-           <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 mb-8">
-             <h3 className="font-semibold mb-4 text-blue-800">Métodos de pago disponibles:</h3>
-             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-               {paymentMethods.slice(0, 6).map((method) => (
-                 <div key={method.id} className="flex items-center space-x-2 text-sm">
-                   <img 
-                     src={method.logo} 
-                     alt={method.name} 
-                     className="w-6 h-6 object-contain"
-                     onError={(e) => {
-                       e.target.style.display = 'none'
-                     }}
-                   />
-                   <span className="text-blue-700">{method.name}</span>
-                 </div>
-               ))}
-             </div>
-             <p className="text-xs text-blue-600 mt-3">
-               * El pago se procesa de forma segura a través de MercadoPago
-             </p>
-           </div>
+        {/* Información de métodos de pago */}
+        <div className="bg-blue-50 p-4 sm:p-6 rounded-xl border border-blue-200 mb-6 sm:mb-8">
+          <h3 className="font-semibold mb-3 sm:mb-4 text-blue-800 text-sm sm:text-base">Métodos de pago disponibles:</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+            {paymentMethods.slice(0, 6).map((method) => (
+              <div key={method.id} className="flex items-center space-x-2 text-xs sm:text-sm">
+                <img 
+                  src={method.logo} 
+                  alt={method.name} 
+                  className="w-4 h-4 sm:w-6 sm:h-6 object-contain"
+                  onError={(e) => {
+                    e.target.style.display = 'none'
+                  }}
+                />
+                <span className="text-blue-700">{method.name}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-blue-600 mt-3">
+            * El pago se procesa de forma segura a través de MercadoPago
+          </p>
+        </div>
         
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
           <button
             onClick={handlePayment}
             disabled={paymentLoading}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
           >
             {paymentLoading ? (
               <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-3 h-4 w-4 sm:h-5 sm:w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -686,13 +687,13 @@ const TurnosPublic = () => {
                 modelo: ''
               })
             }}
-            className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
+            className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg text-sm sm:text-base"
           >
             Reservar otro turno
           </button>
           <a
             href="/"
-            className="border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300"
+            className="border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-6 sm:px-8 py-3 rounded-xl font-semibold transition-all duration-300 text-sm sm:text-base"
           >
             Volver al inicio
           </a>
