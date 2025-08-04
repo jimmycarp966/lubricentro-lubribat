@@ -127,16 +127,18 @@ const Home = () => {
       </section>
 
       {/* Marcas */}
-      <section className="py-8 sm:py-12 lg:py-16">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-gray-900 px-4">
-          Marcas con las que Trabajamos
-        </h2>
+      <section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-br from-gray-50 to-white rounded-2xl mx-2 sm:mx-0">
         <div className="container mx-auto px-4 sm:px-6">
-          <p className="text-center text-gray-600 text-sm sm:text-base lg:text-lg mb-8 sm:mb-12 max-w-3xl mx-auto">
-            Trabajamos con las mejores marcas del mercado para garantizar la calidad y durabilidad de tu vehículo
-          </p>
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Marcas con las que Trabajamos
+            </h2>
+            <p className="text-gray-600 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto">
+              Trabajamos con las mejores marcas del mercado para garantizar la calidad y durabilidad de tu vehículo
+            </p>
+          </div>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 sm:gap-8 lg:gap-10">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-12 gap-4 sm:gap-6">
             {[
               'FERCOL',
               'YPF',
@@ -151,18 +153,18 @@ const Home = () => {
               'FORD',
               'VOLKSWAGEN'
             ].map((brandName) => (
-              <div key={brandName} className="group relative flex flex-col items-center bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 border border-gray-100 hover:border-green-200">
-                <div className="mb-3 sm:mb-4 w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
+              <div key={brandName} className="group relative flex flex-col items-center bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 p-3 sm:p-4 border border-gray-100 hover:border-green-200 hover:bg-green-50">
+                <div className="mb-2 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
                   <BrandLogo brand={brandName} className="w-full h-full object-contain" />
                 </div>
-                <span className="font-semibold text-gray-800 text-xs sm:text-sm text-center group-hover:text-green-700 transition-colors leading-tight">{brandName}</span>
+                <span className="font-medium text-gray-700 text-[9px] sm:text-xs text-center group-hover:text-green-700 transition-colors leading-tight">{brandName}</span>
               </div>
             ))}
           </div>
           
-          <div className="text-center mt-10 sm:mt-14">
-            <p className="text-gray-500 text-xs sm:text-base">
-              Productos originales y garantizados. Si tu marca no está, consultanos.
+          <div className="text-center mt-8 sm:mt-10">
+            <p className="text-gray-500 text-xs sm:text-sm">
+              Productos originales y garantizados
             </p>
           </div>
         </div>
