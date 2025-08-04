@@ -185,72 +185,7 @@ const AdminPanel = () => {
     }
   ])
 
-  const [pedidos, setPedidos] = useState([
-    {
-      _id: '1',
-      numero: 'PED-001',
-      fecha: new Date().toISOString(),
-      mayorista: 'AutoParts S.A.',
-      items: [
-        { producto: 'Aceite de Motor 5W-30', cantidad: 10, precio: 2500 },
-        { producto: 'Filtro de Aceite', cantidad: 15, precio: 800 }
-      ],
-      total: 37000,
-      estado: 'pendiente',
-      notas: 'Pedido mensual',
-      fechaEntrega: '2024-12-20',
-      metodoPago: 'transferencia',
-      prioridad: 'normal'
-    },
-    {
-      _id: '2',
-      numero: 'PED-002',
-      fecha: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      mayorista: 'Filtros Pro',
-      items: [
-        { producto: 'Filtro de Aire', cantidad: 20, precio: 1200 },
-        { producto: 'Filtro de Combustible', cantidad: 12, precio: 950 }
-      ],
-      total: 35400,
-      estado: 'confirmado',
-      notas: 'Pedido urgente',
-      fechaEntrega: '2024-12-18',
-      metodoPago: 'efectivo',
-      prioridad: 'alta'
-    },
-    {
-      _id: '3',
-      numero: 'PED-003',
-      fecha: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      mayorista: 'Lubricantes Premium',
-      items: [
-        { producto: 'Aceite Sintético 0W-20', cantidad: 8, precio: 3500 },
-        { producto: 'Aceite de Transmisión', cantidad: 5, precio: 2800 }
-      ],
-      total: 42000,
-      estado: 'entregado',
-      notas: 'Pedido completado',
-      fechaEntrega: '2024-12-15',
-      metodoPago: 'tarjeta',
-      prioridad: 'normal'
-    },
-    {
-      _id: '4',
-      numero: 'PED-004',
-      fecha: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-      mayorista: 'Repuestos Express',
-      items: [
-        { producto: 'Bujías', cantidad: 30, precio: 450 },
-        { producto: 'Correas', cantidad: 8, precio: 1800 }
-      ],
-      total: 27900,
-      estado: 'cancelado',
-      notas: 'Cancelado por cliente',
-      fechaEntrega: null,
-      metodoPago: null,
-      prioridad: 'baja'
-    }
-  ])
+
 
   // Datos simulados para reportes
   const reportData = {
