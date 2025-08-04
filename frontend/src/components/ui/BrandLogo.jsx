@@ -1,7 +1,7 @@
 import React from 'react'
 
 // Importar logos del usuario
-import fercolLogo from '../../assets/brands/FERCOL.png'
+import fercolLogo from '../../assets/brands/fercol logo si.jpg'
 import framLogo from '../../assets/brands/lgo fram.png'
 import wegaLogo from '../../assets/brands/logo wega.png'
 import fiatLogo from '../../assets/brands/lo_fiat.jpg'
