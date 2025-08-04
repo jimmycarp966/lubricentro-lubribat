@@ -2,6 +2,7 @@ import { Icon } from '@iconify/react'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
 import Badge from '../components/ui/Badge'
+import BrandLogo from '../components/ui/BrandLogo'
 import logo from '../assets/logo.png'
 
 const Home = () => {
@@ -137,32 +138,29 @@ const Home = () => {
           
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8">
             {[
-              { name: 'ELF', color: 'from-blue-500 to-blue-600' },
-              { name: 'MANN FILTER', color: 'from-red-500 to-red-600' },
-              { name: 'CASTROL', color: 'from-green-500 to-green-600' },
-              { name: 'MOTUL', color: 'from-purple-500 to-purple-600' },
-              { name: 'MOURA', color: 'from-yellow-500 to-yellow-600' },
-              { name: 'PETRONAS', color: 'from-green-600 to-green-700' },
-              { name: 'SHELL', color: 'from-red-600 to-red-700' },
-              { name: 'YPF', color: 'from-blue-600 to-blue-700' },
-              { name: 'WEGA', color: 'from-gray-500 to-gray-600' },
-              { name: 'TOTAL', color: 'from-red-500 to-red-600' },
-              { name: 'VALVOLINE', color: 'from-orange-500 to-orange-600' },
-              { name: 'BARDAHL', color: 'from-green-500 to-green-600' }
-            ].map((brand, index) => (
+              'ELF',
+              'MANN FILTER',
+              'CASTROL',
+              'MOTUL',
+              'MOURA',
+              'PETRONAS',
+              'SHELL',
+              'YPF',
+              'WEGA',
+              'TOTAL',
+              'VALVOLINE',
+              'BARDAHL'
+            ].map((brandName, index) => (
               <div
-                key={brand.name}
+                key={brandName}
                 className="group relative"
               >
                 <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 p-4 sm:p-6 text-center border border-gray-100 hover:border-gray-200">
-                  <div className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br ${brand.color} rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform`}>
-                    <span className="text-white font-bold text-xs sm:text-sm">
-                      {brand.name.split(' ')[0].charAt(0)}
-                      {brand.name.split(' ')[1]?.charAt(0) || ''}
-                    </span>
+                  <div className="mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
+                    <BrandLogo brand={brandName} />
                   </div>
                   <h3 className="font-semibold text-gray-800 text-sm sm:text-base group-hover:text-gray-900 transition-colors">
-                    {brand.name}
+                    {brandName}
                   </h3>
                 </div>
                 
