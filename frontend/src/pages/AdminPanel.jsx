@@ -619,6 +619,7 @@ const AdminPanel = () => {
       const pedidosReales = await getPedidos()
       console.log('📋 Pedidos obtenidos:', pedidosReales)
       console.log('📋 Estructura del primer pedido:', pedidosReales[0])
+      console.log('📋 Items del primer pedido:', pedidosReales[0]?.items)
       setPedidos(pedidosReales)
       console.log(`✅ ${pedidosReales.length} pedidos cargados`)
     } catch (error) {
@@ -1633,8 +1634,8 @@ const AdminPanel = () => {
                             <div className="space-y-1">
                               {pedido.items.map((item, index) => (
                                 <div key={index} className="flex justify-between text-sm">
-                                  <span>{item.producto} x{item.cantidad}</span>
-                                  <span>${item.precio.toLocaleString()}</span>
+                                  <span>{item.producto?.nombre || item.producto} x{item.cantidad}</span>
+                                  <span>${(item.precio || 0).toLocaleString()}</span>
                                 </div>
                               ))}
                             </div>
