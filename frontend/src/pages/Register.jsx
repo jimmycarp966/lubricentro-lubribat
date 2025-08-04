@@ -112,7 +112,7 @@ const Register = () => {
                 value={formData.displayName}
                 onChange={handleChange}
                 placeholder="Tu nombre completo"
-                icon="mdi:account"
+                leftIcon={<Icon icon="mdi:account" className="w-5 h-5" />}
                 error={errors.displayName}
                 required
               />
@@ -124,7 +124,7 @@ const Register = () => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="tu@email.com"
-                icon="mdi:email"
+                leftIcon={<Icon icon="mdi:email" className="w-5 h-5" />}
                 error={errors.email}
                 required
               />
@@ -136,7 +136,7 @@ const Register = () => {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="••••••••"
-                icon="mdi:lock"
+                leftIcon={<Icon icon="mdi:lock" className="w-5 h-5" />}
                 error={errors.password}
                 required
               />
@@ -148,7 +148,7 @@ const Register = () => {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="••••••••"
-                icon="mdi:lock-check"
+                leftIcon={<Icon icon="mdi:lock-check" className="w-5 h-5" />}
                 error={errors.confirmPassword}
                 required
               />
@@ -158,8 +158,7 @@ const Register = () => {
                 variant="primary"
                 size="lg"
                 loading={loading}
-                className="w-full"
-                icon="mdi:account-plus"
+                fullWidth
               >
                 Crear Cuenta
               </Button>
@@ -181,8 +180,7 @@ const Register = () => {
               size="lg"
               onClick={handleGoogleRegister}
               loading={loading}
-              className="w-full"
-              icon="mdi:google"
+              fullWidth
             >
               Continuar con Google
             </Button>

@@ -119,7 +119,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
-                icon="mdi:email"
+                leftIcon={<Icon icon="mdi:email" className="w-5 h-5" />}
                 required
               />
 
@@ -129,7 +129,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                icon="mdi:lock"
+                leftIcon={<Icon icon="mdi:lock" className="w-5 h-5" />}
                 required
               />
 
@@ -148,8 +148,7 @@ const Login = () => {
                 variant="primary"
                 size="lg"
                 loading={loading}
-                className="w-full"
-                icon="mdi:login"
+                fullWidth
               >
                 Iniciar Sesión
               </Button>
@@ -171,8 +170,7 @@ const Login = () => {
               size="lg"
               onClick={handleGoogleLogin}
               loading={loading}
-              className="w-full"
-              icon="mdi:google"
+              fullWidth
             >
               Continuar con Google
             </Button>

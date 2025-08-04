@@ -94,21 +94,19 @@ const Navbar = () => {
                     </div>
                     
                     {user.role === 'admin' && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        icon="mdi:view-dashboard"
-                        as={Link}
-                        to="/admin"
-                      >
-                        Panel Admin
-                      </Button>
+                      <Link to="/admin">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                        >
+                          Panel Admin
+                        </Button>
+                      </Link>
                     )}
                     
                     <Button
                       variant="danger"
                       size="sm"
-                      icon="mdi:logout"
                       onClick={logout}
                     >
                       Cerrar Sesión
@@ -116,24 +114,22 @@ const Navbar = () => {
                   </div>
                 ) : (
                   <div className="flex items-center space-x-3">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      icon="mdi:login"
-                      as={Link}
-                      to="/login"
-                    >
-                      Iniciar Sesión
-                    </Button>
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      icon="mdi:account-plus"
-                      as={Link}
-                      to="/register"
-                    >
-                      Registrarse
-                    </Button>
+                    <Link to="/login">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                      >
+                        Iniciar Sesión
+                      </Button>
+                    </Link>
+                    <Link to="/register">
+                      <Button
+                        variant="primary"
+                        size="sm"
+                      >
+                        Registrarse
+                      </Button>
+                    </Link>
                   </div>
                 )}
           </div>
