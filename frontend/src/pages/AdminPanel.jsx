@@ -26,6 +26,7 @@ import { sendReminderMessage, sendCompletionMessage } from '../utils/whatsappSer
 import { sendTurnoConfirmationNotification, sendWhatsAppNotification, notificationManager } from '../services/notificationService'
 import { getPedidos, actualizarEstadoPedido, eliminarPedido, getPedidosStats } from '../services/pedidosService'
 import { getPayments, getPaymentStats, updatePaymentStatus, confirmPayment } from '../services/paymentService'
+import { getReviews, getReviewStats, updateReviewStatus, deleteReview } from '../services/reviewsService'
 
 const AdminPanel = () => {
   const { user } = useAuth()
@@ -81,6 +82,8 @@ const AdminPanel = () => {
   const [loadingPedidos, setLoadingPedidos] = useState(false)
   const [pagos, setPagos] = useState([])
   const [loadingPagos, setLoadingPagos] = useState(false)
+  const [reseñas, setReseñas] = useState([])
+  const [loadingReseñas, setLoadingReseñas] = useState(false)
 
   // Estados para reportes
   const [reportPeriod, setReportPeriod] = useState('mes')
@@ -376,6 +379,7 @@ const AdminPanel = () => {
     { id: 'productos', name: 'Productos' },
     { id: 'inventario', name: 'Inventario' },
     { id: 'pagos', name: 'Pagos' },
+    { id: 'reseñas', name: 'Reseñas' },
     { id: 'reportes', name: 'Reportes' },
     { id: 'mayoristas', name: 'Mayoristas' },
     { id: 'pedidos', name: 'Pedidos' },
@@ -640,6 +644,32 @@ const AdminPanel = () => {
     }
   }
 
+  const handleUpdateEstadoReseña = async (reseñaId, nuevoEstado) => {
+    try {
+      await updateReviewStatus(reseñaId, nuevoEstado)
+      setReseñas(prev => prev.map(r => 
+        r.id === reseñaId ? { ...r, status: nuevoEstado } : r
+      ))
+      toast.success('Estado de la reseña actualizado')
+    } catch (error) {
+      console.error('Error actualizando estado de la reseña:', error)
+      toast.error('Error al actualizar estado')
+    }
+  }
+
+  const handleDeleteReseña = async (reseñaId) => {
+    if (window.confirm('¿Estás seguro de que querés eliminar esta reseña?')) {
+      try {
+        await deleteReview(reseñaId)
+        setReseñas(prev => prev.filter(r => r.id !== reseñaId))
+        toast.success('Reseña eliminada correctamente')
+      } catch (error) {
+        console.error('Error eliminando reseña:', error)
+        toast.error('Error al eliminar la reseña')
+      }
+    }
+  }
+
   // Cargar pedidos desde Firebase
   const cargarPedidos = async () => {
     try {
@@ -676,6 +706,23 @@ const AdminPanel = () => {
     }
   }
 
+  // Cargar reseñas desde Firebase
+  const cargarReseñas = async () => {
+    try {
+      setLoadingReseñas(true)
+      console.log('⭐ Cargando reseñas desde Firebase...')
+      const reseñasReales = await getReviews()
+      console.log('⭐ Reseñas obtenidas:', reseñasReales)
+      setReseñas(reseñasReales)
+      console.log(`✅ ${reseñasReales.length} reseñas cargadas`)
+    } catch (error) {
+      console.error('❌ Error cargando reseñas:', error)
+      toast.error('Error cargando reseñas')
+    } finally {
+      setLoadingReseñas(false)
+    }
+  }
+
   // Cargar datos cuando se active la pestaña
   useEffect(() => {
     if (activeTab === 'pedidos') {
@@ -683,6 +730,9 @@ const AdminPanel = () => {
     }
     if (activeTab === 'pagos') {
       cargarPagos()
+    }
+    if (activeTab === 'reseñas') {
+      cargarReseñas()
     }
   }, [activeTab])
 

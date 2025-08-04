@@ -3,6 +3,8 @@ import { FaSearch, FaPhone, FaCar, FaHistory, FaStar, FaCrown } from 'react-icon
 
 const ClienteBusqueda = () => {
   const [telefono, setTelefono] = useState('')
+  const [patente, setPatente] = useState('')
+  const [busquedaPor, setBusquedaPor] = useState('telefono') // 'telefono' o 'patente'
   const [clienteEncontrado, setClienteEncontrado] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -50,7 +52,16 @@ const ClienteBusqueda = () => {
     
     // Simular búsqueda
     setTimeout(() => {
-      const cliente = clientesDB.find(c => c.telefono === telefono)
+      let cliente = null
+      
+      if (busquedaPor === 'telefono') {
+        cliente = clientesDB.find(c => c.telefono === telefono)
+      } else if (busquedaPor === 'patente') {
+        cliente = clientesDB.find(c => 
+          c.vehiculos.some(v => v.patente.toUpperCase() === patente.toUpperCase())
+        )
+      }
+      
       setClienteEncontrado(cliente)
       setIsLoading(false)
     }, 1000)
@@ -64,9 +75,18 @@ const ClienteBusqueda = () => {
     return value
   }
 
+  const formatearPatente = (value) => {
+    return value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6)
+  }
+
   const handleTelefonoChange = (e) => {
     const formatted = formatearTelefono(e.target.value)
     setTelefono(formatted)
+  }
+
+  const handlePatenteChange = (e) => {
+    const formatted = formatearPatente(e.target.value)
+    setPatente(formatted)
   }
 
   return (
@@ -82,22 +102,71 @@ const ClienteBusqueda = () => {
 
       {/* Búsqueda */}
       <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Número de WhatsApp
-            </label>
-            <div className="relative">
-              <FaPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="tel"
-                value={telefono}
-                onChange={handleTelefonoChange}
-                placeholder="+54 9 11 1234-5678"
-                className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              />
-            </div>
+        {/* Selector de tipo de búsqueda */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Buscar por:
+          </label>
+          <div className="flex space-x-4">
+            <button
+              onClick={() => setBusquedaPor('telefono')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                busquedaPor === 'telefono'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <FaPhone className="inline mr-2" />
+              WhatsApp
+            </button>
+            <button
+              onClick={() => setBusquedaPor('patente')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                busquedaPor === 'patente'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <FaCar className="inline mr-2" />
+              Patente
+            </button>
           </div>
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-4">
+          {busquedaPor === 'telefono' ? (
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Número de WhatsApp
+              </label>
+              <div className="relative">
+                <FaPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="tel"
+                  value={telefono}
+                  onChange={handleTelefonoChange}
+                  placeholder="+54 9 11 1234-5678"
+                  className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Patente del Vehículo
+              </label>
+              <div className="relative">
+                <FaCar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={patente}
+                  onChange={handlePatenteChange}
+                  placeholder="ABC123"
+                  className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all uppercase"
+                />
+              </div>
+            </div>
+          )}
           <button
             onClick={buscarCliente}
             disabled={!telefono || isLoading}
