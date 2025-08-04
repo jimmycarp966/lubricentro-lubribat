@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import SimpleCalendar from '../components/SimpleCalendar'
 import BookingProgress from '../components/BookingProgress'
 import { createPaymentPreference, getPaymentMethods } from '../services/mercadopagoService'
+import { sendWhatsAppMessage } from '../utils/whatsappService'
 
 
 const TurnosPublic = () => {
