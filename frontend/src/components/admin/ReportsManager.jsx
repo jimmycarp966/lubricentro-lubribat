@@ -132,18 +132,45 @@ const ReportsManager = () => {
     setLoading(true)
     
     try {
-      // Simular exportación
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      let content = ''
+      let mimeType = 'text/plain'
+      let extension = selectedFormat
       
-      const fileName = `reporte_${selectedReport}_${new Date().toISOString().split('T')[0]}.${selectedFormat}`
+      switch (selectedFormat) {
+        case 'pdf':
+          // Crear contenido HTML para PDF
+          content = generatePDFContent()
+          mimeType = 'text/html'
+          extension = 'html'
+          break
+        case 'excel':
+          content = generateExcelContent()
+          mimeType = 'text/csv'
+          extension = 'csv'
+          break
+        case 'csv':
+          content = generateCSVContent()
+          mimeType = 'text/csv'
+          break
+        case 'json':
+        default:
+          content = JSON.stringify(reportData, null, 2)
+          mimeType = 'application/json'
+          break
+      }
       
-      // Simular descarga
+      const fileName = `reporte_${selectedReport}_${new Date().toISOString().split('T')[0]}.${extension}`
+      
+      // Crear y descargar archivo
+      const blob = new Blob([content], { type: mimeType })
+      const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
-      link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(reportData, null, 2))
+      link.href = url
       link.download = fileName
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
       
       toast.success(`Reporte exportado como ${fileName}`)
     } catch (error) {
@@ -178,6 +205,180 @@ const ReportsManager = () => {
       default:
         return 'gray'
     }
+  }
+
+  // Función para generar contenido HTML para PDF
+  const generatePDFContent = () => {
+    const reportTitle = {
+      'general': 'Reporte General',
+      'turnos': 'Reporte de Turnos',
+      'productos': 'Reporte de Productos',
+      'financiero': 'Reporte Financiero'
+    }[selectedReport] || 'Reporte'
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>${reportTitle}</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          .header { text-align: center; margin-bottom: 30px; }
+          .title { font-size: 24px; font-weight: bold; color: #1f2937; }
+          .subtitle { font-size: 14px; color: #6b7280; margin-top: 5px; }
+          .section { margin-bottom: 20px; }
+          .section-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #374151; }
+          .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+          .stat-card { border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; text-align: center; }
+          .stat-value { font-size: 24px; font-weight: bold; color: #059669; }
+          .stat-label { font-size: 12px; color: #6b7280; margin-top: 5px; }
+          .table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+          .table th, .table td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
+          .table th { background-color: #f9fafb; font-weight: bold; }
+          .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #6b7280; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="title">${reportTitle}</div>
+          <div class="subtitle">Generado el ${new Date().toLocaleDateString('es-ES')}</div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">Resumen</div>
+          <div class="stats-grid">
+            ${generateStatsHTML()}
+          </div>
+        </div>
+        
+        <div class="footer">
+          <p>Reporte generado por LUBRI-BAT - Sistema de Gestión</p>
+        </div>
+      </body>
+      </html>
+    `
+  }
+
+  // Función para generar HTML de estadísticas
+  const generateStatsHTML = () => {
+    if (!reportData) return ''
+    
+    switch (selectedReport) {
+      case 'turnos':
+        return `
+          <div class="stat-card">
+            <div class="stat-value">${reportData.total}</div>
+            <div class="stat-label">Total Turnos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${reportData.confirmados}</div>
+            <div class="stat-label">Confirmados</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${reportData.pendientes}</div>
+            <div class="stat-label">Pendientes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">$${reportData.ingresos?.toLocaleString()}</div>
+            <div class="stat-label">Ingresos</div>
+          </div>
+        `
+      case 'productos':
+        return `
+          <div class="stat-card">
+            <div class="stat-value">${reportData.total}</div>
+            <div class="stat-label">Total Productos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${reportData.stockBajo}</div>
+            <div class="stat-label">Stock Bajo</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${reportData.stockCritico}</div>
+            <div class="stat-label">Stock Crítico</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">$${reportData.valorTotal?.toLocaleString()}</div>
+            <div class="stat-label">Valor Total</div>
+          </div>
+        `
+      case 'financiero':
+        return `
+          <div class="stat-card">
+            <div class="stat-value">$${reportData.ingresos?.toLocaleString()}</div>
+            <div class="stat-label">Ingresos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">$${reportData.gastos?.toLocaleString()}</div>
+            <div class="stat-label">Gastos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">$${reportData.ganancias?.toLocaleString()}</div>
+            <div class="stat-label">Ganancias</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${reportData.facturas?.total}</div>
+            <div class="stat-label">Facturas</div>
+          </div>
+        `
+      default:
+        return `
+          <div class="stat-card">
+            <div class="stat-value">${reportData.resumen?.turnos?.total || 0}</div>
+            <div class="stat-label">Turnos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${reportData.resumen?.productos?.total || 0}</div>
+            <div class="stat-label">Productos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">$${reportData.resumen?.financiero?.ingresos?.toLocaleString() || 0}</div>
+            <div class="stat-label">Ingresos</div>
+          </div>
+        `
+    }
+  }
+
+  // Función para generar contenido CSV
+  const generateCSVContent = () => {
+    if (!reportData) return ''
+    
+    const headers = ['Métrica', 'Valor']
+    const rows = []
+    
+    switch (selectedReport) {
+      case 'turnos':
+        rows.push(['Total Turnos', reportData.total])
+        rows.push(['Confirmados', reportData.confirmados])
+        rows.push(['Pendientes', reportData.pendientes])
+        rows.push(['Cancelados', reportData.cancelados])
+        rows.push(['Ingresos', `$${reportData.ingresos?.toLocaleString()}`])
+        break
+      case 'productos':
+        rows.push(['Total Productos', reportData.total])
+        rows.push(['Stock Bajo', reportData.stockBajo])
+        rows.push(['Stock Crítico', reportData.stockCritico])
+        rows.push(['Valor Total', `$${reportData.valorTotal?.toLocaleString()}`])
+        break
+      case 'financiero':
+        rows.push(['Ingresos', `$${reportData.ingresos?.toLocaleString()}`])
+        rows.push(['Gastos', `$${reportData.gastos?.toLocaleString()}`])
+        rows.push(['Ganancias', `$${reportData.ganancias?.toLocaleString()}`])
+        rows.push(['Total Facturas', reportData.facturas?.total])
+        break
+      default:
+        rows.push(['Turnos', reportData.resumen?.turnos?.total || 0])
+        rows.push(['Productos', reportData.resumen?.productos?.total || 0])
+        rows.push(['Ingresos', `$${reportData.resumen?.financiero?.ingresos?.toLocaleString() || 0}`])
+    }
+    
+    return [headers, ...rows].map(row => row.join(',')).join('\n')
+  }
+
+  // Función para generar contenido Excel (CSV)
+  const generateExcelContent = () => {
+    return generateCSVContent()
   }
 
   const renderReportPreview = () => {
@@ -513,8 +714,7 @@ const ReportsManager = () => {
             <div className="flex items-end">
               <Button
                 variant="primary"
-                icon="mdi:download"
-                className="w-full"
+                fullWidth
                 onClick={generateReport}
                 loading={loading}
               >
@@ -524,8 +724,7 @@ const ReportsManager = () => {
             <div className="flex items-end">
               <Button
                 variant="outline"
-                icon="mdi:download"
-                className="w-full"
+                fullWidth
                 onClick={handleExport}
                 loading={loading}
                 disabled={!reportData}

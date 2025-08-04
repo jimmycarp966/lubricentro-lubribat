@@ -203,45 +203,40 @@ const Navbar = () => {
                       </span>
                     </div>
                     
-                    {user.role === 'admin' && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        icon="mdi:view-dashboard"
-                        as={Link}
-                        to="/admin"
-                        onClick={() => setIsMenuOpen(false)}
-                        className="w-full"
-                      >
-                        Panel Admin
-                      </Button>
-                    )}
-                    
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      icon="mdi:logout"
-                      onClick={() => {
-                        logout()
-                        setIsMenuOpen(false)
-                      }}
-                      className="w-full"
-                    >
-                      Cerrar Sesión
-                    </Button>
+                                         {user.role === 'admin' && (
+                       <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
+                         <Button
+                           variant="outline"
+                           size="sm"
+                           fullWidth
+                         >
+                           Panel Admin
+                         </Button>
+                       </Link>
+                     )}
+                     
+                     <Button
+                       variant="danger"
+                       size="sm"
+                       fullWidth
+                       onClick={() => {
+                         logout()
+                         setIsMenuOpen(false)
+                       }}
+                     >
+                       Cerrar Sesión
+                     </Button>
                   </>
                 ) : (
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    icon="mdi:login"
-                    as={Link}
-                    to="/mayorista/login"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="w-full"
-                  >
-                    Iniciar Sesión
-                  </Button>
+                                     <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                     <Button
+                       variant="primary"
+                       size="lg"
+                       fullWidth
+                     >
+                       Iniciar Sesión
+                     </Button>
+                   </Link>
                 )}
               </div>
             </div>
