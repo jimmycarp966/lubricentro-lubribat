@@ -712,31 +712,33 @@ const TurnosPublic = () => {
                   }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                      step <= stepNumber
-                        ? 'bg-blue-600 text-white'
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
+                      stepNumber < step
+                        ? 'bg-green-600 text-white'
+                        : stepNumber === step
+                        ? 'bg-blue-600 text-white ring-4 ring-blue-200'
                         : 'bg-gray-300 text-gray-600'
                     }`}
                   >
-                    {stepNumber}
+                    {stepNumber < step ? '✓' : stepNumber}
                   </div>
                   {stepNumber < 6 && (
                     <div
-                      className={`flex-1 h-1 mx-2 ${
-                        step > stepNumber ? 'bg-blue-600' : 'bg-gray-300'
+                      className={`flex-1 h-1 mx-2 transition-all duration-300 ${
+                        step > stepNumber ? 'bg-green-600' : 'bg-gray-300'
                       }`}
                     />
                   )}
                 </div>
               ))}
             </div>
-            <div className="flex justify-between text-xs text-gray-600 mt-2">
-              <span>Sucursal</span>
-              <span>Fecha</span>
-              <span>Horario</span>
-              <span>Servicio</span>
-              <span>Datos</span>
-              <span>Confirmar</span>
+            <div className="flex justify-between text-xs mt-2">
+              <span className={step > 1 ? 'text-green-600 font-medium' : 'text-gray-600'}>Sucursal</span>
+              <span className={step > 2 ? 'text-green-600 font-medium' : 'text-gray-600'}>Fecha</span>
+              <span className={step > 3 ? 'text-green-600 font-medium' : 'text-gray-600'}>Horario</span>
+              <span className={step > 4 ? 'text-green-600 font-medium' : 'text-gray-600'}>Servicio</span>
+              <span className={step > 5 ? 'text-green-600 font-medium' : 'text-gray-600'}>Datos</span>
+              <span className={step === 6 ? 'text-blue-600 font-medium' : 'text-gray-600'}>Confirmar</span>
             </div>
           </div>
 
