@@ -349,7 +349,10 @@ const AdminPanel = () => {
   const filteredPedidos = pedidos.filter(pedido => {
     const searchMatch = !searchPedido || (pedido.numero && pedido.numero.toLowerCase().includes(searchPedido.toLowerCase()))
     const estadoMatch = !filterEstadoPedido || pedido.estado === filterEstadoPedido
-    const mayoristaMatch = !filterMayoristaPedido || (pedido.mayorista && typeof pedido.mayorista === 'string' && pedido.mayorista.includes(filterMayoristaPedido))
+    const mayoristaMatch = !filterMayoristaPedido || (pedido.mayorista && (
+      (typeof pedido.mayorista === 'string' && pedido.mayorista.includes(filterMayoristaPedido)) ||
+      (pedido.mayorista.nombre && pedido.mayorista.nombre.includes(filterMayoristaPedido))
+    ))
     return searchMatch && estadoMatch && mayoristaMatch
   }).sort((a, b) => {
     switch (sortPedidos) {
@@ -615,6 +618,7 @@ const AdminPanel = () => {
       console.log('📋 Cargando pedidos desde Firebase...')
       const pedidosReales = await getPedidos()
       console.log('📋 Pedidos obtenidos:', pedidosReales)
+      console.log('📋 Estructura del primer pedido:', pedidosReales[0])
       setPedidos(pedidosReales)
       console.log(`✅ ${pedidosReales.length} pedidos cargados`)
     } catch (error) {
@@ -1618,7 +1622,7 @@ const AdminPanel = () => {
                               {pedido.estado}
                             </span>
                           </div>
-                          <p className="text-gray-600 mb-2">Proveedor: {pedido.mayorista}</p>
+                          <p className="text-gray-600 mb-2">Proveedor: {pedido.mayorista?.nombre || pedido.mayorista || 'Sin proveedor'}</p>
                           <p className="text-sm text-gray-500 mb-3">
                             Fecha: {new Date(pedido.fecha).toLocaleDateString('es-AR')}
                           </p>
