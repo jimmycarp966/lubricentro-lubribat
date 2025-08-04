@@ -90,32 +90,8 @@ const BrandLogo = ({ brand, className = "w-12 h-12 sm:w-16 sm:h-16" }) => {
     )
   }
 
-  // Fallback SVG para marcas sin logo
-  const getBrandColor = (brandName) => {
-    const colorMap = {
-      'MANN FILTER': 'from-red-500 to-red-600',
-      'MOURA': 'from-yellow-500 to-yellow-600',
-      'BARDAHL': 'from-green-500 to-green-600',
-      'PETRONAS': 'from-green-600 to-green-700',
-      'YPF': 'from-blue-500 to-blue-600',
-      'VALVOLINE': 'from-orange-500 to-orange-600',
-      'MOTUL': 'from-purple-500 to-purple-600'
-    }
-    return colorMap[brandName] || 'from-blue-500 to-blue-600'
-  }
-
-  const getBrandInitials = (brandName) => {
-    const words = brandName.split(' ')
-    return words.map(word => word.charAt(0)).join('')
-  }
-
-  return (
-    <div className={`${className} bg-gradient-to-br ${getBrandColor(brand)} rounded-full flex items-center justify-center`}>
-      <span className="text-white font-bold text-xs sm:text-sm">
-        {getBrandInitials(brand)}
-      </span>
-    </div>
-  )
+  // Si no hay logo, no mostrar nada
+  return null
 }
 
 export default BrandLogo 

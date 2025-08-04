@@ -132,52 +132,57 @@ const Home = () => {
           Marcas con las que Trabajamos
         </h2>
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="mb-10">
-            <h3 className="text-lg sm:text-xl font-semibold text-green-700 mb-4 text-center">Aceites, Filtros y Lubricantes</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6 lg:gap-8">
-              {[
-                'ELF',
-                'MANN FILTER',
-                'CASTROL',
-                'MOTUL',
-                'MOURA',
-                'PETRONAS',
-                'SHELL',
-                'YPF',
-                'WEGA',
-                'TOTAL',
-                'VALVOLINE',
-                'BARDAHL',
-                'FERCOL',
-                'ELAION',
-                'FRAM'
-              ].map((brandName) => (
-                <div key={brandName} className="group relative flex flex-col items-center bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 border border-gray-100 hover:border-green-200">
-                  <div className="mb-3 sm:mb-4 w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
-                    <BrandLogo brand={brandName} className="w-full h-full object-contain" />
-                  </div>
-                  <span className="font-semibold text-gray-800 text-xs sm:text-sm text-center group-hover:text-green-700 transition-colors">{brandName}</span>
+          <p className="text-center text-gray-600 text-sm sm:text-base lg:text-lg mb-8 sm:mb-12 max-w-3xl mx-auto">
+            Trabajamos con las mejores marcas del mercado para garantizar la calidad y durabilidad de tu vehículo
+          </p>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4 sm:gap-6 lg:gap-8">
+            {[
+              'ALFA ROMEO',
+              'AUDI',
+              'BMW',
+              'CASTROL',
+              'CHEVROLET',
+              'CHRYSLER',
+              'CITROËN',
+              'DODGE',
+              'ELAION',
+              'ELF',
+              'FERCOL',
+              'FIAT',
+              'FORD',
+              'FRAM',
+              'HONDA',
+              'HYUNDAI',
+              'ISUZU',
+              'JEEP',
+              'KIA',
+              'LAND ROVER',
+              'MAZDA',
+              'MERCEDES',
+              'MINI',
+              'MITSUBISHI',
+              'NISSAN',
+              'PEUGEOT',
+              'RENAULT',
+              'SEAT',
+              'SHELL',
+              'SUZUKI',
+              'TOYOTA',
+              'TOTAL',
+              'VOLKSWAGEN',
+              'VOLVO',
+              'WEGA'
+            ].map((brandName) => (
+              <div key={brandName} className="group relative flex flex-col items-center bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 p-3 sm:p-4 border border-gray-100 hover:border-green-200">
+                <div className="mb-2 sm:mb-3 w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center">
+                  <BrandLogo brand={brandName} className="w-full h-full object-contain" />
                 </div>
-              ))}
-            </div>
+                <span className="font-medium text-gray-700 text-[10px] sm:text-xs text-center group-hover:text-green-700 transition-colors leading-tight">{brandName}</span>
+              </div>
+            ))}
           </div>
-
-          <div>
-            <h3 className="text-lg sm:text-xl font-semibold text-yellow-700 mb-4 text-center">Marcas de Vehículos</h3>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 sm:gap-6 lg:gap-8">
-              {[
-                'FIAT','VOLKSWAGEN','RENAULT','CHEVROLET','PEUGEOT','FORD','ALFA ROMEO','CITROËN','TOYOTA','NISSAN','SUZUKI','KIA','HONDA','BMW','MERCEDES','AUDI','CHRYSLER','MAZDA','JEEP','HYUNDAI','ISUZU','MINI','DODGE','VOLVO','SEAT','MITSUBISHI','LAND ROVER'
-              ].map((brandName) => (
-                <div key={brandName} className="group relative flex flex-col items-center bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 p-3 sm:p-4 border border-gray-100 hover:border-yellow-200">
-                  <div className="mb-2 sm:mb-3 w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center">
-                    <BrandLogo brand={brandName} className="w-full h-full object-contain" />
-                  </div>
-                  <span className="font-medium text-gray-700 text-[10px] sm:text-xs text-center group-hover:text-yellow-700 transition-colors">{brandName}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
+          
           <div className="text-center mt-10 sm:mt-14">
             <p className="text-gray-500 text-xs sm:text-base">
               Productos originales y garantizados. Si tu marca no está, consultanos.
