@@ -238,22 +238,92 @@ export const checkMayoristaUser = async () => {
   }
 }
 
-// Inicializar todos los datos de prueba
-export const initializeTestData = async () => {
+// Verificar y corregir rol de mayorista
+export const verifyAndFixMayoristaRole = async () => {
   try {
-    console.log('🚀 Inicializando datos de prueba...')
+    console.log('🔍 Verificando rol de mayorista...')
     
-    // Crear usuarios de prueba
-    await createAdminUser()
-    await createMayoristaUser()
+    // Intentar iniciar sesión para obtener el UID
+    const userCredential = await signInWithEmailAndPassword(auth, 'mayorista@test.com', 'mayorista123')
+    const uid = userCredential.user.uid
     
-    // Crear productos simulados
-    await createSimulatedProducts()
+    // Verificar si existe en la base de datos
+    const userRef = ref(database, `users/${uid}`)
+    const snapshot = await get(userRef)
     
-    console.log('✅ Datos de prueba inicializados correctamente')
+    if (snapshot.exists()) {
+      const userData = snapshot.val()
+      console.log('📋 Datos actuales del usuario:', userData)
+      
+      if (userData.role !== 'mayorista') {
+        console.log('⚠️ Rol incorrecto, corrigiendo...')
+        // Actualizar el rol
+        await set(ref(database, `users/${uid}`), {
+          ...userData,
+          role: 'mayorista'
+        })
+        console.log('✅ Rol corregido a "mayorista"')
+      } else {
+        console.log('✅ Rol ya es correcto')
+      }
+    } else {
+      console.log('⚠️ Usuario no existe en la base de datos, creando...')
+      // Crear el usuario en la base de datos
+      await set(ref(database, `users/${uid}`), {
+        email: 'mayorista@test.com',
+        nombre: 'Mayorista Test',
+        role: 'mayorista',
+        empresa: 'Empresa Mayorista Test',
+        telefono: '+54 9 381 123-4567',
+        direccion: 'Av. Test 123, Monteros',
+        createdAt: new Date().toISOString()
+      })
+      console.log('✅ Usuario creado en la base de datos')
+    }
+    
+    await signOut(auth)
     return { success: true }
   } catch (error) {
-    console.error('❌ Error inicializando datos de prueba:', error)
+    console.error('❌ Error verificando/corrigiendo rol:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+// Inicializar datos de prueba mejorado
+export const initializeTestData = async () => {
+  try {
+    console.log('🚀 Iniciando creación de datos de prueba...')
+    
+    // 1. Verificar y crear usuario admin
+    console.log('👤 Verificando usuario admin...')
+    const adminResult = await createAdminUser()
+    if (!adminResult.success) {
+      console.error('❌ Error creando admin:', adminResult.error)
+    }
+    
+    // 2. Verificar y corregir rol de mayorista
+    console.log('🏢 Verificando usuario mayorista...')
+    const mayoristaResult = await verifyAndFixMayoristaRole()
+    if (!mayoristaResult.success) {
+      console.error('❌ Error verificando mayorista:', mayoristaResult.error)
+    }
+    
+    // 3. Crear productos simulados
+    console.log('📦 Creando productos simulados...')
+    const productosResult = await createSimulatedProducts()
+    if (!productosResult.success) {
+      console.error('❌ Error creando productos:', productosResult.error)
+    }
+    
+    console.log('✅ Datos de prueba inicializados correctamente')
+    return { 
+      success: true, 
+      admin: adminResult.success,
+      mayorista: mayoristaResult.success,
+      productos: productosResult.success
+    }
+  } catch (error) {
+    console.error('❌ Error general inicializando datos:', error)
     return { success: false, error: error.message }
   }
 } 

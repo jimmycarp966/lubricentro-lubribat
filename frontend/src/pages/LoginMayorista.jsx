@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import logo from '../assets/logo.png'
-import { initializeTestData, checkMayoristaExists } from '../utils/createAdminUser'
+import { initializeTestData, checkMayoristaExists, verifyAndFixMayoristaRole } from '../utils/createAdminUser'
 
 const LoginMayorista = () => {
   const [email, setEmail] = useState('')
@@ -16,7 +16,7 @@ const LoginMayorista = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
-
+    
     try {
       const result = await login(email, password)
       
@@ -48,6 +48,17 @@ const LoginMayorista = () => {
       if (checkResult.exists) {
         console.log('✅ Usuario mayorista ya existe')
         toast.success('✅ Usuario mayorista ya está creado')
+        
+        // Verificar y corregir el rol
+        console.log('🔧 Verificando rol de mayorista...')
+        const roleResult = await verifyAndFixMayoristaRole()
+        if (roleResult.success) {
+          toast.success('✅ Rol de mayorista verificado y corregido')
+        } else {
+          toast.error('⚠️ Error verificando rol: ' + roleResult.error)
+        }
+        
+        // Pre-llenar credenciales
         setEmail('mayorista@test.com')
         setPassword('mayorista123')
       } else {
@@ -72,14 +83,12 @@ const LoginMayorista = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <div className="flex justify-center mb-6">
-            <img src={logo} alt="LUBRI-BAT" className="h-16 w-16" />
-          </div>
+          <img className="mx-auto h-12 w-auto" src={logo} alt="Logo" />
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Portal Mayorista
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Accedé a precios mayoristas y gestión de pedidos
+            Acceso exclusivo para mayoristas
           </p>
         </div>
         
