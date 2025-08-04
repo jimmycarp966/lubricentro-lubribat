@@ -1,16 +1,6 @@
 import React from 'react'
 
-// Importar logos disponibles
-import castrolLogo from '../../assets/brands/castrol.png'
-import shellLogo from '../../assets/brands/shell.png'
-import valvolineLogo from '../../assets/brands/valvoline.png'
-import motulLogo from '../../assets/brands/motul.png'
-import elfLogo from '../../assets/brands/elf.png'
-import petronasLogo from '../../assets/brands/petronas.png'
-import totalLogo from '../../assets/brands/total.png'
-import ypfLogo from '../../assets/brands/ypf.png'
-
-// Importar logos nuevos del usuario
+// Importar logos del usuario
 import fercolLogo from '../../assets/brands/logo fercol.webp'
 import framLogo from '../../assets/brands/lgo fram.png'
 import wegaLogo from '../../assets/brands/logo wega.png'
@@ -41,26 +31,16 @@ import chevroletLogo from '../../assets/brands/lo_chevrolet.jpg'
 import renaultLogo from '../../assets/brands/lo_renault.jpg'
 import vwLogo from '../../assets/brands/lo_vw.jpg'
 import fiatLogo from '../../assets/brands/lo_fiat.jpg'
-import elfNewLogo from '../../assets/brands/lo_elf.jpg'
-import castrolNewLogo from '../../assets/brands/lo_castrol.jpg'
-import totalNewLogo from '../../assets/brands/lo_total.jpg'
+import elfLogo from '../../assets/brands/lo_elf.jpg'
+import castrolLogo from '../../assets/brands/lo_castrol.jpg'
+import totalLogo from '../../assets/brands/lo_total.jpg'
 import elaionLogo from '../../assets/brands/lo_elaion.jpg'
-import shellNewLogo from '../../assets/brands/lo_shell.jpg'
+import shellLogo from '../../assets/brands/lo_shell.jpg'
 
 const BrandLogo = ({ brand, className = "w-12 h-12 sm:w-16 sm:h-16" }) => {
   // Mapeo de marcas a logos
   const logoMap = {
-    // Logos originales
-    'CASTROL': castrolLogo,
-    'SHELL': shellLogo,
-    'VALVOLINE': valvolineLogo,
-    'MOTUL': motulLogo,
-    'ELF': elfLogo,
-    'PETRONAS': petronasLogo,
-    'TOTAL': totalLogo,
-    'YPF': ypfLogo,
-    
-    // Logos nuevos del usuario
+    // Logos del usuario
     'FERCOL': fercolLogo,
     'FRAM': framLogo,
     'WEGA': wegaLogo,
@@ -92,12 +72,10 @@ const BrandLogo = ({ brand, className = "w-12 h-12 sm:w-16 sm:h-16" }) => {
     'VOLKSWAGEN': vwLogo,
     'FIAT': fiatLogo,
     'ELAION': elaionLogo,
-    
-    // Logos alternativos (usar los nuevos si están disponibles)
-    'ELF_NEW': elfNewLogo,
-    'CASTROL_NEW': castrolNewLogo,
-    'TOTAL_NEW': totalNewLogo,
-    'SHELL_NEW': shellNewLogo
+    'ELF': elfLogo,
+    'CASTROL': castrolLogo,
+    'TOTAL': totalLogo,
+    'SHELL': shellLogo
   }
 
   const logo = logoMap[brand]
@@ -117,9 +95,11 @@ const BrandLogo = ({ brand, className = "w-12 h-12 sm:w-16 sm:h-16" }) => {
     const colorMap = {
       'MANN FILTER': 'from-red-500 to-red-600',
       'MOURA': 'from-yellow-500 to-yellow-600',
-      'WEGA': 'from-gray-500 to-gray-600',
       'BARDAHL': 'from-green-500 to-green-600',
-      'PETRONAS': 'from-green-600 to-green-700'
+      'PETRONAS': 'from-green-600 to-green-700',
+      'YPF': 'from-blue-500 to-blue-600',
+      'VALVOLINE': 'from-orange-500 to-orange-600',
+      'MOTUL': 'from-purple-500 to-purple-600'
     }
     return colorMap[brandName] || 'from-blue-500 to-blue-600'
   }
