@@ -10,11 +10,18 @@ export const buscarClientePorWhatsApp = async (whatsapp) => {
     const turnosRef = ref(database, 'turnos')
     const snapshot = await get(turnosRef)
     
+    console.log('📊 Total de turnos en Firebase:', snapshot.numChildren())
+    
     if (snapshot.exists()) {
       const turnos = []
       snapshot.forEach((childSnapshot) => {
         const turno = childSnapshot.val()
+        console.log('🔍 Revisando turno:', turno)
+        console.log('📱 WhatsApp del turno:', turno.cliente?.whatsapp)
+        console.log('🔍 WhatsApp buscado:', whatsapp)
+        
         if (turno.cliente && turno.cliente.whatsapp === whatsapp) {
+          console.log('✅ Coincidencia encontrada!')
           turnos.push({
             id: childSnapshot.key,
             ...turno
@@ -77,12 +84,19 @@ export const buscarClientePorPatente = async (patente) => {
     const turnosRef = ref(database, 'turnos')
     const snapshot = await get(turnosRef)
     
+    console.log('📊 Total de turnos en Firebase:', snapshot.numChildren())
+    
     if (snapshot.exists()) {
       const turnos = []
       snapshot.forEach((childSnapshot) => {
         const turno = childSnapshot.val()
+        console.log('🔍 Revisando turno:', turno)
+        console.log('🚗 Patente del turno:', turno.cliente?.patente)
+        console.log('🔍 Patente buscada:', patente)
+        
         if (turno.cliente && turno.cliente.patente && 
             turno.cliente.patente.toUpperCase() === patente.toUpperCase()) {
+          console.log('✅ Coincidencia encontrada!')
           turnos.push({
             id: childSnapshot.key,
             ...turno

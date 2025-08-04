@@ -10,44 +10,7 @@ const ClienteBusqueda = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Simulación de base de datos de clientes
-  const clientesDB = [
-    {
-      telefono: '+54 9 11 1234-5678',
-      nombre: 'Juan Pérez',
-      vehiculos: [
-        { patente: 'ABC123', modelo: 'Toyota Corolla 2020' },
-        { patente: 'XYZ789', modelo: 'Ford Ranger 2019' }
-      ],
-      historial: [
-        {
-          fecha: '2024-01-15',
-          servicio: 'Cambio de Aceite y Filtro',
-          sucursal: 'Sucursal Monteros',
-          patente: 'ABC123',
-          puntos: 50
-        },
-        {
-          fecha: '2024-01-10',
-          servicio: 'Revisión General',
-          sucursal: 'Sucursal Monteros',
-          patente: 'ABC123',
-          puntos: 100
-        },
-        {
-          fecha: '2024-01-05',
-          servicio: 'Cambio de Filtros',
-          sucursal: 'Sucursal Concepción',
-          patente: 'XYZ789',
-          puntos: 30
-        }
-      ],
-      puntosAcumulados: 180,
-      nivel: 'Bronce',
-      fechaPrimeraVisita: '2024-01-05',
-      ultimaVisita: '2024-01-15'
-    }
-  ]
+  // Los datos ahora vienen de Firebase a través del servicio
 
   const buscarCliente = async () => {
     setIsLoading(true)
