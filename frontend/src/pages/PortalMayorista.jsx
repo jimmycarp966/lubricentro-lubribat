@@ -7,6 +7,7 @@ import { ref, push, set, get, update } from 'firebase/database'
 import { database } from '../firebase/config'
 import DebugAuth from '../components/DebugAuth'
 import { checkAndCreateMayoristaUser, verifyMayoristaInFirebase } from '../utils/checkMayoristaUser'
+import { getPedidosByMayorista } from '../services/pedidosService'
 
 const PortalMayorista = () => {
   const { user, forceUpdateUserRole } = useAuth()
@@ -47,25 +48,40 @@ const PortalMayorista = () => {
     }
   ]
 
-  // Cargar pedidos desde localStorage o usar datos simulados
+  // Cargar pedidos reales desde Firebase
   useEffect(() => {
-    const pedidosGuardados = localStorage.getItem('pedidos')
+    const cargarPedidos = async () => {
+      if (user && user.uid) {
+        try {
+          console.log('📋 Cargando pedidos del mayorista desde Firebase...')
+          const pedidosReales = await getPedidosByMayorista(user.uid)
+          setPedidos(pedidosReales)
+          console.log(`✅ ${pedidosReales.length} pedidos cargados`)
+        } catch (error) {
+          console.error('❌ Error cargando pedidos:', error)
+          toast.error('Error cargando pedidos')
+          // Fallback a datos simulados si hay error
+          setPedidos(pedidosSimulados)
+        }
+      }
+    }
     
-    if (pedidosGuardados) {
-      setPedidos(JSON.parse(pedidosGuardados))
-    } else {
-      // Primera vez: usar datos simulados
-      setPedidos(pedidosSimulados)
-      localStorage.setItem('pedidos', JSON.stringify(pedidosSimulados))
-    }
-  }, [])
+    cargarPedidos()
+  }, [user])
 
-  // Guardar pedidos en localStorage cuando cambien
-  useEffect(() => {
-    if (pedidos.length > 0) {
-      localStorage.setItem('pedidos', JSON.stringify(pedidos))
+  // Recargar pedidos cuando se complete un nuevo pedido
+  const recargarPedidos = async () => {
+    if (user && user.uid) {
+      try {
+        console.log('🔄 Recargando pedidos...')
+        const pedidosReales = await getPedidosByMayorista(user.uid)
+        setPedidos(pedidosReales)
+        console.log(`✅ ${pedidosReales.length} pedidos recargados`)
+      } catch (error) {
+        console.error('❌ Error recargando pedidos:', error)
+      }
     }
-  }, [pedidos])
+  }
 
   useEffect(() => {
     console.log('🔍 PortalMayorista - Debug info:')
@@ -323,12 +339,15 @@ const PortalMayorista = () => {
       
       setPedidos(prev => [nuevoPedido, ...prev])
       
-      // 6. Limpiar carrito y cerrar modal
-      limpiarCarrito()
-      setShowCheckout(false)
-      
-      toast.success('¡Pedido realizado con éxito!')
-      console.log('✅ Pedido procesado completamente')
+             // 6. Limpiar carrito y cerrar modal
+       limpiarCarrito()
+       setShowCheckout(false)
+       
+       // 7. Recargar pedidos para mostrar el nuevo
+       await recargarPedidos()
+       
+       toast.success('¡Pedido realizado con éxito!')
+       console.log('✅ Pedido procesado completamente')
       
     } catch (error) {
       console.error('❌ Error procesando pedido:', error)

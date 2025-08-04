@@ -24,6 +24,7 @@ import PaymentManager from '../components/admin/PaymentManager'
 import ReportsManager from '../components/admin/ReportsManager'
 import { sendReminderMessage, sendCompletionMessage } from '../utils/whatsappService'
 import { sendTurnoConfirmationNotification, sendWhatsAppNotification, notificationManager } from '../services/notificationService'
+import { getPedidos, actualizarEstadoPedido, eliminarPedido, getPedidosStats } from '../services/pedidosService'
 
 const AdminPanel = () => {
   const { user } = useAuth()
@@ -75,6 +76,8 @@ const AdminPanel = () => {
   const [filterEstadoPedido, setFilterEstadoPedido] = useState('')
   const [filterMayoristaPedido, setFilterMayoristaPedido] = useState('')
   const [sortPedidos, setSortPedidos] = useState('fecha')
+  const [pedidos, setPedidos] = useState([])
+  const [loadingPedidos, setLoadingPedidos] = useState(false)
 
   // Estados para reportes
   const [reportPeriod, setReportPeriod] = useState('mes')
@@ -582,7 +585,14 @@ const AdminPanel = () => {
   const handleDeletePedido = async (pedidoId) => {
     if (window.confirm('¿Estás seguro de que querés eliminar este pedido?')) {
       try {
+        console.log(`🗑️ Eliminando pedido: ${pedidoId}`)
+        
+        // Eliminar de Firebase
+        await eliminarPedido(pedidoId)
+        
+        // Eliminar del estado local
         setPedidos(prev => prev.filter(p => p._id !== pedidoId))
+        
         toast.success('Pedido eliminado correctamente')
       } catch (error) {
         console.error('Error eliminando pedido:', error)
@@ -639,6 +649,12 @@ const AdminPanel = () => {
 
   const handleUpdateEstadoPedido = async (pedidoId, nuevoEstado) => {
     try {
+      console.log(`🔄 Actualizando estado del pedido ${pedidoId} a: ${nuevoEstado}`)
+      
+      // Actualizar en Firebase
+      await actualizarEstadoPedido(pedidoId, nuevoEstado)
+      
+      // Actualizar en el estado local
       setPedidos(prev => prev.map(p => 
         p._id === pedidoId ? { ...p, estado: nuevoEstado } : p
       ))
@@ -655,6 +671,29 @@ const AdminPanel = () => {
       toast.error('Error al actualizar el estado del pedido')
     }
   }
+
+  // Cargar pedidos desde Firebase
+  const cargarPedidos = async () => {
+    try {
+      setLoadingPedidos(true)
+      console.log('📋 Cargando pedidos desde Firebase...')
+      const pedidosReales = await getPedidos()
+      setPedidos(pedidosReales)
+      console.log(`✅ ${pedidosReales.length} pedidos cargados`)
+    } catch (error) {
+      console.error('❌ Error cargando pedidos:', error)
+      toast.error('Error cargando pedidos')
+    } finally {
+      setLoadingPedidos(false)
+    }
+  }
+
+  // Cargar pedidos cuando se active la pestaña
+  useEffect(() => {
+    if (activeTab === 'pedidos') {
+      cargarPedidos()
+    }
+  }, [activeTab])
 
   if (!user || (user.role !== 'admin' && user.role !== 'employee')) {
     return (
@@ -1614,7 +1653,12 @@ const AdminPanel = () => {
 
               {/* Lista de pedidos */}
               <div className="space-y-4">
-                {filteredPedidos.length === 0 ? (
+                {loadingPedidos ? (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Cargando pedidos desde Firebase...</p>
+                  </div>
+                ) : filteredPedidos.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="text-gray-400 text-6xl mb-4">📋</div>
                     <p className="text-gray-500 text-lg">No se encontraron pedidos</p>
