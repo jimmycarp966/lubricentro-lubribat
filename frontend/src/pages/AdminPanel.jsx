@@ -345,21 +345,22 @@ const AdminPanel = () => {
     }
   })
 
+  console.log('🔍 Debug - Pedidos antes del filtrado:', pedidos)
   const filteredPedidos = pedidos.filter(pedido => {
-    const searchMatch = !searchPedido || pedido.numero.toLowerCase().includes(searchPedido.toLowerCase())
+    const searchMatch = !searchPedido || (pedido.numero && pedido.numero.toLowerCase().includes(searchPedido.toLowerCase()))
     const estadoMatch = !filterEstadoPedido || pedido.estado === filterEstadoPedido
-    const mayoristaMatch = !filterMayoristaPedido || pedido.mayorista.includes(filterMayoristaPedido)
+    const mayoristaMatch = !filterMayoristaPedido || (pedido.mayorista && typeof pedido.mayorista === 'string' && pedido.mayorista.includes(filterMayoristaPedido))
     return searchMatch && estadoMatch && mayoristaMatch
   }).sort((a, b) => {
     switch (sortPedidos) {
-      case 'total': return b.total - a.total
-      case 'estado': return a.estado.localeCompare(b.estado)
-      case 'mayorista': return a.mayorista.localeCompare(b.mayorista)
-      default: return new Date(b.fecha) - new Date(a.fecha)
+      case 'total': return (b.total || 0) - (a.total || 0)
+      case 'estado': return (a.estado || '').localeCompare(b.estado || '')
+      case 'mayorista': return (a.mayorista?.nombre || a.mayorista || '').localeCompare(b.mayorista?.nombre || b.mayorista || '')
+      default: return new Date(b.fecha || b.createdAt || 0) - new Date(a.fecha || a.createdAt || 0)
     }
   })
 
-  const totalInvertido = pedidos.reduce((total, pedido) => total + pedido.total, 0)
+  const totalInvertido = pedidos.reduce((total, pedido) => total + (pedido.total || 0), 0)
 
   // Definición de tabs
   const tabs = [
@@ -613,6 +614,7 @@ const AdminPanel = () => {
       setLoadingPedidos(true)
       console.log('📋 Cargando pedidos desde Firebase...')
       const pedidosReales = await getPedidos()
+      console.log('📋 Pedidos obtenidos:', pedidosReales)
       setPedidos(pedidosReales)
       console.log(`✅ ${pedidosReales.length} pedidos cargados`)
     } catch (error) {
