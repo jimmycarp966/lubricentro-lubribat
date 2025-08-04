@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import { ref, push, set, get, update } from 'firebase/database'
 import { database } from '../firebase/config'
 import DebugAuth from '../components/DebugAuth'
+import { checkAndCreateMayoristaUser, verifyMayoristaInFirebase } from '../utils/checkMayoristaUser'
 
 const PortalMayorista = () => {
   const { user, forceUpdateUserRole } = useAuth()
@@ -98,6 +99,24 @@ const PortalMayorista = () => {
     
     console.log('✅ Usuario mayorista autenticado correctamente')
     console.log('✅ Rol verificado:', user.role)
+    
+    // Verificar y crear usuario mayorista en Firebase si es necesario
+    const verifyMayorista = async () => {
+      try {
+        const mayoristaExists = await verifyMayoristaInFirebase()
+        if (!mayoristaExists) {
+          console.log('🔄 Usuario mayorista no encontrado en Firebase, creando...')
+          const result = await checkAndCreateMayoristaUser()
+          if (result.created) {
+            toast.success('✅ Usuario mayorista configurado correctamente')
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error verificando usuario mayorista:', error)
+      }
+    }
+    
+    verifyMayorista()
   }, [user, navigate])
 
   const handleForceUpdateRole = async () => {

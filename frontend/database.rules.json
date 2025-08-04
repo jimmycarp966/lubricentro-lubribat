@@ -1,0 +1,60 @@
+{
+  "rules": {
+    "turnos": {
+      ".read": true,
+      ".write": true,
+      "$turnoId": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "notifications": {
+      ".read": true,
+      ".write": true,
+      "$notificationId": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "productos": {
+      ".read": true,
+      ".write": true,
+      "$productoId": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "pedidos": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$pedidoId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "movimientos": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$movimientoId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "inventario_movimientos": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$movimientoId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "users": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$userId": {
+        ".read": "auth != null && auth.uid == $userId",
+        ".write": "auth != null && auth.uid == $userId"
+      }
+    }
+  }
+}
