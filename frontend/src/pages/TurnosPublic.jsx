@@ -263,9 +263,11 @@ const TurnosPublic = () => {
         servicio: confirmedTurno.servicio,
         sucursal: confirmedTurno.sucursal,
         fecha: confirmedTurno.fecha,
+        horario: confirmedTurno.horario,
         precio: confirmedTurno.precio || 5000,
         nombreCliente: confirmedTurno.cliente,
-        emailCliente: `${confirmedTurno.cliente.toLowerCase().replace(' ', '.')}@example.com`
+        emailCliente: `${confirmedTurno.cliente.toLowerCase().replace(' ', '.')}@example.com`,
+        vehiculo: confirmedTurno.vehiculo
       }
 
       const result = await createPaymentPreference(paymentData)
@@ -273,6 +275,9 @@ const TurnosPublic = () => {
       if (result.success) {
         setPaymentUrl(result.sandbox_init_point)
         toast.success('Redirigiendo a MercadoPago...')
+        
+        // Guardar el ID del pago para tracking
+        localStorage.setItem('currentPaymentId', result.paymentId)
         
         // Abrir ventana de pago
         window.open(result.sandbox_init_point, '_blank')

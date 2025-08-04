@@ -1,4 +1,5 @@
 import toast from 'react-hot-toast'
+import { registerPayment, updatePaymentStatus, PAYMENT_STATUS } from './paymentTrackingService'
 
 // Configuración de MercadoPago (en producción usar variables de entorno)
 const MERCADOPAGO_CONFIG = {
@@ -10,6 +11,26 @@ const MERCADOPAGO_CONFIG = {
 // Función para crear una preferencia de pago
 export const createPaymentPreference = async (turnoData) => {
   try {
+    // Registrar el pago en Firebase antes de crear la preferencia
+    const paymentData = {
+      turnoId: turnoData.id,
+      cliente: turnoData.nombreCliente,
+      servicio: turnoData.servicio,
+      sucursal: turnoData.sucursal,
+      fecha: turnoData.fecha,
+      horario: turnoData.horario || 'No especificado',
+      monto: turnoData.precio || 5000,
+      metodoPago: 'mercadopago_wallet', // Por defecto
+      vehiculo: turnoData.vehiculo || 'No especificado',
+      externalReference: turnoData.id
+    }
+
+    const paymentRegistration = await registerPayment(paymentData)
+    
+    if (!paymentRegistration.success) {
+      throw new Error('Error registrando pago en el sistema')
+    }
+
     // Simular creación de preferencia (en producción sería una llamada real a MercadoPago)
     const preference = {
       id: `pref_${Date.now()}`,
@@ -28,12 +49,12 @@ export const createPaymentPreference = async (turnoData) => {
         email: turnoData.emailCliente || 'cliente@example.com'
       },
       back_urls: {
-        success: `${window.location.origin}/turnos/success`,
-        failure: `${window.location.origin}/turnos/failure`,
-        pending: `${window.location.origin}/turnos/pending`
+        success: `${window.location.origin}/turnos/success?payment_id=${paymentRegistration.paymentId}`,
+        failure: `${window.location.origin}/turnos/failure?payment_id=${paymentRegistration.paymentId}`,
+        pending: `${window.location.origin}/turnos/pending?payment_id=${paymentRegistration.paymentId}`
       },
       auto_return: 'approved',
-      external_reference: turnoData.id,
+      external_reference: paymentRegistration.paymentId, // Usar el ID del pago registrado
       notification_url: `${window.location.origin}/api/webhooks/mercadopago`,
       expires: true,
       expiration_date_to: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 horas
@@ -45,6 +66,7 @@ export const createPaymentPreference = async (turnoData) => {
     return {
       success: true,
       preference: preference,
+      paymentId: paymentRegistration.paymentId,
       init_point: `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${preference.id}`,
       sandbox_init_point: `https://sandbox.mercadopago.com.ar/checkout/v1/redirect?pref_id=${preference.id}`
     }
@@ -169,24 +191,48 @@ export const handleWebhook = async (webhookData) => {
     switch (type) {
       case 'payment':
         // Procesar notificación de pago
-        const paymentId = data.id
+        const paymentId = data.external_reference || data.id
         const paymentStatus = await checkPaymentStatus(paymentId)
         
         if (paymentStatus.success) {
-          // Actualizar estado del turno según el pago
-          if (paymentStatus.status === 'approved') {
-            // Pago aprobado - confirmar turno
-            toast.success('Pago aprobado - Turno confirmado')
-            return { success: true, action: 'confirm_turno' }
-          } else if (paymentStatus.status === 'rejected') {
-            // Pago rechazado
-            toast.error('Pago rechazado')
-            return { success: true, action: 'reject_turno' }
-          } else if (paymentStatus.status === 'pending') {
-            // Pago pendiente
-            toast.info('Pago pendiente de confirmación')
-            return { success: true, action: 'pending_turno' }
+          // Actualizar estado del pago en Firebase
+          let newStatus
+          let action
+          
+          switch (paymentStatus.status) {
+            case 'approved':
+              newStatus = PAYMENT_STATUS.APPROVED
+              action = 'confirm_turno'
+              toast.success('Pago aprobado - Turno confirmado')
+              break
+            case 'rejected':
+              newStatus = PAYMENT_STATUS.REJECTED
+              action = 'reject_turno'
+              toast.error('Pago rechazado')
+              break
+            case 'pending':
+              newStatus = PAYMENT_STATUS.PENDING
+              action = 'pending_turno'
+              toast.info('Pago pendiente de confirmación')
+              break
+            case 'cancelled':
+              newStatus = PAYMENT_STATUS.CANCELLED
+              action = 'cancel_turno'
+              toast.warning('Pago cancelado')
+              break
+            default:
+              newStatus = PAYMENT_STATUS.PENDING
+              action = 'pending_turno'
           }
+
+          // Actualizar estado del pago en Firebase
+          await updatePaymentStatus(paymentId, newStatus, {
+            mercadopagoPaymentId: data.id,
+            mercadopagoStatus: paymentStatus.status,
+            webhookReceived: new Date().toISOString()
+          })
+
+          return { success: true, action, paymentId }
         }
         break
 
