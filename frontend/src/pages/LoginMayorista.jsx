@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import logo from '../assets/logo.png'
-import { initializeTestData } from '../utils/createAdminUser'
+import { initializeTestData, checkMayoristaExists } from '../utils/createAdminUser'
 
 const LoginMayorista = () => {
   const [email, setEmail] = useState('')
@@ -17,18 +17,23 @@ const LoginMayorista = () => {
     e.preventDefault()
     setLoading(true)
 
-    const result = await login(email, password)
-    
-    if (result.success) {
-      toast.success('¡Bienvenido!')
-      // Redirigir según el rol
-      if (result.user.role === 'admin') {
-        navigate('/admin')
+    try {
+      const result = await login(email, password)
+      
+      if (result.success) {
+        toast.success('¡Bienvenido!')
+        // Redirigir según el rol
+        if (result.user.role === 'admin') {
+          navigate('/admin')
+        } else {
+          navigate('/mayorista/portal')
+        }
       } else {
-        navigate('/mayorista/portal')
+        toast.error(result.error || 'Error al iniciar sesión')
       }
-    } else {
-      toast.error(result.error)
+    } catch (error) {
+      console.error('Error en login:', error)
+      toast.error('Error de conexión. Verificá tu conexión a internet.')
     }
     
     setLoading(false)
@@ -37,16 +42,27 @@ const LoginMayorista = () => {
   const handleInitializeTestData = async () => {
     setInitializing(true)
     try {
-      const result = await initializeTestData()
-      if (result.success) {
-        toast.success('✅ Datos de prueba creados exitosamente')
-        // Pre-llenar credenciales
+      console.log('🔍 Verificando si el usuario mayorista existe...')
+      const checkResult = await checkMayoristaExists()
+      
+      if (checkResult.exists) {
+        console.log('✅ Usuario mayorista ya existe')
+        toast.success('✅ Usuario mayorista ya está creado')
         setEmail('mayorista@test.com')
         setPassword('mayorista123')
       } else {
-        toast.error('❌ Error creando datos de prueba')
+        console.log('🔄 Creando datos de prueba...')
+        const result = await initializeTestData()
+        if (result.success) {
+          toast.success('✅ Datos de prueba creados exitosamente')
+          setEmail('mayorista@test.com')
+          setPassword('mayorista123')
+        } else {
+          toast.error('❌ Error creando datos de prueba: ' + (result.error || 'Error desconocido'))
+        }
       }
     } catch (error) {
+      console.error('Error inicializando datos:', error)
       toast.error('❌ Error: ' + error.message)
     }
     setInitializing(false)
@@ -130,12 +146,14 @@ const LoginMayorista = () => {
             disabled={initializing}
             className="w-full bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
           >
-            {initializing ? 'Creando datos de prueba...' : '🔄 Crear datos de prueba'}
+            {initializing ? 'Verificando/Creando datos...' : '🔄 Verificar/Crear datos de prueba'}
           </button>
           
-          <p className="text-xs text-gray-500">
-            Si es la primera vez, hacé clic en "Crear datos de prueba" para generar usuarios y productos de ejemplo
-          </p>
+          <div className="bg-yellow-50 p-3 rounded-lg">
+            <p className="text-xs text-yellow-800">
+              <strong>💡 Consejo:</strong> Si tenés problemas para iniciar sesión, hacé clic en el botón de arriba para verificar que los usuarios estén creados correctamente.
+            </p>
+          </div>
         </div>
       </div>
     </div>

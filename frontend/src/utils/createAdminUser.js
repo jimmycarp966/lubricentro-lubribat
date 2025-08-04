@@ -1,6 +1,6 @@
 import { ref, set, get } from 'firebase/database'
 import { database } from '../firebase/config'
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import { createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword, signOut } from 'firebase/auth'
 import { auth } from '../firebase/config'
 
 // Crear usuario admin
@@ -36,9 +36,34 @@ export const createAdminUser = async () => {
   }
 }
 
+// Verificar si el usuario mayorista existe
+export const checkMayoristaExists = async () => {
+  try {
+    // Intentar iniciar sesión para verificar si existe
+    const userCredential = await signInWithEmailAndPassword(auth, 'mayorista@test.com', 'mayorista123')
+    await signOut(auth) // Cerrar sesión inmediatamente
+    return { exists: true, user: userCredential.user }
+  } catch (error) {
+    if (error.code === 'auth/user-not-found') {
+      return { exists: false }
+    } else if (error.code === 'auth/wrong-password') {
+      return { exists: true, wrongPassword: true }
+    }
+    return { exists: false, error: error.message }
+  }
+}
+
 // Crear usuario mayorista de prueba
 export const createMayoristaUser = async () => {
   try {
+    // Primero verificar si ya existe
+    const checkResult = await checkMayoristaExists()
+    
+    if (checkResult.exists && !checkResult.wrongPassword) {
+      console.log('⚠️ El usuario mayorista ya existe')
+      return { success: true, message: 'Usuario ya existe' }
+    }
+    
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       'mayorista@test.com',
