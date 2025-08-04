@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { ref, push, set, get, update } from 'firebase/database'
 import { database } from '../firebase/config'
+import DebugAuth from '../components/DebugAuth'
 
 const PortalMayorista = () => {
   const { user, forceUpdateUserRole } = useAuth()
@@ -73,6 +74,12 @@ const PortalMayorista = () => {
     console.log('🆔 User UID:', user?.uid)
     console.log('📦 Productos:', productos?.length || 0)
     console.log('🔗 Current URL:', window.location.href)
+    
+    // Esperar a que el usuario esté completamente cargado
+    if (user === null) {
+      console.log('⏳ Esperando carga del usuario...')
+      return
+    }
     
     if (!user) {
       console.log('❌ No hay usuario, redirigiendo a login')
@@ -342,16 +349,31 @@ const PortalMayorista = () => {
     }
   }
 
-  // Si no hay usuario o no es mayorista, no mostrar nada
-  if (!user || user.role !== 'mayorista') {
-    console.log('🚫 No mostrando portal - Usuario:', user?.email, 'Rol:', user?.role)
+  // Si el usuario está cargando, mostrar loading
+  if (user === null) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 mb-4">Verificando acceso...</p>
-          
-          {/* Botón de debug */}
+          <p className="text-gray-600 mb-4">Cargando...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Si no hay usuario, redirigir
+  if (!user) {
+    console.log('🚫 No hay usuario, redirigiendo...')
+    navigate('/mayorista/login')
+    return null
+  }
+
+  // Si el usuario no es mayorista, mostrar error
+  if (user.role !== 'mayorista') {
+    console.log('🚫 Usuario no es mayorista - Usuario:', user?.email, 'Rol:', user?.role)
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
           <div className="bg-yellow-50 p-4 rounded-lg max-w-md mx-auto">
             <p className="text-sm text-yellow-800 mb-2">
               <strong>Debug:</strong> Usuario: {user?.email} | Rol: {user?.role}
@@ -372,6 +394,7 @@ const PortalMayorista = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      <DebugAuth />
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Portal Mayorista

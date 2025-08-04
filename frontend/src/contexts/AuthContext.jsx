@@ -18,6 +18,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  console.log('🔄 AuthProvider - Estado actual:', { user, loading })
+
   // Función para obtener el rol del usuario desde la base de datos
   const getUserRole = async (uid) => {
     try {
@@ -178,15 +180,25 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Escuchar cambios en el estado de autenticación
     const unsubscribe = onAuthChange(async (user) => {
+      console.log('🔄 Auth state changed:', user ? user.email : 'null')
+      
       if (user) {
-        const userRole = await getUserRole(user.uid)
-        setUser({
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          role: userRole
-        })
+        try {
+          const userRole = await getUserRole(user.uid)
+          const userData = {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            role: userRole
+          }
+          console.log('✅ User data set:', userData)
+          setUser(userData)
+        } catch (error) {
+          console.error('❌ Error setting user data:', error)
+          setUser(null)
+        }
       } else {
+        console.log('❌ No user, setting to null')
         setUser(null)
       }
       setLoading(false)

@@ -110,6 +110,7 @@ export const productosService = {
         const productos = []
         snapshot.forEach((childSnapshot) => {
           productos.push({
+            _id: childSnapshot.key,
             id: childSnapshot.key,
             ...childSnapshot.val()
           })
@@ -171,6 +172,7 @@ export const productosService = {
       if (snapshot.exists()) {
         snapshot.forEach((childSnapshot) => {
           productos.push({
+            _id: childSnapshot.key,
             id: childSnapshot.key,
             ...childSnapshot.val()
           })

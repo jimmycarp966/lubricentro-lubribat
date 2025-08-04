@@ -24,6 +24,30 @@
         ".write": true
       }
     },
+    "pedidos": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$pedidoId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "movimientos": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$movimientoId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "inventario_movimientos": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$movimientoId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
     "users": {
       ".read": "auth != null",
       ".write": "auth != null",
