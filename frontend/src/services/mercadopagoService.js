@@ -11,6 +11,8 @@ const MERCADOPAGO_CONFIG = {
 // Función para crear una preferencia de pago
 export const createPaymentPreference = async (turnoData) => {
   try {
+    console.log('🔧 Debug: Iniciando creación de preferencia de pago:', turnoData)
+    
     // Registrar el pago en Firebase antes de crear la preferencia
     const paymentData = {
       turnoId: turnoData.id,
@@ -25,10 +27,14 @@ export const createPaymentPreference = async (turnoData) => {
       externalReference: turnoData.id
     }
 
+    console.log('🔧 Debug: Datos de pago a registrar:', paymentData)
+    
     const paymentRegistration = await registerPayment(paymentData)
+    console.log('🔧 Debug: Resultado del registro de pago:', paymentRegistration)
     
     if (!paymentRegistration.success) {
-      throw new Error('Error registrando pago en el sistema')
+      console.error('❌ Error: Falló el registro de pago:', paymentRegistration.error)
+      throw new Error(`Error registrando pago en el sistema: ${paymentRegistration.error}`)
     }
 
     // Simular creación de preferencia (en producción sería una llamada real a MercadoPago)
@@ -63,18 +69,21 @@ export const createPaymentPreference = async (turnoData) => {
     // Simular delay de red
     await new Promise(resolve => setTimeout(resolve, 1000))
 
-    return {
+    const result = {
       success: true,
       preference: preference,
       paymentId: paymentRegistration.paymentId,
       init_point: `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${preference.id}`,
       sandbox_init_point: `https://sandbox.mercadopago.com.ar/checkout/v1/redirect?pref_id=${preference.id}`
     }
+    
+    console.log('✅ Debug: Preferencia de pago creada exitosamente:', result)
+    return result
   } catch (error) {
-    console.error('Error creando preferencia de pago:', error)
+    console.error('❌ Error creando preferencia de pago:', error)
     return {
       success: false,
-      error: 'Error al crear preferencia de pago'
+      error: `Error al crear preferencia de pago: ${error.message}`
     }
   }
 }
