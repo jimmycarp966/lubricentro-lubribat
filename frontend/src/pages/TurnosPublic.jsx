@@ -5,7 +5,7 @@ import { useTurnos } from '../contexts/TurnosContext'
 import toast from 'react-hot-toast'
 import SimpleCalendar from '../components/SimpleCalendar'
 import BookingProgress from '../components/BookingProgress'
-import { sendWhatsAppMessage } from '../utils/whatsappService'
+import { createPaymentPreference, getPaymentMethods } from '../services/mercadopagoService'
 
 
 const TurnosPublic = () => {
@@ -25,6 +25,9 @@ const TurnosPublic = () => {
   const [confirmedTurno, setConfirmedTurno] = useState(null) // Para guardar los datos del turno confirmado
   const [debugInfo, setDebugInfo] = useState('')
   const [showDebug, setShowDebug] = useState(false)
+  const [paymentLoading, setPaymentLoading] = useState(false)
+  const [paymentUrl, setPaymentUrl] = useState('')
+  const [paymentMethods] = useState(getPaymentMethods())
 
   const { crearTurno } = useTurnos()
 
@@ -243,6 +246,44 @@ const TurnosPublic = () => {
       console.log('🔧 Debug: Excepción en handleSubmit:', error)
       setDebugInfo(prev => prev + '\n💥 Excepción: ' + error.message)
       toast.error('Error al crear el turno')
+    }
+  }
+
+  const handlePayment = async () => {
+    if (!confirmedTurno) {
+      toast.error('No hay turno confirmado para pagar')
+      return
+    }
+
+    setPaymentLoading(true)
+    
+    try {
+      const paymentData = {
+        id: confirmedTurno.id || `turno_${Date.now()}`,
+        servicio: confirmedTurno.servicio,
+        sucursal: confirmedTurno.sucursal,
+        fecha: confirmedTurno.fecha,
+        precio: confirmedTurno.precio || 5000,
+        nombreCliente: confirmedTurno.cliente,
+        emailCliente: `${confirmedTurno.cliente.toLowerCase().replace(' ', '.')}@example.com`
+      }
+
+      const result = await createPaymentPreference(paymentData)
+      
+      if (result.success) {
+        setPaymentUrl(result.sandbox_init_point)
+        toast.success('Redirigiendo a MercadoPago...')
+        
+        // Abrir ventana de pago
+        window.open(result.sandbox_init_point, '_blank')
+      } else {
+        toast.error('Error al crear preferencia de pago')
+      }
+    } catch (error) {
+      console.error('Error al procesar pago:', error)
+      toast.error('Error al procesar el pago')
+    } finally {
+      setPaymentLoading(false)
     }
   }
 
@@ -580,18 +621,50 @@ const TurnosPublic = () => {
                </div>
              </div>
            </div>
+
+           {/* Información de métodos de pago */}
+           <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 mb-8">
+             <h3 className="font-semibold mb-4 text-blue-800">Métodos de pago disponibles:</h3>
+             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+               {paymentMethods.slice(0, 6).map((method) => (
+                 <div key={method.id} className="flex items-center space-x-2 text-sm">
+                   <img 
+                     src={method.logo} 
+                     alt={method.name} 
+                     className="w-6 h-6 object-contain"
+                     onError={(e) => {
+                       e.target.style.display = 'none'
+                     }}
+                   />
+                   <span className="text-blue-700">{method.name}</span>
+                 </div>
+               ))}
+             </div>
+             <p className="text-xs text-blue-600 mt-3">
+               * El pago se procesa de forma segura a través de MercadoPago
+             </p>
+           </div>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          {confirmedTurno?.whatsappUrl && (
-            <a
-              href={confirmedTurno.whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
-            >
-              📱 Enviar WhatsApp
-            </a>
-          )}
+          <button
+            onClick={handlePayment}
+            disabled={paymentLoading}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {paymentLoading ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Procesando...
+              </>
+            ) : (
+              <>
+                💳 Pagar con MercadoPago
+              </>
+            )}
+          </button>
           <button
             onClick={() => {
               setStep(1)

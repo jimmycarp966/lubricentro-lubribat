@@ -106,7 +106,11 @@ const AdminPanel = () => {
       email: 'juan@autoparts.com',
       telefono: '+54 9 381 512-3456',
       contacto: 'Juan Pérez',
-      ciudad: 'Concepción'
+      ciudad: 'Concepción',
+      estado: 'activo',
+      fechaRegistro: '2024-01-15',
+      pedidosRealizados: 12,
+      totalComprado: 450000
     },
     {
       _id: '2',
@@ -116,7 +120,39 @@ const AdminPanel = () => {
       email: 'maria@filtrospro.com',
       telefono: '+54 9 381 598-7654',
       contacto: 'María González',
-      ciudad: 'Monteros'
+      ciudad: 'Monteros',
+      estado: 'activo',
+      fechaRegistro: '2024-02-20',
+      pedidosRealizados: 8,
+      totalComprado: 320000
+    },
+    {
+      _id: '3',
+      nombre: 'Carlos Rodríguez',
+      empresa: 'Lubricantes Premium',
+      tipo: 'lubricantes',
+      email: 'carlos@lubricantes.com',
+      telefono: '+54 9 381 555-1234',
+      contacto: 'Carlos Rodríguez',
+      ciudad: 'San Miguel',
+      estado: 'activo',
+      fechaRegistro: '2024-03-10',
+      pedidosRealizados: 5,
+      totalComprado: 180000
+    },
+    {
+      _id: '4',
+      nombre: 'Ana Martínez',
+      empresa: 'Repuestos Express',
+      tipo: 'repuestos',
+      email: 'ana@repuestos.com',
+      telefono: '+54 9 381 444-5678',
+      contacto: 'Ana Martínez',
+      ciudad: 'Concepción',
+      estado: 'inactivo',
+      fechaRegistro: '2024-01-05',
+      pedidosRealizados: 3,
+      totalComprado: 95000
     }
   ])
 
@@ -132,7 +168,58 @@ const AdminPanel = () => {
       ],
       total: 37000,
       estado: 'pendiente',
-      notas: 'Pedido mensual'
+      notas: 'Pedido mensual',
+      fechaEntrega: '2024-12-20',
+      metodoPago: 'transferencia',
+      prioridad: 'normal'
+    },
+    {
+      _id: '2',
+      numero: 'PED-002',
+      fecha: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      mayorista: 'Filtros Pro',
+      items: [
+        { producto: 'Filtro de Aire', cantidad: 20, precio: 1200 },
+        { producto: 'Filtro de Combustible', cantidad: 12, precio: 950 }
+      ],
+      total: 35400,
+      estado: 'confirmado',
+      notas: 'Pedido urgente',
+      fechaEntrega: '2024-12-18',
+      metodoPago: 'efectivo',
+      prioridad: 'alta'
+    },
+    {
+      _id: '3',
+      numero: 'PED-003',
+      fecha: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      mayorista: 'Lubricantes Premium',
+      items: [
+        { producto: 'Aceite Sintético 0W-20', cantidad: 8, precio: 3500 },
+        { producto: 'Aceite de Transmisión', cantidad: 5, precio: 2800 }
+      ],
+      total: 42000,
+      estado: 'entregado',
+      notas: 'Pedido completado',
+      fechaEntrega: '2024-12-15',
+      metodoPago: 'tarjeta',
+      prioridad: 'normal'
+    },
+    {
+      _id: '4',
+      numero: 'PED-004',
+      fecha: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      mayorista: 'Repuestos Express',
+      items: [
+        { producto: 'Bujías', cantidad: 30, precio: 450 },
+        { producto: 'Correas', cantidad: 8, precio: 1800 }
+      ],
+      total: 27900,
+      estado: 'cancelado',
+      notas: 'Cancelado por cliente',
+      fechaEntrega: null,
+      metodoPago: null,
+      prioridad: 'baja'
     }
   ])
 
@@ -145,7 +232,10 @@ const AdminPanel = () => {
     serviciosPopulares: [
       { nombre: 'Cambio de Aceite', cantidad: 45, porcentaje: 28.8 },
       { nombre: 'Cambio de Filtros', cantidad: 32, porcentaje: 20.5 },
-      { nombre: 'Alineación', cantidad: 28, porcentaje: 17.9 }
+      { nombre: 'Alineación', cantidad: 28, porcentaje: 17.9 },
+      { nombre: 'Limpieza de Inyectores', cantidad: 18, porcentaje: 11.5 },
+      { nombre: 'Cambio de Frenos', cantidad: 15, porcentaje: 9.6 },
+      { nombre: 'Otros Servicios', cantidad: 18, porcentaje: 11.5 }
     ],
     ingresosPorSucursal: [
       { nombre: 'Concepción', ingresos: 750000, turnos: 95, porcentaje: 60 },
@@ -154,22 +244,100 @@ const AdminPanel = () => {
     tendencias: [
       { metrica: 'Ingresos', cambio: 12, valor: '$1,250,000' },
       { metrica: 'Turnos', cambio: 8, valor: '156 turnos' },
-      { metrica: 'Clientes', cambio: 15, valor: '23 nuevos' }
+      { metrica: 'Clientes', cambio: 15, valor: '23 nuevos' },
+      { metrica: 'Satisfacción', cambio: 5, valor: '4.8/5.0' },
+      { metrica: 'Retención', cambio: 3, valor: '89%' }
     ],
     clientesRecurrentes: 89,
     porcentajeRecurrentes: 57,
     porcentajeNuevos: 43,
     valorPromedioCliente: 8012,
+    metricasDetalladas: {
+      turnosPorDia: [12, 15, 8, 20, 18, 14, 10],
+      ingresosPorDia: [45000, 52000, 38000, 65000, 58000, 48000, 42000],
+      clientesPorDia: [8, 12, 6, 15, 13, 10, 7],
+      serviciosPorDia: [
+        { dia: 'Lunes', servicios: 12, ingresos: 45000 },
+        { dia: 'Martes', servicios: 15, ingresos: 52000 },
+        { dia: 'Miércoles', servicios: 8, ingresos: 38000 },
+        { dia: 'Jueves', servicios: 20, ingresos: 65000 },
+        { dia: 'Viernes', servicios: 18, ingresos: 58000 },
+        { dia: 'Sábado', servicios: 14, ingresos: 48000 },
+        { dia: 'Domingo', servicios: 10, ingresos: 42000 }
+      ]
+    },
+    inventario: {
+      totalProductos: 156,
+      stockBajo: 12,
+      stockCritico: 3,
+      valorTotal: 850000,
+      categorias: [
+        { nombre: 'Aceites', cantidad: 45, valor: 250000 },
+        { nombre: 'Filtros', cantidad: 38, valor: 180000 },
+        { nombre: 'Repuestos', cantidad: 52, valor: 320000 },
+        { nombre: 'Lubricantes', cantidad: 21, valor: 100000 }
+      ]
+    },
+    finanzas: {
+      ingresos: 1250000,
+      gastos: 450000,
+      ganancias: 800000,
+      margen: 64,
+      pagosPorMetodo: [
+        { metodo: 'Efectivo', cantidad: 45, monto: 600000 },
+        { metodo: 'Tarjeta', cantidad: 38, monto: 400000 },
+        { metodo: 'Transferencia', cantidad: 25, monto: 200000 },
+        { metodo: 'MercadoPago', cantidad: 12, monto: 50000 }
+      ]
+    },
     recomendaciones: [
       {
         titulo: 'Promocionar servicios premium',
         descripcion: 'Los clientes están dispuestos a pagar más por servicios especializados',
-        prioridad: 'alta'
+        prioridad: 'alta',
+        impacto: 'Alto',
+        implementacion: 'Inmediata'
       },
       {
         titulo: 'Expandir horarios en Monteros',
         descripcion: 'La sucursal tiene alta demanda pero horarios limitados',
-        prioridad: 'media'
+        prioridad: 'media',
+        impacto: 'Medio',
+        implementacion: 'Próximo mes'
+      },
+      {
+        titulo: 'Implementar programa de fidelización',
+        descripcion: 'Aumentar retención de clientes con descuentos recurrentes',
+        prioridad: 'alta',
+        impacto: 'Alto',
+        implementacion: 'Próximas 2 semanas'
+      },
+      {
+        titulo: 'Optimizar inventario',
+        descripcion: 'Reducir stock crítico y mejorar rotación de productos',
+        prioridad: 'media',
+        impacto: 'Medio',
+        implementacion: 'Próximo mes'
+      }
+    ],
+    alertas: [
+      {
+        tipo: 'stock',
+        mensaje: '3 productos con stock crítico',
+        prioridad: 'alta',
+        accion: 'Reabastecer inmediatamente'
+      },
+      {
+        tipo: 'financiero',
+        mensaje: 'Margen de ganancia por debajo del objetivo',
+        prioridad: 'media',
+        accion: 'Revisar precios y costos'
+      },
+      {
+        tipo: 'servicio',
+        mensaje: 'Alta demanda en servicios de alineación',
+        prioridad: 'baja',
+        accion: 'Considerar contratar personal adicional'
       }
     ]
   }
