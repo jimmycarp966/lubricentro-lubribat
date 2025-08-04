@@ -3,11 +3,13 @@ import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import logo from '../assets/logo.png'
+import { initializeTestData } from '../utils/createAdminUser'
 
 const LoginMayorista = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [initializing, setInitializing] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
 
@@ -30,6 +32,24 @@ const LoginMayorista = () => {
     }
     
     setLoading(false)
+  }
+
+  const handleInitializeTestData = async () => {
+    setInitializing(true)
+    try {
+      const result = await initializeTestData()
+      if (result.success) {
+        toast.success('✅ Datos de prueba creados exitosamente')
+        // Pre-llenar credenciales
+        setEmail('mayorista@test.com')
+        setPassword('mayorista123')
+      } else {
+        toast.error('❌ Error creando datos de prueba')
+      }
+    } catch (error) {
+      toast.error('❌ Error: ' + error.message)
+    }
+    setInitializing(false)
   }
 
   return (
@@ -94,15 +114,27 @@ const LoginMayorista = () => {
           </div>
         </form>
 
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
-            Credenciales de prueba:
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            Admin: admin@lubricentro.com / admin123
-          </p>
+        <div className="text-center space-y-4">
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <p className="text-sm font-medium text-blue-800 mb-2">
+              Credenciales de prueba:
+            </p>
+            <div className="text-xs text-blue-700 space-y-1">
+              <p><strong>Admin:</strong> admin@lubricentro.com / admin123</p>
+              <p><strong>Mayorista:</strong> mayorista@test.com / mayorista123</p>
+            </div>
+          </div>
+          
+          <button
+            onClick={handleInitializeTestData}
+            disabled={initializing}
+            className="w-full bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+          >
+            {initializing ? 'Creando datos de prueba...' : '🔄 Crear datos de prueba'}
+          </button>
+          
           <p className="text-xs text-gray-500">
-            Mayorista: mayorista@test.com / mayorista123
+            Si es la primera vez, hacé clic en "Crear datos de prueba" para generar usuarios y productos de ejemplo
           </p>
         </div>
       </div>
