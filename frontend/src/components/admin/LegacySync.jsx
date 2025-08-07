@@ -1,15 +1,69 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { FaSync, FaDatabase, FaUsers, FaShoppingCart, FaChartBar, FaPlay, FaStop, FaWifi } from 'react-icons/fa';
+import { FaSync, FaDatabase, FaUsers, FaShoppingCart, FaChartBar, FaPlay, FaStop, FaWifi, FaKey } from 'react-icons/fa';
 
 const LegacySync = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [syncResults, setSyncResults] = useState(null);
   const [stats, setStats] = useState(null);
   const [autoSyncStatus, setAutoSyncStatus] = useState(null);
+  const [debugInfo, setDebugInfo] = useState(null);
 
   // Configuración del backend
   const API_BASE = 'https://bands-anxiety-switches-airlines.trycloudflare.com/api';
+
+  // Función para regenerar token
+  const regenerateToken = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Obtener el usuario actual de Firebase
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user) {
+        toast.error('No hay usuario autenticado');
+        return;
+      }
+
+      // Generar nuevo token JWT
+      const response = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: user.email,
+          password: 'admin123' // Contraseña por defecto
+        })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        toast.success('✅ Token regenerado correctamente');
+        
+        // Mostrar información de debug
+        setDebugInfo({
+          token: data.token.substring(0, 20) + '...',
+          user: user.email,
+          timestamp: new Date().toISOString()
+        });
+        
+        // Probar sincronización después de regenerar token
+        setTimeout(() => {
+          fetchStats();
+          fetchAutoSyncStatus();
+        }, 1000);
+      } else {
+        toast.error('Error regenerando token: ' + data.message);
+      }
+    } catch (error) {
+      console.error('Error regenerando token:', error);
+      toast.error('Error regenerando token');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Función de prueba de conectividad
   const testConnection = async () => {
@@ -146,27 +200,62 @@ const LegacySync = () => {
           </p>
         </div>
 
-        {/* Botón de prueba de conectividad */}
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-blue-800 mb-2">
-                Prueba de Conectividad
-              </h3>
-              <p className="text-sm text-blue-600">
-                Verifica que la conexión al backend funcione correctamente
-              </p>
+        {/* Botones de diagnóstico */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="p-4 bg-blue-50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-blue-800 mb-2">
+                  Prueba de Conectividad
+                </h3>
+                <p className="text-sm text-blue-600">
+                  Verifica que la conexión al backend funcione correctamente
+                </p>
+              </div>
+              <button
+                onClick={testConnection}
+                disabled={isLoading}
+                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center transition-colors"
+              >
+                <FaWifi className="mr-2" />
+                Probar Conexión
+              </button>
             </div>
-            <button
-              onClick={testConnection}
-              disabled={isLoading}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center transition-colors"
-            >
-              <FaWifi className="mr-2" />
-              Probar Conexión
-            </button>
+          </div>
+
+          <div className="p-4 bg-green-50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-green-800 mb-2">
+                  Regenerar Token JWT
+                </h3>
+                <p className="text-sm text-green-600">
+                  Soluciona problemas de autenticación
+                </p>
+              </div>
+              <button
+                onClick={regenerateToken}
+                disabled={isLoading}
+                className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center transition-colors"
+              >
+                <FaKey className="mr-2" />
+                Regenerar Token
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Información de debug */}
+        {debugInfo && (
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Información de Debug</h3>
+            <div className="text-sm text-gray-600 space-y-1">
+              <p><strong>Usuario:</strong> {debugInfo.user}</p>
+              <p><strong>Token:</strong> {debugInfo.token}</p>
+              <p><strong>Timestamp:</strong> {debugInfo.timestamp}</p>
+            </div>
+          </div>
+        )}
 
         {/* Estadísticas actuales */}
         {stats && (
