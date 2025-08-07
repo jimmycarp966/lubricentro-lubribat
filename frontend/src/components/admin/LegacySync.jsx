@@ -8,7 +8,8 @@ const LegacySync = () => {
   const [stats, setStats] = useState(null);
   const [autoSyncStatus, setAutoSyncStatus] = useState(null);
 
-  const API_BASE = 'http://localhost:5000/api';
+  // Configuración del backend
+  const API_BASE = 'https://3738c457a089.ngrok-free.app/api';
 
   const handleSync = async (type = 'all') => {
     setIsLoading(true);
