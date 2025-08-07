@@ -55,13 +55,15 @@ class DBFReader {
     }
   }
 
-  // Extraer registros de ejemplo
+  // Extraer TODOS los registros
   extractSampleRecords(buffer, header) {
     const records = [];
     const recordStart = header.headerLength;
     
-    // Leer los primeros 5 registros como ejemplo
-    const maxRecords = Math.min(5, header.numRecords);
+    // Leer TODOS los registros, no solo 5
+    const maxRecords = header.numRecords;
+    
+    console.log(`📊 Leyendo ${maxRecords} registros completos...`);
     
     for (let i = 0; i < maxRecords; i++) {
       const recordOffset = recordStart + (i * header.recordLength);
@@ -82,6 +84,7 @@ class DBFReader {
       }
     }
     
+    console.log(`✅ Registros leídos: ${records.length}`);
     return records;
   }
 

@@ -41,6 +41,7 @@ app.use('/api/productos', require('./routes/productos'))
 app.use('/api/mayoristas', require('./routes/mayoristas'))
 app.use('/api/pedidos', require('./routes/pedidos'))
 app.use('/api/sync', require('./routes/sync'))
+app.use('/api/cajas', require('./routes/cajas'))
 
 // Health check
 app.get('/api/health', (req, res) => {
