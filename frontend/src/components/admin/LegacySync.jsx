@@ -10,7 +10,7 @@ const LegacySync = () => {
   const [debugInfo, setDebugInfo] = useState(null);
 
   // Configuración del backend
-  const API_BASE = 'https://creatures-omaha-genesis-hospital.trycloudflare.com/api';
+  const API_BASE = 'https://writings-contrary-los-scored.trycloudflare.com/api';
 
   // Función para obtener token de Firebase
   const getFirebaseToken = async () => {
