@@ -9,6 +9,8 @@ echo 4. Prueba "Sincronizar Todo"
 echo.
 echo URL: http://localhost:5173
 echo.
+echo IMPORTANTE: Asegúrate de que el backend esté corriendo en puerto 5000
+echo.
 pause
 
 cd frontend
