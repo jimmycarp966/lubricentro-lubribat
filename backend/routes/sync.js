@@ -5,6 +5,14 @@ const fileWatcher = require('../services/fileWatcher');
 
 const router = express.Router();
 
+// Ruta de prueba sin autenticación
+router.get('/test', (req, res) => {
+  res.json({ 
+    message: 'API de sincronización funcionando correctamente',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Sincronizar todos los datos del 4 y 5 de agosto
 router.post('/legacy', auth, requireAdmin, async (req, res) => {
   try {
