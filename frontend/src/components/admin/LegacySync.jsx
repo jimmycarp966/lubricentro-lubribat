@@ -9,7 +9,7 @@ const LegacySync = () => {
   const [autoSyncStatus, setAutoSyncStatus] = useState(null);
 
   // Configuración del backend
-  const API_BASE = 'http://localhost:5000/api';
+  const API_BASE = 'https://lubricentro-backend.loca.lt/api';
 
   const handleSync = async (type = 'all') => {
     setIsLoading(true);
