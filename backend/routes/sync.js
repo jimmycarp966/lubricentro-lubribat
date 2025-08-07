@@ -1,6 +1,7 @@
 const express = require('express');
 const { auth, requireAdmin } = require('../middleware/auth');
 const legacySync = require('../services/legacySync');
+const fileWatcher = require('../services/fileWatcher');
 
 const router = express.Router();
 
@@ -85,6 +86,53 @@ router.get('/legacy/stats', auth, requireAdmin, async (req, res) => {
     res.status(500).json({ 
       message: 'Error obteniendo estadísticas',
       error: error.message 
+    });
+  }
+});
+
+// Control de sincronización automática
+router.post('/legacy/auto/start', auth, requireAdmin, async (req, res) => {
+  try {
+    fileWatcher.startWatching();
+    res.json({
+      message: 'Monitoreo automático iniciado',
+      status: fileWatcher.getStatus()
+    });
+  } catch (error) {
+    console.error('❌ Error iniciando monitoreo:', error);
+    res.status(500).json({
+      message: 'Error iniciando monitoreo automático',
+      error: error.message
+    });
+  }
+});
+
+router.post('/legacy/auto/stop', auth, requireAdmin, async (req, res) => {
+  try {
+    fileWatcher.stopWatching();
+    res.json({
+      message: 'Monitoreo automático detenido',
+      status: fileWatcher.getStatus()
+    });
+  } catch (error) {
+    console.error('❌ Error deteniendo monitoreo:', error);
+    res.status(500).json({
+      message: 'Error deteniendo monitoreo automático',
+      error: error.message
+    });
+  }
+});
+
+router.get('/legacy/auto/status', auth, requireAdmin, async (req, res) => {
+  try {
+    res.json({
+      status: fileWatcher.getStatus()
+    });
+  } catch (error) {
+    console.error('❌ Error obteniendo estado:', error);
+    res.status(500).json({
+      message: 'Error obteniendo estado del monitoreo',
+      error: error.message
     });
   }
 });

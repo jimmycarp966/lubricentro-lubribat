@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { FaSync, FaDatabase, FaUsers, FaShoppingCart, FaChartBar } from 'react-icons/fa';
+import { FaSync, FaDatabase, FaUsers, FaShoppingCart, FaChartBar, FaPlay, FaStop } from 'react-icons/fa';
 
 const LegacySync = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [syncResults, setSyncResults] = useState(null);
   const [stats, setStats] = useState(null);
+  const [autoSyncStatus, setAutoSyncStatus] = useState(null);
 
   const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -59,8 +60,53 @@ const LegacySync = () => {
     }
   };
 
+  const fetchAutoSyncStatus = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE}/sync/legacy/auto/status`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAutoSyncStatus(data.status);
+      }
+    } catch (error) {
+      console.error('Error obteniendo estado de sincronización automática:', error);
+    }
+  };
+
+  const handleAutoSyncToggle = async (action) => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE}/sync/legacy/auto/${action}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      
+      if (response.ok) {
+        toast.success(data.message);
+        fetchAutoSyncStatus();
+      } else {
+        toast.error(data.message || 'Error en la operación');
+      }
+    } catch (error) {
+      console.error('Error en sincronización automática:', error);
+      toast.error('Error en la operación');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   React.useEffect(() => {
     fetchStats();
+    fetchAutoSyncStatus();
   }, []);
 
   return (
@@ -113,7 +159,52 @@ const LegacySync = () => {
           </div>
         )}
 
-        {/* Botones de sincronización */}
+                {/* Control de sincronización automática */}
+        {autoSyncStatus && (
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  Sincronización Automática
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Estado: {autoSyncStatus.isWatching ? 
+                    <span className="text-green-600 font-semibold">Activo</span> : 
+                    <span className="text-red-600 font-semibold">Inactivo</span>
+                  }
+                </p>
+                {autoSyncStatus.lastSync && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Última sincronización: {new Date(autoSyncStatus.lastSync).toLocaleString()}
+                  </p>
+                )}
+              </div>
+              <div className="flex gap-2">
+                {autoSyncStatus.isWatching ? (
+                  <button
+                    onClick={() => handleAutoSyncToggle('stop')}
+                    disabled={isLoading}
+                    className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center transition-colors"
+                  >
+                    <FaStop className="mr-2" />
+                    Detener
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleAutoSyncToggle('start')}
+                    disabled={isLoading}
+                    className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center transition-colors"
+                  >
+                    <FaPlay className="mr-2" />
+                    Activar
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Botones de sincronización manual */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <button
             onClick={() => handleSync('all')}
@@ -123,7 +214,7 @@ const LegacySync = () => {
             <FaSync className={`mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Sincronizar Todo
           </button>
-
+          
           <button
             onClick={() => handleSync('products')}
             disabled={isLoading}
@@ -132,7 +223,7 @@ const LegacySync = () => {
             <FaShoppingCart className="mr-2" />
             Solo Productos
           </button>
-
+          
           <button
             onClick={() => handleSync('sales')}
             disabled={isLoading}
@@ -141,7 +232,7 @@ const LegacySync = () => {
             <FaChartBar className="mr-2" />
             Solo Ventas
           </button>
-
+          
           <button
             onClick={() => handleSync('clients')}
             disabled={isLoading}
