@@ -9,7 +9,7 @@ const LegacySync = () => {
   const [autoSyncStatus, setAutoSyncStatus] = useState(null);
 
   // Configuración del backend
-  const API_BASE = 'https://comply-scotia-advertisements-specialist.trycloudflare.com/api';
+  const API_BASE = 'https://bands-anxiety-switches-airlines.trycloudflare.com/api';
 
   const handleSync = async (type = 'all') => {
     setIsLoading(true);
