@@ -95,6 +95,8 @@ const LegacySync = () => {
     
     try {
       console.log('🔍 Debug - Iniciando sincronización:', type);
+      const token = await getFirebaseToken();
+      console.log('🔍 Debug - Token para sincronización:', token ? `${token.substring(0, 20)}...` : 'null');
       
       const url = `${API_BASE}/sync/legacy${type !== 'all' ? `/${type}` : ''}`;
       console.log('🔍 Debug - URL de sincronización:', url);
@@ -102,6 +104,7 @@ const LegacySync = () => {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
@@ -129,7 +132,12 @@ const LegacySync = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch(`${API_BASE}/sync/legacy/stats`);
+      const token = await getFirebaseToken();
+      const response = await fetch(`${API_BASE}/sync/legacy/stats`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -142,7 +150,12 @@ const LegacySync = () => {
 
   const fetchAutoSyncStatus = async () => {
     try {
-      const response = await fetch(`${API_BASE}/sync/legacy/auto/status`);
+      const token = await getFirebaseToken();
+      const response = await fetch(`${API_BASE}/sync/legacy/auto/status`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -156,9 +169,11 @@ const LegacySync = () => {
   const handleAutoSyncToggle = async (action) => {
     try {
       setIsLoading(true);
+      const token = await getFirebaseToken();
       const response = await fetch(`${API_BASE}/sync/legacy/auto/${action}`, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
