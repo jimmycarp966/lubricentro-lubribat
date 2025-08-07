@@ -22,6 +22,7 @@ import IntelligentCalendar from '../components/calendar/IntelligentCalendar'
 import InventoryManager from '../components/admin/InventoryManager'
 import PaymentManager from '../components/admin/PaymentManager'
 import ReportsManager from '../components/admin/ReportsManager'
+import LegacySync from '../components/admin/LegacySync'
 import { sendReminderMessage, sendCompletionMessage } from '../utils/whatsappService'
 import { sendTurnoConfirmationNotification, sendWhatsAppNotification, notificationManager } from '../services/notificationService'
 import { getPedidos, actualizarEstadoPedido, eliminarPedido, getPedidosStats } from '../services/pedidosService'
@@ -383,6 +384,7 @@ const AdminPanel = () => {
     { id: 'reportes', name: 'Reportes' },
     { id: 'mayoristas', name: 'Mayoristas' },
     { id: 'pedidos', name: 'Pedidos' },
+    { id: 'sincronizacion', name: 'Sincronización' },
     { id: 'notificaciones', name: 'Notificaciones' },
     { id: 'whatsapp', name: 'WhatsApp' }
   ]
@@ -2177,6 +2179,10 @@ const AdminPanel = () => {
               />
             </div>
           </div>
+        )}
+
+        {activeTab === 'sincronizacion' && (
+          <LegacySync />
         )}
 
         {activeTab === 'notificaciones' && (
