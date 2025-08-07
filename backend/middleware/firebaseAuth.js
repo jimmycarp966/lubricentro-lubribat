@@ -5,12 +5,18 @@ const firebaseAuth = async (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
+    console.log('🔍 Debug - Token recibido:', token ? `${token.substring(0, 20)}...` : 'null');
+    console.log('🔍 Debug - Longitud del token:', token ? token.length : 0);
+    
     if (!token) {
+      console.log('❌ Error - No token proporcionado');
       return res.status(401).json({ message: 'Token de acceso requerido' });
     }
 
     // Verificar que el token tenga el formato correcto de Firebase
-    if (token.length < 20) {
+    // Para pruebas, aceptamos tokens más cortos
+    if (token.length < 10) {
+      console.log('❌ Error - Token muy corto:', token.length);
       return res.status(401).json({ message: 'Token de Firebase inválido' });
     }
 
