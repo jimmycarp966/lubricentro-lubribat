@@ -20,6 +20,12 @@ const limiter = rateLimit({
 })
 app.use('/api/', limiter)
 
+// Configurar JWT_SECRET si no está definido
+if (!process.env.JWT_SECRET) {
+  process.env.JWT_SECRET = 'lubricentro-super-secret-jwt-key-2025';
+  console.log('⚠️ JWT_SECRET no configurado, usando valor por defecto');
+}
+
 // Database connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://lubricentro:lubricentro123@cluster0.mongodb.net/lubricentro?retryWrites=true&w=majority', {
   useNewUrlParser: true,
