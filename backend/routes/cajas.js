@@ -6,7 +6,7 @@ const Pedido = require('../models/Pedido');
 const router = express.Router();
 
 // Obtener todas las cajas
-router.get('/', firebaseAuth, requireAdmin, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { fecha, turno, estado } = req.query;
     let filtro = {};
@@ -40,7 +40,7 @@ router.get('/', firebaseAuth, requireAdmin, async (req, res) => {
 });
 
 // Obtener caja actual
-router.get('/actual', firebaseAuth, requireAdmin, async (req, res) => {
+router.get('/actual', async (req, res) => {
   try {
     const { turno = 'mañana' } = req.query;
     const caja = await Caja.getCajaActual(turno);
@@ -66,7 +66,7 @@ router.get('/actual', firebaseAuth, requireAdmin, async (req, res) => {
 });
 
 // Abrir nueva caja
-router.post('/abrir', firebaseAuth, requireAdmin, async (req, res) => {
+router.post('/abrir', async (req, res) => {
   try {
     const { turno, montoApertura } = req.body;
 
@@ -98,7 +98,7 @@ router.post('/abrir', firebaseAuth, requireAdmin, async (req, res) => {
 });
 
 // Cerrar caja
-router.post('/cerrar/:id', firebaseAuth, requireAdmin, async (req, res) => {
+router.post('/cerrar/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { montoCierre, observaciones } = req.body;
@@ -176,7 +176,7 @@ router.post('/cerrar/:id', firebaseAuth, requireAdmin, async (req, res) => {
 });
 
 // Obtener resumen de cajas por fecha
-router.get('/resumen/:fecha', firebaseAuth, requireAdmin, async (req, res) => {
+router.get('/resumen/:fecha', async (req, res) => {
   try {
     const { fecha } = req.params;
     const fechaInicio = new Date(fecha);
@@ -225,7 +225,7 @@ router.get('/resumen/:fecha', firebaseAuth, requireAdmin, async (req, res) => {
 });
 
 // Sincronizar cajas desde sistema legacy
-router.post('/sync-legacy', firebaseAuth, requireAdmin, async (req, res) => {
+router.post('/sync-legacy', async (req, res) => {
   try {
     console.log('🔄 Sincronizando cajas desde sistema legacy...');
     

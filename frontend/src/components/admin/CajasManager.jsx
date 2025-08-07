@@ -41,13 +41,8 @@ const CajasManager = () => {
   const cargarCajas = async () => {
     try {
       setIsLoading(true);
-      const token = await getFirebaseToken();
       
-      const response = await fetch(`${API_BASE}/cajas?fecha=${selectedDate}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await fetch(`${API_BASE}/cajas?fecha=${selectedDate}`);
 
       if (response.ok) {
         const data = await response.json();
@@ -64,13 +59,7 @@ const CajasManager = () => {
   // Cargar caja actual
   const cargarCajaActual = async () => {
     try {
-      const token = await getFirebaseToken();
-      
-      const response = await fetch(`${API_BASE}/cajas/actual?turno=${formData.turno}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await fetch(`${API_BASE}/cajas/actual?turno=${formData.turno}`);
 
       if (response.ok) {
         const data = await response.json();
@@ -84,13 +73,7 @@ const CajasManager = () => {
   // Cargar resumen
   const cargarResumen = async () => {
     try {
-      const token = await getFirebaseToken();
-      
-      const response = await fetch(`${API_BASE}/cajas/resumen/${selectedDate}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await fetch(`${API_BASE}/cajas/resumen/${selectedDate}`);
 
       if (response.ok) {
         const data = await response.json();
@@ -105,12 +88,10 @@ const CajasManager = () => {
   const abrirCaja = async () => {
     try {
       setIsLoading(true);
-      const token = await getFirebaseToken();
       
       const response = await fetch(`${API_BASE}/cajas/abrir`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -142,12 +123,10 @@ const CajasManager = () => {
   const cerrarCaja = async () => {
     try {
       setIsLoading(true);
-      const token = await getFirebaseToken();
       
       const response = await fetch(`${API_BASE}/cajas/cerrar/${cajaActual._id}`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
