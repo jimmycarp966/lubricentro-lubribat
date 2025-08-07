@@ -13,6 +13,18 @@ router.get('/test', (req, res) => {
   });
 });
 
+// Ruta de prueba para estadísticas sin autenticación
+router.get('/test/stats', (req, res) => {
+  res.json({
+    message: 'Estadísticas de prueba',
+    stats: {
+      productos: 0,
+      pedidos: 0,
+      clientes: 0
+    }
+  });
+});
+
 // Sincronizar todos los datos del 4 y 5 de agosto
 router.post('/legacy', auth, requireAdmin, async (req, res) => {
   try {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { FaSync, FaDatabase, FaUsers, FaShoppingCart, FaChartBar, FaPlay, FaStop } from 'react-icons/fa';
+import { FaSync, FaDatabase, FaUsers, FaShoppingCart, FaChartBar, FaPlay, FaStop, FaWifi } from 'react-icons/fa';
 
 const LegacySync = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -10,6 +10,27 @@ const LegacySync = () => {
 
   // Configuración del backend
   const API_BASE = 'https://bands-anxiety-switches-airlines.trycloudflare.com/api';
+
+  // Función de prueba de conectividad
+  const testConnection = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${API_BASE}/sync/test`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        toast.success('✅ Conexión exitosa al backend');
+        console.log('Test response:', data);
+      } else {
+        toast.error('❌ Error de conexión');
+      }
+    } catch (error) {
+      console.error('Error de prueba:', error);
+      toast.error('❌ Error de conexión');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSync = async (type = 'all') => {
     setIsLoading(true);
@@ -125,6 +146,28 @@ const LegacySync = () => {
           </p>
         </div>
 
+        {/* Botón de prueba de conectividad */}
+        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-blue-800 mb-2">
+                Prueba de Conectividad
+              </h3>
+              <p className="text-sm text-blue-600">
+                Verifica que la conexión al backend funcione correctamente
+              </p>
+            </div>
+            <button
+              onClick={testConnection}
+              disabled={isLoading}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center transition-colors"
+            >
+              <FaWifi className="mr-2" />
+              Probar Conexión
+            </button>
+          </div>
+        </div>
+
         {/* Estadísticas actuales */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -160,7 +203,7 @@ const LegacySync = () => {
           </div>
         )}
 
-                {/* Control de sincronización automática */}
+        {/* Control de sincronización automática */}
         {autoSyncStatus && (
           <div className="mb-6 p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center justify-between">
