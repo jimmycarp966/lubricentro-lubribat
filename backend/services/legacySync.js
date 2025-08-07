@@ -36,31 +36,43 @@ class LegacySyncService {
 
     let syncedCount = 0;
     let updatedCount = 0;
+    const batchSize = 100;
+    const batches = [];
 
-    // Procesar registros de productos
-    for (const record of fileData.records) {
-      try {
-        // Extraer datos del registro (basado en la estructura que vimos)
-        const productData = this.extractProductData(record);
-        
-        if (productData.sku) {
-          // Buscar producto existente por SKU
-          let producto = await Producto.findOne({ sku: productData.sku });
+    // Procesar registros en lotes para mejor rendimiento
+    for (let i = 0; i < fileData.records.length; i += batchSize) {
+      batches.push(fileData.records.slice(i, i + batchSize));
+    }
+
+    for (const batch of batches) {
+      const operations = [];
+      
+      for (const record of batch) {
+        try {
+          const productData = this.extractProductData(record);
           
-          if (producto) {
-            // Actualizar producto existente
-            Object.assign(producto, productData);
-            await producto.save();
-            updatedCount++;
-          } else {
-            // Crear nuevo producto
-            producto = new Producto(productData);
-            await producto.save();
-            syncedCount++;
+          if (productData.sku) {
+            operations.push({
+              updateOne: {
+                filter: { sku: productData.sku },
+                update: { $set: productData },
+                upsert: true
+              }
+            });
           }
+        } catch (error) {
+          console.error(`Error procesando producto:`, error);
         }
-      } catch (error) {
-        console.error(`Error procesando producto:`, error);
+      }
+
+      if (operations.length > 0) {
+        try {
+          const result = await Producto.bulkWrite(operations);
+          syncedCount += result.upsertedCount || 0;
+          updatedCount += result.modifiedCount || 0;
+        } catch (error) {
+          console.error('Error en operación bulk:', error);
+        }
       }
     }
 
@@ -102,50 +114,67 @@ class LegacySyncService {
 
     let syncedCount = 0;
     const targetDates = this.targetDates.map(date => new Date(date));
+    const batchSize = 50;
+    const batches = [];
 
-    // Procesar registros de facturas
-    for (const record of fileData.records) {
-      try {
-        const saleData = this.extractSaleData(record);
-        
-        if (saleData.fecha) {
-          // Verificar si es de las fechas objetivo
-          const fechaFactura = new Date(saleData.fecha);
-          const isTargetDate = targetDates.some(targetDate => 
-            fechaFactura.toDateString() === targetDate.toDateString()
-          );
+    // Procesar registros en lotes para mejor rendimiento
+    for (let i = 0; i < fileData.records.length; i += batchSize) {
+      batches.push(fileData.records.slice(i, i + batchSize));
+    }
 
-          if (isTargetDate) {
-            const pedidoData = {
-              fecha: fechaFactura,
-              cliente: {
-                nombre: saleData.cliente || 'Cliente Legacy',
-                whatsapp: saleData.telefono || '',
-                email: ''
-              },
-              items: saleData.items || [],
-              total: saleData.total || 0,
-              estado: 'completado',
-              metodoEntrega: 'retiro',
-              origen: 'legacy_sync',
-              notas: `Sincronizado desde sistema legacy - Factura: ${saleData.numero}`
-            };
+    for (const batch of batches) {
+      const operations = [];
+      
+      for (const record of batch) {
+        try {
+          const saleData = this.extractSaleData(record);
+          
+          if (saleData.fecha) {
+            const fechaFactura = new Date(saleData.fecha);
+            const isTargetDate = targetDates.some(targetDate => 
+              fechaFactura.toDateString() === targetDate.toDateString()
+            );
 
-            // Verificar si el pedido ya existe
-            const existingPedido = await Pedido.findOne({
-              'origen': 'legacy_sync',
-              'notas': { $regex: saleData.numero }
-            });
+            if (isTargetDate) {
+              const pedidoData = {
+                fecha: fechaFactura,
+                cliente: {
+                  nombre: saleData.cliente || 'Cliente Legacy',
+                  whatsapp: saleData.telefono || '',
+                  email: ''
+                },
+                items: saleData.items || [],
+                total: saleData.total || 0,
+                estado: 'completado',
+                metodoEntrega: 'retiro',
+                origen: 'legacy_sync',
+                notas: `Sincronizado desde sistema legacy - Factura: ${saleData.numero}`
+              };
 
-            if (!existingPedido) {
-              const pedido = new Pedido(pedidoData);
-              await pedido.save();
-              syncedCount++;
+              operations.push({
+                updateOne: {
+                  filter: {
+                    'origen': 'legacy_sync',
+                    'notas': { $regex: saleData.numero }
+                  },
+                  update: { $set: pedidoData },
+                  upsert: true
+                }
+              });
             }
           }
+        } catch (error) {
+          console.error(`Error procesando factura:`, error);
         }
-      } catch (error) {
-        console.error(`Error procesando factura:`, error);
+      }
+
+      if (operations.length > 0) {
+        try {
+          const result = await Pedido.bulkWrite(operations);
+          syncedCount += result.upsertedCount || 0;
+        } catch (error) {
+          console.error('Error en operación bulk de ventas:', error);
+        }
       }
     }
 
