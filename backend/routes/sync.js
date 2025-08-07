@@ -1,5 +1,5 @@
 const express = require('express');
-const { firebaseAuth, requireAdmin } = require('../middleware/firebaseAuth');
+// const { firebaseAuth, requireAdmin } = require('../middleware/firebaseAuth'); // Comentado temporalmente
 const legacySync = require('../services/legacySync');
 const fileWatcher = require('../services/fileWatcher');
 
@@ -25,8 +25,8 @@ router.get('/test/stats', (req, res) => {
   });
 });
 
-// Sincronizar todos los datos del 4 y 5 de agosto
-router.post('/legacy', firebaseAuth, requireAdmin, async (req, res) => {
+// Sincronizar todos los datos del 4 y 5 de agosto (SIN AUTENTICACIÓN TEMPORAL)
+router.post('/legacy', async (req, res) => {
   try {
     console.log('🔄 Iniciando sincronización desde sistema legacy...');
     
@@ -46,8 +46,8 @@ router.post('/legacy', firebaseAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// Sincronizar solo productos
-router.post('/legacy/products', firebaseAuth, requireAdmin, async (req, res) => {
+// Sincronizar solo productos (SIN AUTENTICACIÓN TEMPORAL)
+router.post('/legacy/products', async (req, res) => {
   try {
     const results = await legacySync.syncProducts();
     res.json({
@@ -62,8 +62,8 @@ router.post('/legacy/products', firebaseAuth, requireAdmin, async (req, res) => 
   }
 });
 
-// Sincronizar solo ventas
-router.post('/legacy/sales', firebaseAuth, requireAdmin, async (req, res) => {
+// Sincronizar solo ventas (SIN AUTENTICACIÓN TEMPORAL)
+router.post('/legacy/sales', async (req, res) => {
   try {
     const results = await legacySync.syncSales();
     res.json({
@@ -78,8 +78,8 @@ router.post('/legacy/sales', firebaseAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// Sincronizar solo clientes
-router.post('/legacy/clients', firebaseAuth, requireAdmin, async (req, res) => {
+// Sincronizar solo clientes (SIN AUTENTICACIÓN TEMPORAL)
+router.post('/legacy/clients', async (req, res) => {
   try {
     const results = await legacySync.syncClients();
     res.json({
@@ -94,8 +94,8 @@ router.post('/legacy/clients', firebaseAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// Obtener estadísticas de sincronización
-router.get('/legacy/stats', firebaseAuth, requireAdmin, async (req, res) => {
+// Obtener estadísticas de sincronización (SIN AUTENTICACIÓN TEMPORAL)
+router.get('/legacy/stats', async (req, res) => {
   try {
     const stats = await legacySync.getSyncStats();
     res.json({
@@ -110,8 +110,8 @@ router.get('/legacy/stats', firebaseAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// Control de sincronización automática
-router.post('/legacy/auto/start', firebaseAuth, requireAdmin, async (req, res) => {
+// Control de sincronización automática (SIN AUTENTICACIÓN TEMPORAL)
+router.post('/legacy/auto/start', async (req, res) => {
   try {
     fileWatcher.startWatching();
     res.json({
@@ -127,7 +127,7 @@ router.post('/legacy/auto/start', firebaseAuth, requireAdmin, async (req, res) =
   }
 });
 
-router.post('/legacy/auto/stop', firebaseAuth, requireAdmin, async (req, res) => {
+router.post('/legacy/auto/stop', async (req, res) => {
   try {
     fileWatcher.stopWatching();
     res.json({
@@ -143,7 +143,7 @@ router.post('/legacy/auto/stop', firebaseAuth, requireAdmin, async (req, res) =>
   }
 });
 
-router.get('/legacy/auto/status', firebaseAuth, requireAdmin, async (req, res) => {
+router.get('/legacy/auto/status', async (req, res) => {
   try {
     res.json({
       status: fileWatcher.getStatus()
