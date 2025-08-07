@@ -38,7 +38,7 @@ class LegacySyncService {
     let updatedCount = 0;
 
     // Procesar registros de productos
-    for (const record of fileData.sampleRecords) {
+    for (const record of fileData.records) {
       try {
         // Extraer datos del registro (basado en la estructura que vimos)
         const productData = this.extractProductData(record);
@@ -104,7 +104,7 @@ class LegacySyncService {
     const targetDates = this.targetDates.map(date => new Date(date));
 
     // Procesar registros de facturas
-    for (const record of fileData.sampleRecords) {
+    for (const record of fileData.records) {
       try {
         const saleData = this.extractSaleData(record);
         
@@ -191,7 +191,7 @@ class LegacySyncService {
     let syncedCount = 0;
 
     // Procesar registros de clientes
-    for (const record of fileData.sampleRecords) {
+    for (const record of fileData.records) {
       try {
         const clientData = this.extractClientData(record);
         

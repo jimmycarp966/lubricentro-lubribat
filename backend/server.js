@@ -21,7 +21,7 @@ const limiter = rateLimit({
 app.use('/api/', limiter)
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/lubricentro', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://lubricentro:lubricentro123@cluster0.mongodb.net/lubricentro?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
