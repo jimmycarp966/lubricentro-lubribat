@@ -1,5 +1,5 @@
 const express = require('express');
-const { auth, requireAdmin } = require('../middleware/auth');
+const { firebaseAuth, requireAdmin } = require('../middleware/firebaseAuth');
 const legacySync = require('../services/legacySync');
 const fileWatcher = require('../services/fileWatcher');
 
@@ -26,7 +26,7 @@ router.get('/test/stats', (req, res) => {
 });
 
 // Sincronizar todos los datos del 4 y 5 de agosto
-router.post('/legacy', auth, requireAdmin, async (req, res) => {
+router.post('/legacy', firebaseAuth, requireAdmin, async (req, res) => {
   try {
     console.log('🔄 Iniciando sincronización desde sistema legacy...');
     
@@ -47,7 +47,7 @@ router.post('/legacy', auth, requireAdmin, async (req, res) => {
 });
 
 // Sincronizar solo productos
-router.post('/legacy/products', auth, requireAdmin, async (req, res) => {
+router.post('/legacy/products', firebaseAuth, requireAdmin, async (req, res) => {
   try {
     const results = await legacySync.syncProducts();
     res.json({
@@ -63,7 +63,7 @@ router.post('/legacy/products', auth, requireAdmin, async (req, res) => {
 });
 
 // Sincronizar solo ventas
-router.post('/legacy/sales', auth, requireAdmin, async (req, res) => {
+router.post('/legacy/sales', firebaseAuth, requireAdmin, async (req, res) => {
   try {
     const results = await legacySync.syncSales();
     res.json({
@@ -79,7 +79,7 @@ router.post('/legacy/sales', auth, requireAdmin, async (req, res) => {
 });
 
 // Sincronizar solo clientes
-router.post('/legacy/clients', auth, requireAdmin, async (req, res) => {
+router.post('/legacy/clients', firebaseAuth, requireAdmin, async (req, res) => {
   try {
     const results = await legacySync.syncClients();
     res.json({
@@ -95,7 +95,7 @@ router.post('/legacy/clients', auth, requireAdmin, async (req, res) => {
 });
 
 // Obtener estadísticas de sincronización
-router.get('/legacy/stats', auth, requireAdmin, async (req, res) => {
+router.get('/legacy/stats', firebaseAuth, requireAdmin, async (req, res) => {
   try {
     const stats = await legacySync.getSyncStats();
     res.json({
@@ -111,7 +111,7 @@ router.get('/legacy/stats', auth, requireAdmin, async (req, res) => {
 });
 
 // Control de sincronización automática
-router.post('/legacy/auto/start', auth, requireAdmin, async (req, res) => {
+router.post('/legacy/auto/start', firebaseAuth, requireAdmin, async (req, res) => {
   try {
     fileWatcher.startWatching();
     res.json({
@@ -127,7 +127,7 @@ router.post('/legacy/auto/start', auth, requireAdmin, async (req, res) => {
   }
 });
 
-router.post('/legacy/auto/stop', auth, requireAdmin, async (req, res) => {
+router.post('/legacy/auto/stop', firebaseAuth, requireAdmin, async (req, res) => {
   try {
     fileWatcher.stopWatching();
     res.json({
@@ -143,7 +143,7 @@ router.post('/legacy/auto/stop', auth, requireAdmin, async (req, res) => {
   }
 });
 
-router.get('/legacy/auto/status', auth, requireAdmin, async (req, res) => {
+router.get('/legacy/auto/status', firebaseAuth, requireAdmin, async (req, res) => {
   try {
     res.json({
       status: fileWatcher.getStatus()

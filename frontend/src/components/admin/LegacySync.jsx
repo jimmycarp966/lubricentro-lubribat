@@ -12,54 +12,48 @@ const LegacySync = () => {
   // Configuración del backend
   const API_BASE = 'https://bands-anxiety-switches-airlines.trycloudflare.com/api';
 
-  // Función para regenerar token
+  // Función para obtener token de Firebase
+  const getFirebaseToken = async () => {
+    try {
+      const { getAuth } = await import('firebase/auth');
+      const auth = getAuth();
+      const user = auth.currentUser;
+      
+      if (!user) {
+        throw new Error('No hay usuario autenticado en Firebase');
+      }
+      
+      const token = await user.getIdToken();
+      return token;
+    } catch (error) {
+      console.error('Error obteniendo token de Firebase:', error);
+      throw error;
+    }
+  };
+
+  // Función para regenerar token (mantenemos para compatibilidad)
   const regenerateToken = async () => {
     try {
       setIsLoading(true);
       
-      // Obtener el usuario actual de Firebase
-      const user = JSON.parse(localStorage.getItem('user'));
-      if (!user) {
-        toast.error('No hay usuario autenticado');
-        return;
-      }
-
-      // Generar nuevo token JWT
-      const response = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: user.email,
-          password: 'admin123' // Contraseña por defecto
-        })
-      });
-
-      const data = await response.json();
+      const token = await getFirebaseToken();
+      toast.success('✅ Token de Firebase obtenido correctamente');
       
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        toast.success('✅ Token regenerado correctamente');
-        
-        // Mostrar información de debug
-        setDebugInfo({
-          token: data.token.substring(0, 20) + '...',
-          user: user.email,
-          timestamp: new Date().toISOString()
-        });
-        
-        // Probar sincronización después de regenerar token
-        setTimeout(() => {
-          fetchStats();
-          fetchAutoSyncStatus();
-        }, 1000);
-      } else {
-        toast.error('Error regenerando token: ' + data.message);
-      }
+      // Mostrar información de debug
+      setDebugInfo({
+        token: token.substring(0, 20) + '...',
+        user: 'Firebase Auth',
+        timestamp: new Date().toISOString()
+      });
+      
+      // Probar sincronización después de obtener token
+      setTimeout(() => {
+        fetchStats();
+        fetchAutoSyncStatus();
+      }, 1000);
     } catch (error) {
-      console.error('Error regenerando token:', error);
-      toast.error('Error regenerando token');
+      console.error('Error obteniendo token:', error);
+      toast.error('Error obteniendo token de Firebase');
     } finally {
       setIsLoading(false);
     }
@@ -90,7 +84,7 @@ const LegacySync = () => {
     setIsLoading(true);
     
     try {
-      const token = localStorage.getItem('token');
+      const token = await getFirebaseToken();
       const response = await fetch(`${API_BASE}/sync/legacy${type !== 'all' ? `/${type}` : ''}`, {
         method: 'POST',
         headers: {
@@ -120,7 +114,7 @@ const LegacySync = () => {
 
   const fetchStats = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = await getFirebaseToken();
       const response = await fetch(`${API_BASE}/sync/legacy/stats`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -138,7 +132,7 @@ const LegacySync = () => {
 
   const fetchAutoSyncStatus = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = await getFirebaseToken();
       const response = await fetch(`${API_BASE}/sync/legacy/auto/status`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -157,7 +151,7 @@ const LegacySync = () => {
   const handleAutoSyncToggle = async (action) => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem('token');
+      const token = await getFirebaseToken();
       const response = await fetch(`${API_BASE}/sync/legacy/auto/${action}`, {
         method: 'POST',
         headers: {
